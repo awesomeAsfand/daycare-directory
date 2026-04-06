@@ -1,0 +1,47 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info
+dist/
+build/
+
+# Django
+*.log
+local_settings.py
+staticfiles/
+media/
+
+# Environment (never bake .env into image)
+.env
+.env.*
+!.env.example
+
+# Scraper output (large JSON)
+scraper/daycare_listings.json
+scraper/screenshots/
+
+# Docker files (not needed inside image)
+Dockerfile
+docker-compose*.yml
+nginx/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Tests
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Node (Tailwind CLI)
+node_modules/

@@ -1,0 +1,67 @@
+services:
+
+  db:
+    restart: always
+    ports: []            # don't expose DB port in production
+
+  redis:
+    restart: always
+    ports: []            # don't expose Redis port in production
+
+  web:
+    build:
+      context: .
+      target: prod       # uses prod stage (gunicorn, collectstatic)
+    restart: always
+    command: []          # use Dockerfile CMD (gunicorn)
+    volumes: []          # no source mount in prod
+    ports: []            # Nginx proxies, not direct port binding
+    env_file:
+      - .env.prod        # separate prod env file
+
+  celery:
+    build:
+      context: .
+      target: prod
+    restart: always
+    volumes: []
+    env_file:
+      - .env.prod
+
+  # ── Nginx reverse proxy ──────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+    depends_on:
+      - web
+
+  # ── Certbot (SSL — run once to get cert, then renews) ────────
+  certbot:
+    image: certbot/certbot
+    profiles:
+      - ssl
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    command: >
+      certonly --webroot
+      --webroot-path=/var/www/certbot
+      --email ${SSL_EMAIL}
+      --agree-tos
+      --no-eff-email
+      -d ${DOMAIN}
+
+volumes:
+  static_volume:
+  media_volume:
+  certbot_certs:
+  certbot_www:

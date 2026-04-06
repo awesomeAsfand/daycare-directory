@@ -1,0 +1,96 @@
+services:
+
+  # ── PostgreSQL ───────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME:-daycare_db}
+      POSTGRES_USER: ${DB_USER:-daycare_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-daycare_pass}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-daycare_user}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"   # expose for local DB clients (TablePlus, pgAdmin)
+
+  # ── Redis ────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "6379:6379"
+
+  # ── Django (dev: hot reload, no gunicorn) ────────────────────
+  web:
+    build:
+      context: .
+      target: dev        # uses the 'dev' stage with runserver
+    restart: unless-stopped
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app           # mount source code for hot reload
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ── Celery worker (async scrape jobs) ────────────────────────
+  celery:
+    build:
+      context: .
+      target: dev
+    restart: unless-stopped
+    command: celery -A config worker -l info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ── Scraper (run on demand, not always-on) ───────────────────
+  scraper:
+    build:
+      context: .
+      target: dev        # dev stage has Playwright installed
+    profiles:
+      - scraper          # only starts with: docker compose --profile scraper up
+    command: python scraper/gmaps_scraper.py
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+  redis_data:
