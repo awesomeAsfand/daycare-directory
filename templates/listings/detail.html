@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block canonical %}<link rel="canonical" href="{{ request.build_absolute_uri }}" />{% endblock %}
+
+{% block content %}
+
+<!-- JSON-LD structured data for Google -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ChildCare",
+  "name": "{{ listing.name|escapejs }}",
+  "description": "{{ listing.description|escapejs|truncatechars:200 }}",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "{{ listing.address|escapejs }}",
+    "addressLocality": "{{ listing.city.name|escapejs }}",
+    "addressCountry": "PK"
+  },
+  {% if listing.phone %}"telephone": "{{ listing.phone|escapejs }}",{% endif %}
+  {% if listing.website %}"url": "{{ listing.website|escapejs }}",{% endif %}
+  {% if listing.rating %}
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ listing.rating }}",
+    "reviewCount": "{{ listing.review_count }}"
+  },
+  {% endif %}
+  {% if listing.latitude and listing.latitude != 0 %}
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": {{ listing.latitude }},
+    "longitude": {{ listing.longitude }}
+  },
+  {% endif %}
+  "openingHoursSpecification": []
+}
+</script>
+
+<!-- ── Breadcrumb ─────────────────────────────────────────── -->
+<div class="max-w-4xl mx-auto px-4 pt-5 pb-1">
+  <nav class="text-sm text-gray-500 flex items-center gap-1.5 flex-wrap">
+    <a href="{% url 'listings:index' %}" class="hover:text-brand-600">Home</a>
+    <span>›</span>
+    <a href="{{ listing.city.get_absolute_url }}" class="hover:text-brand-600">{{ listing.city.name }}</a>
+    {% if listing.area %}
+    <span>›</span>
+    <a href="{{ listing.area.get_absolute_url }}" class="hover:text-brand-600">{{ listing.area.name }}</a>
+    {% endif %}
+    <span>›</span>
+    <span class="text-gray-800 truncate max-w-xs">{{ listing.name }}</span>
+  </nav>
+</div>
+
+<!-- ── Main content ───────────────────────────────────────── -->
+<div class="max-w-4xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- Left: main info -->
+  <div class="lg:col-span-2 space-y-5">
+
+    <!-- Title card -->
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            {% if listing.is_featured %}
+            <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium">Featured</span>
+            {% endif %}
+            {% if listing.is_verified %}
+            <span class="text-xs bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full font-medium">✓ Verified</span>
+            {% endif %}
+          </div>
+          <h1 class="text-2xl font-bold text-gray-900">{{ listing.name }}</h1>
+          {% if listing.area %}
+          <p class="text-gray-500 text-sm mt-1">{{ listing.area.name }}, {{ listing.city.name }}</p>
+          {% endif %}
+        </div>
+
+        {% if listing.rating %}
+        <div class="shrink-0 text-center">
+          <div class="text-3xl font-bold text-brand-600">{{ listing.rating }}</div>
+          <div class="text-xs text-gray-400">out of 5</div>
+          {% if listing.review_count %}
+          <div class="text-xs text-gray-500 mt-0.5">{{ listing.review_count }} reviews</div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Categories -->
+      {% if listing.categories %}
+      <div class="flex flex-wrap gap-2 mb-4">
+        {% for cat in listing.categories %}
+        <span class="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">{{ cat }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Description -->
+      {% if listing.description %}
+      <p class="text-gray-600 text-sm leading-relaxed">{{ listing.description }}</p>
+      {% endif %}
+    </div>
+
+    <!-- AdSense mid-detail -->
+    {% include "components/adsense_slot.html" with slot_id="7777777777" %}
+
+    <!-- Map embed -->
+    {% if listing.latitude and listing.latitude != 0 %}
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-gray-100">
+        <h2 class="font-semibold text-gray-700 text-sm">Location</h2>
+      </div>
+      <iframe
+        width="100%"
+        height="280"
+        style="border:0"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps?q={{ listing.latitude }},{{ listing.longitude }}&z=15&output=embed">
+      </iframe>
+      {% if listing.maps_url %}
+      <div class="px-5 py-3 border-t border-gray-100">
+        <a href="{{ listing.maps_url }}" target="_blank" rel="noopener noreferrer"
+           class="text-sm text-brand-600 hover:underline flex items-center gap-1">
+          Open in Google Maps
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Right: contact sidebar -->
+  <div class="space-y-4">
+
+    <!-- Contact card -->
+    <div class="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+      <h2 class="font-semibold text-gray-700 text-sm">Contact info</h2>
+
+      {% if listing.phone %}
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 mb-0.5">Phone</p>
+          <a href="tel:{{ listing.phone }}" class="text-sm font-medium text-brand-600 hover:underline">{{ listing.phone }}</a>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if listing.address %}
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 mb-0.5">Address</p>
+          <p class="text-sm text-gray-700">{{ listing.address }}</p>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if listing.website %}
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 mb-0.5">Website</p>
+          <a href="{{ listing.website }}" target="_blank" rel="noopener noreferrer"
+             class="text-sm text-brand-600 hover:underline break-all">{{ listing.website|truncatechars:35 }}</a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- CTA -->
+      {% if listing.phone %}
+      <a href="tel:{{ listing.phone }}"
+         class="w-full block text-center bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 rounded-lg text-sm transition-colors">
+        Call now
+      </a>
+      {% endif %}
+    </div>
+
+    <!-- Hours -->
+    {% if listing.hours %}
+    <div class="bg-white border border-gray-200 rounded-xl p-5">
+      <h2 class="font-semibold text-gray-700 text-sm mb-3">Opening hours</h2>
+      <ul class="space-y-1.5 text-sm">
+        {% for day, hours in listing.hours.items %}
+        <li class="flex justify-between gap-2">
+          <span class="text-gray-500">{{ day }}</span>
+          <span class="text-gray-700 text-right">{{ hours }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- AdSense sidebar -->
+    {% include "components/adsense_slot.html" with slot_id="8888888888" %}
+
+  </div>
+</div>
+
+<!-- ── Similar listings ───────────────────────────────────── -->
+{% if similar %}
+<div class="bg-white border-t border-gray-200 py-8 mt-4">
+  <div class="max-w-4xl mx-auto px-4">
+    <h2 class="font-semibold text-gray-700 mb-4">
+      Other daycares in {{ listing.area.name|default:listing.city.name }}
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {% for listing in similar %}
+        {% include "components/listing_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

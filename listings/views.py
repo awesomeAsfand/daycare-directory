@@ -1,0 +1,120 @@
+from django.shortcuts import get_object_or_404, render
+from django.db.models import Q
+from django.views.decorators.cache import cache_page
+from .models import DaycareListing, City, Area
+
+
+@cache_page(60 * 30)  # 30 min cache
+def index(request):
+    cities = City.objects.prefetch_related("areas").all()
+    featured = DaycareListing.objects.filter(
+        is_featured=True, is_active=True
+    ).select_related("city", "area")[:6]
+
+    return render(request, "listings/index.html", {
+        "cities": cities,
+        "featured": featured,
+        "title": "Daycare Centers in Pakistan — Find the Best Daycares",
+        "meta_desc": (
+            "Find top-rated daycares, nurseries and montessori schools "
+            "in Islamabad, Lahore and across Pakistan."
+        ),
+    })
+
+
+def city_listings(request, city_slug):
+    city = get_object_or_404(City, slug=city_slug)
+    qs = DaycareListing.objects.filter(city=city, is_active=True).select_related("area")
+
+    area_slug = request.GET.get("area")
+    if area_slug:
+        qs = qs.filter(area__slug=area_slug)
+
+    q = request.GET.get("q", "").strip()
+    if q:
+        qs = qs.filter(
+            Q(name__icontains=q)
+            | Q(description__icontains=q)
+            | Q(address__icontains=q)
+        )
+
+    sort = request.GET.get("sort", "featured")
+    sort_map = {
+        "rating": "-rating",
+        "reviews": "-review_count",
+        "name": "name",
+        "featured": "-is_featured",
+    }
+    qs = qs.order_by(sort_map.get(sort, "-is_featured"), "-rating")
+
+    return render(request, "listings/city.html", {
+        "city": city,
+        "listings": qs,
+        "areas": Area.objects.filter(city=city).order_by("name"),
+        "active_area": area_slug,
+        "q": q,
+        "sort": sort,
+        "title": f"Daycare Centers in {city.name} | Pakistan Daycare Directory",
+        "meta_desc": (
+            f"Find the best daycare centers, nurseries and preschools in {city.name}. "
+            f"Compare ratings, hours and contact info."
+        ),
+    })
+
+
+def area_listings(request, city_slug, area_slug):
+    city = get_object_or_404(City, slug=city_slug)
+    area = get_object_or_404(Area, city=city, slug=area_slug)
+    qs = DaycareListing.objects.filter(
+        area=area, is_active=True
+    ).order_by("-is_featured", "-rating")
+
+    return render(request, "listings/area.html", {
+        "city": city,
+        "area": area,
+        "listings": qs,
+        "title": f"Daycare Centers in {area.name}, {city.name}",
+        "meta_desc": area.meta_description or (
+            f"Daycare centers and nurseries in {area.name}, {city.name}. "
+            f"Find ratings, contact info and more."
+        ),
+    })
+
+
+def listing_detail(request, city_slug, slug):
+    city = get_object_or_404(City, slug=city_slug)
+    listing = get_object_or_404(
+        DaycareListing, city=city, slug=slug, is_active=True
+    )
+    similar = DaycareListing.objects.filter(
+        area=listing.area, is_active=True
+    ).exclude(pk=listing.pk).order_by("-rating")[:4]
+
+    return render(request, "listings/detail.html", {
+        "listing": listing,
+        "similar": similar,
+        "title": f"{listing.name} — Daycare in {listing.area or city.name}",
+        "meta_desc": (
+            listing.description[:155]
+            if listing.description
+            else f"{listing.name} is a daycare in {listing.address}. "
+                 f"Rating: {listing.rating}/5 from {listing.review_count} reviews."
+        ),
+    })
+
+
+def search(request):
+    """HTMX live search — returns partial HTML fragment."""
+    q = request.GET.get("q", "").strip()
+    results = []
+    if len(q) >= 2:
+        results = DaycareListing.objects.filter(is_active=True).filter(
+            Q(name__icontains=q)
+            | Q(address__icontains=q)
+            | Q(area__name__icontains=q)
+        ).select_related("city", "area")[:10]
+
+    return render(request, "components/search_results.html", {
+        "results": results,
+        "q": q,
+    })

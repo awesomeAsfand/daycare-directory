@@ -1,0 +1,12 @@
+{% if ADSENSE_PUBLISHER_ID %}
+<div class="my-6 text-center">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="{{ ADSENSE_PUBLISHER_ID }}"
+       data-ad-slot="{{ slot_id|default:'0000000000' }}"
+       data-ad-format="auto"
+       data-full-width-responsive="true">
+  </ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+{% endif %}

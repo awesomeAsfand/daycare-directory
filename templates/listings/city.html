@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block canonical %}<link rel="canonical" href="{{ request.build_absolute_uri }}" />{% endblock %}
+
+{% block content %}
+
+<!-- ── Breadcrumb ─────────────────────────────────────────── -->
+<div class="max-w-6xl mx-auto px-4 pt-5 pb-1">
+  <nav class="text-sm text-gray-500 flex items-center gap-1.5">
+    <a href="{% url 'listings:index' %}" class="hover:text-brand-600">Home</a>
+    <span>›</span>
+    <span class="text-gray-800 font-medium">{{ city.name }}</span>
+  </nav>
+</div>
+
+<!-- ── Page header ────────────────────────────────────────── -->
+<div class="max-w-6xl mx-auto px-4 py-5">
+  <h1 class="text-2xl font-bold text-gray-900">
+    Daycare Centers in {{ city.name }}
+  </h1>
+  <p class="text-gray-500 mt-1 text-sm">
+    {{ listings.count }} listing{{ listings.count|pluralize }} found
+    {% if active_area %}in {{ active_area }}{% endif %}
+    {% if q %}matching "{{ q }}"{% endif %}
+  </p>
+</div>
+
+<!-- ── AdSense top ────────────────────────────────────────── -->
+<div class="max-w-6xl mx-auto px-4">
+  {% include "components/adsense_slot.html" with slot_id="3333333333" %}
+</div>
+
+<!-- ── Layout: sidebar + grid ─────────────────────────────── -->
+<div class="max-w-6xl mx-auto px-4 py-4 flex flex-col lg:flex-row gap-6">
+
+  <!-- Sidebar filters -->
+  <aside class="w-full lg:w-56 shrink-0">
+
+    <!-- Area filter -->
+    {% if areas %}
+    <div class="bg-white border border-gray-200 rounded-xl p-4 mb-4">
+      <h3 class="font-semibold text-gray-700 text-sm mb-3">Filter by area</h3>
+      <ul class="space-y-1 text-sm">
+        <li>
+          <a href="{% url 'listings:city' city.slug %}"
+             class="flex items-center justify-between py-1 px-2 rounded-lg {% if not active_area %}bg-brand-50 text-brand-700 font-medium{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
+            All areas
+          </a>
+        </li>
+        {% for area in areas %}
+        <li>
+          <a href="{% url 'listings:city' city.slug %}?area={{ area.slug }}"
+             class="flex items-center justify-between py-1 px-2 rounded-lg {% if active_area == area.slug %}bg-brand-50 text-brand-700 font-medium{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
+            <span>{{ area.name }}</span>
+            <span class="text-xs text-gray-400">{{ area.listings.count }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Sort -->
+    <div class="bg-white border border-gray-200 rounded-xl p-4">
+      <h3 class="font-semibold text-gray-700 text-sm mb-3">Sort by</h3>
+      <ul class="space-y-1 text-sm">
+        {% for value, label in "featured:Best match,rating:Highest rated,reviews:Most reviewed,name:A–Z"|split_choices %}
+        <li>
+          <a href="?sort={{ value }}{% if active_area %}&area={{ active_area }}{% endif %}{% if q %}&q={{ q }}{% endif %}"
+             class="block py-1 px-2 rounded-lg {% if sort == value %}bg-brand-50 text-brand-700 font-medium{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
+            {{ label }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- Listing grid -->
+  <div class="flex-1 min-w-0">
+
+    <!-- Search bar -->
+    <form method="get" class="mb-5">
+      {% if active_area %}<input type="hidden" name="area" value="{{ active_area }}" />{% endif %}
+      {% if sort %}<input type="hidden" name="sort" value="{{ sort }}" />{% endif %}
+      <div class="flex gap-2">
+        <input type="search" name="q" value="{{ q }}" placeholder="Search within {{ city.name }}..."
+               class="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" />
+        <button type="submit"
+                class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-brand-700 transition-colors">
+          Search
+        </button>
+      </div>
+    </form>
+
+    <!-- Area sub-pages (SEO links) -->
+    {% if areas and not active_area and not q %}
+    <div class="mb-5 flex flex-wrap gap-2">
+      {% for area in areas %}
+      <a href="{{ area.get_absolute_url }}"
+         class="text-xs bg-white border border-gray-200 hover:border-brand-400 text-gray-600 hover:text-brand-600 px-3 py-1.5 rounded-full transition-colors">
+        {{ area.name }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if listings %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for listing in listings %}
+          {% include "components/listing_card.html" %}
+          {% if forloop.counter == 4 %}
+            <!-- AdSense mid-list -->
+            <div class="col-span-full">
+              {% include "components/adsense_slot.html" with slot_id="4444444444" %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bg-white border border-gray-200 rounded-xl p-10 text-center text-gray-400">
+        <p class="text-4xl mb-3">🔍</p>
+        <p class="font-medium text-gray-600">No listings found</p>
+        <p class="text-sm mt-1">Try a different area or search term.</p>
+        <a href="{% url 'listings:city' city.slug %}"
+           class="inline-block mt-4 text-sm text-brand-600 hover:underline">Clear filters</a>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- ── SEO text block ─────────────────────────────────────── -->
+<div class="max-w-6xl mx-auto px-4 py-8 border-t border-gray-200 mt-4">
+  <h2 class="font-semibold text-gray-700 mb-2">Daycare centres in {{ city.name }}</h2>
+  <p class="text-sm text-gray-500 leading-relaxed max-w-3xl">
+    Finding the right daycare in {{ city.name }} is one of the most important decisions for your family.
+    Our directory lists verified daycares, nurseries, Montessori schools and preschools across {{ city.name }}'s
+    key areas — including {% for area in areas|slice:":4" %}{{ area.name }}{% if not forloop.last %}, {% endif %}{% endfor %} and more.
+    Compare Google ratings, contact directly, and visit to make the best choice for your child.
+  </p>
+</div>
+
+{% endblock %}

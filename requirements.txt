@@ -1,0 +1,13 @@
+Django>=5.0,<6.0
+psycopg2-binary>=2.9
+gunicorn>=22.0
+whitenoise>=6.6
+Pillow>=10.0
+django-meta>=2.4
+celery>=5.3
+redis>=5.0
+playwright>=1.44
+beautifulsoup4>=4.12
+lxml>=5.0
+python-decouple>=3.8
+django-extensions>=3.2

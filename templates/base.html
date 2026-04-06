@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}{{ title|default:"Pakistan Daycare Directory" }}{% endblock %}</title>
+  <meta name="description" content="{{ meta_desc|default:'Find top-rated daycares, nurseries and montessori schools across Pakistan.' }}" />
+
+  {% block canonical %}{% endblock %}
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="{{ title|default:'Pakistan Daycare Directory' }}" />
+  <meta property="og:description" content="{{ meta_desc|default:'' }}" />
+  <meta property="og:type" content="website" />
+
+  <!-- Tailwind CSS (CDN — swap for CLI build in production) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#f0fdf4', 100:'#dcfce7', 500:'#22c55e', 600:'#16a34a', 700:'#15803d' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+
+  {% if ADSENSE_PUBLISHER_ID %}
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ ADSENSE_PUBLISHER_ID }}" crossorigin="anonymous"></script>
+  {% endif %}
+
+  <style>
+    [x-cloak] { display: none; }
+    .star-filled { color: #facc15; }
+    .star-empty  { color: #d1d5db; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+  <!-- ── Navbar ─────────────────────────────────────────────── -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+
+      <a href="{% url 'listings:index' %}" class="flex items-center gap-2 font-semibold text-brand-600 text-lg shrink-0">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        DaycaresPK
+      </a>
+
+      <!-- Live search -->
+      <div class="flex-1 max-w-md relative">
+        <input
+          type="search"
+          name="q"
+          placeholder="Search daycares..."
+          autocomplete="off"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          hx-get="{% url 'listings:search' %}"
+          hx-trigger="keyup changed delay:300ms"
+          hx-target="#search-dropdown"
+          hx-swap="innerHTML"
+        />
+        <div id="search-dropdown"
+             class="absolute top-full mt-1 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 empty:hidden">
+        </div>
+      </div>
+
+      <!-- City nav -->
+      <nav class="hidden md:flex items-center gap-4 text-sm">
+        {% for city in cities %}
+        <a href="{{ city.get_absolute_url }}"
+           class="text-gray-600 hover:text-brand-600 transition-colors">
+          {{ city.name }}
+        </a>
+        {% endfor %}
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── Main ───────────────────────────────────────────────── -->
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <footer class="bg-white border-t border-gray-200 mt-12">
+    <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-sm text-gray-500">
+
+      <div>
+        <p class="font-semibold text-gray-700 mb-2">DaycaresPK</p>
+        <p class="leading-relaxed">Pakistan's daycare and nursery directory. Find, compare and contact the best childcare centres near you.</p>
+      </div>
+
+      {% for city in cities %}
+      <div>
+        <p class="font-semibold text-gray-700 mb-2">{{ city.name }}</p>
+        <ul class="space-y-1">
+          {% for area in city.areas.all %}
+          <li><a href="{{ area.get_absolute_url }}" class="hover:text-brand-600">{{ area.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+
+    </div>
+    <div class="border-t border-gray-100 text-center text-xs text-gray-400 py-4">
+      © {% now "Y" %} DaycaresPK. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- Close search dropdown on outside click -->
+  <script>
+    document.addEventListener('click', function(e) {
+      const dd = document.getElementById('search-dropdown');
+      if (!dd.contains(e.target)) dd.innerHTML = '';
+    });
+  </script>
+
+</body>
+</html>
