@@ -61,7 +61,7 @@ class DaycareListing(models.Model):
     )
     address = models.TextField(blank=True)
     phone = models.CharField(max_length=50, blank=True)
-    website = models.URLField(blank=True)
+    website = models.URLField(max_length=500, blank=True)
     description = models.TextField(blank=True)
 
     # Ratings from Google Maps
@@ -71,8 +71,8 @@ class DaycareListing(models.Model):
     # Location
     latitude = models.FloatField(default=0)
     longitude = models.FloatField(default=0)
-    place_id = models.CharField(max_length=200, blank=True, db_index=True)
-    maps_url = models.URLField(blank=True)
+    place_id = models.CharField(max_length=500, blank=True, db_index=True)
+    maps_url = models.URLField(max_length=1000, blank=True)
 
     # Structured data
     categories = models.JSONField(default=list)
@@ -113,3 +113,34 @@ class DaycareListing(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.area or self.city})"
+
+
+class Review(models.Model):
+    listing = models.ForeignKey(
+        DaycareListing, on_delete=models.CASCADE, related_name="reviews"
+    )
+    author = models.CharField(max_length=255, blank=True)
+    rating = models.PositiveSmallIntegerField(default=0)  # 1–5
+    text = models.TextField(blank=True)
+    date = models.CharField(max_length=100, blank=True)   # e.g. "2 months ago"
+
+    class Meta:
+        ordering = ["-rating"]
+
+    def __str__(self):
+        return f"{self.author} — {self.listing.name}"
+
+
+class ListingImage(models.Model):
+    listing = models.ForeignKey(
+        DaycareListing, on_delete=models.CASCADE, related_name="images"
+    )
+    url = models.URLField(max_length=1000)
+    alt = models.CharField(max_length=255, blank=True)
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order"]
+
+    def __str__(self):
+        return f"Image {self.order} — {self.listing.name}"

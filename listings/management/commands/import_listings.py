@@ -6,8 +6,7 @@ import json
 from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
-from listings.models import DaycareListing, City, Area
-
+from listings.models import DaycareListing, City, Area, Review, ListingImage
 
 class Command(BaseCommand):
     help = "Import scraped daycare listings from a JSON file"
@@ -54,9 +53,19 @@ class Command(BaseCommand):
                     defaults={"name": area_name},
                 )
 
+            # Generate a unique slug within this city
+            base_slug = slugify(name)
+            slug = base_slug
+            counter = 1
+            while DaycareListing.objects.filter(slug=slug, city=city).exclude(
+                place_id=item.get("place_id", "") or "__none__"
+            ).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
             defaults = {
                 "name":         name,
-                "slug":         slugify(name),
+                "slug":         slug,
                 "area":         area,
                 "address":      item.get("address", ""),
                 "phone":        item.get("phone", ""),
@@ -90,6 +99,29 @@ class Command(BaseCommand):
                 created += 1
             else:
                 updated += 1
+
+            # Import reviews (replace all each run to stay fresh)
+            obj.reviews.all().delete()
+            for rev in item.get("reviews", []):
+                if rev.get("author") or rev.get("text"):
+                    Review.objects.create(
+                        listing=obj,
+                        author=rev.get("author", ""),
+                        rating=int(rev.get("rating") or 0),
+                        text=rev.get("text", ""),
+                        date=rev.get("date", ""),
+                    )
+
+            # Import images (replace all each run)
+            obj.images.all().delete()
+            for i, img in enumerate(item.get("images", [])):
+                if img.get("url"):
+                    ListingImage.objects.create(
+                        listing=obj,
+                        url=img["url"],
+                        alt=img.get("alt", ""),
+                        order=i,
+                    )
 
         self.stdout.write(
             self.style.SUCCESS(

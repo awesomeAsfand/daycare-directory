@@ -11,7 +11,7 @@ services:
       POSTGRES_USER: ${DB_USER:-daycare_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-daycare_pass}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-daycare_user}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-daycare_user} -d ${DB_NAME:-daycare_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -73,6 +73,18 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+  # ── pgAdmin (DB GUI) ─────────────────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
 
   # ── Scraper (run on demand, not always-on) ───────────────────
   scraper:

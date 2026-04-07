@@ -9,6 +9,7 @@ Usage:
 """
 
 import asyncio
+import csv
 import json
 import re
 import time
@@ -34,7 +35,7 @@ SEARCH_QUERIES = [
     "playschool Islamabad",
 ]
 
-OUTPUT_FILE = Path("daycare_listings.json")
+OUTPUT_FILE = Path(__file__).parent / "daycare_listings.json"
 DELAY_MIN = 2.5   # seconds between actions (be polite, avoid bans)
 DELAY_MAX = 5.0
 MAX_RESULTS_PER_QUERY = 40
@@ -60,6 +61,8 @@ class DaycareCenter:
     description: str = ""
     google_maps_url: str = ""
     source_query: str = ""
+    reviews: list = field(default_factory=list)   # up to 5 Google reviews
+    images: list = field(default_factory=list)    # up to 4 photo URLs
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -80,8 +83,14 @@ def extract_place_id(url: str) -> str:
 
 
 def extract_coords(url: str) -> tuple[float, float]:
-    """Extract lat/lng from Google Maps URL."""
+    """Extract lat/lng from Google Maps URL.
+    Handles both full URLs (@lat,lng) and short URLs (!3d lat !4d lng).
+    """
     match = re.search(r"@(-?\d+\.\d+),(-?\d+\.\d+)", url)
+    if match:
+        return float(match.group(1)), float(match.group(2))
+    # Short-form URLs encode coords as !3d<lat>!4d<lng>
+    match = re.search(r"!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)", url)
     if match:
         return float(match.group(1)), float(match.group(2))
     return 0.0, 0.0
@@ -122,13 +131,30 @@ def parse_listing_page(html: str, url: str, query: str) -> DaycareCenter:
     # All visible text sections for targeted extraction
     all_text = soup.get_text(" ", strip=True)
 
-    # Rating — pattern: "4.3 stars" or "4.3"
-    rating_match = re.search(r"(\d\.\d)\s*(?:stars?|★)", all_text)
-    if rating_match:
-        dc.rating = float(rating_match.group(1))
+    # Rating — 3-tier approach for robustness
+    # Tier 1: aria-label on rating button e.g. aria-label="4.3 stars"
+    rating_btn = soup.find(attrs={"aria-label": re.compile(r"\d+\.?\d*\s*stars?", re.I)})
+    if rating_btn:
+        m = re.search(r"(\d+\.?\d*)", rating_btn.get("aria-label", ""))
+        if m:
+            dc.rating = float(m.group(1))
+    # Tier 2: aria-hidden span containing bare numeric rating e.g. "4.3"
+    if not dc.rating:
+        for span in soup.find_all("span", {"aria-hidden": "true"}):
+            t = span.get_text(strip=True)
+            if re.match(r"^\d\.\d$", t):
+                dc.rating = float(t)
+                break
+    # Tier 3: JSON-LD or structured data embedded in the page source
+    if not dc.rating:
+        m = re.search(r'"averageRating":\s*(\d+\.?\d*)', html)
+        if m:
+            dc.rating = float(m.group(1))
 
-    # Review count
-    review_match = re.search(r"([\d,]+)\s+(?:Google\s+)?reviews?", all_text, re.IGNORECASE)
+    # Review count — handles "(123)" and "123 reviews" formats
+    review_match = re.search(r"\(([\d,]+)\s*(?:reviews?)?\)", all_text)
+    if not review_match:
+        review_match = re.search(r"([\d,]+)\s+(?:Google\s+)?reviews?", all_text, re.IGNORECASE)
     if review_match:
         dc.review_count = int(review_match.group(1).replace(",", ""))
 
@@ -167,6 +193,144 @@ def parse_listing_page(html: str, url: str, query: str) -> DaycareCenter:
     return dc
 
 
+# ─── Review & Image Scrapers ─────────────────────────────────────────────────
+
+async def scrape_reviews(page: Page, max_reviews: int = 5) -> list[dict]:
+    """Scrape up to max_reviews reviews from the currently loaded place page."""
+    reviews = []
+    try:
+        # Click the reviews tab/button to open the reviews panel
+        reviews_btn = await page.query_selector(
+            'button[aria-label*="reviews" i], button[jsaction*="reviews" i]'
+        )
+        if reviews_btn:
+            await reviews_btn.click()
+            await asyncio.sleep(rand_delay())
+
+        # Wait for review cards to appear
+        await page.wait_for_selector(
+            'div[data-review-id], div[class*="jftiEf"]',
+            timeout=8000,
+        )
+
+        # Expand any truncated review text by clicking "More" buttons
+        more_btns = await page.query_selector_all('button[aria-label="See more"], button.w8nwRe')
+        for btn in more_btns[:max_reviews]:
+            try:
+                await btn.click()
+                await asyncio.sleep(0.5)
+            except Exception:
+                pass
+
+        html = await page.content()
+        soup = BeautifulSoup(html, "lxml")
+
+        # Each review card
+        cards = soup.find_all("div", attrs={"data-review-id": True})
+        if not cards:
+            # Fallback selector used by some Maps layouts
+            cards = [d for d in soup.find_all("div") if "jftiEf" in d.get("class", [])]
+
+        for card in cards[:max_reviews]:
+            # Author name
+            author = ""
+            author_tag = card.find(class_=re.compile(r"d4r55|reviewer|author", re.I))
+            if author_tag:
+                author = author_tag.get_text(strip=True)
+
+            # Star rating from aria-label e.g. "5 stars"
+            rating = 0
+            star_tag = card.find(attrs={"aria-label": re.compile(r"\d+\s*stars?", re.I)})
+            if star_tag:
+                m = re.search(r"(\d+)", star_tag.get("aria-label", ""))
+                if m:
+                    rating = int(m.group(1))
+
+            # Review text
+            text = ""
+            text_tag = card.find(class_=re.compile(r"wiI7pd|review-full-text|MyEned", re.I))
+            if text_tag:
+                text = text_tag.get_text(strip=True)
+
+            # Relative date e.g. "2 months ago"
+            date = ""
+            date_tag = card.find(class_=re.compile(r"rsqaWe|dehysf|review-snippet", re.I))
+            if date_tag:
+                date = date_tag.get_text(strip=True)
+
+            if author or text:
+                reviews.append({
+                    "author": author,
+                    "rating": rating,
+                    "text": text,
+                    "date": date,
+                })
+
+    except (PWTimeout, Exception):
+        pass
+
+    return reviews
+
+
+def _upgrade_image_url(url: str) -> str:
+    """Replace Google's thumbnail size parameters with high-quality dimensions."""
+    # Pattern: =w[N]-h[N]-... or =s[N] at end of URL
+    url = re.sub(r"=w\d+-h\d+.*$", "=w1200-h800", url)
+    url = re.sub(r"=s\d+$", "=w1200-h800", url)
+    return url
+
+
+async def scrape_images(page: Page, max_images: int = 4) -> list[dict]:
+    """Scrape up to max_images high-quality photos from the currently loaded place page."""
+    images = []
+    seen_urls: set[str] = set()
+
+    try:
+        html = await page.content()
+        soup = BeautifulSoup(html, "lxml")
+
+        # Primary: img tags served from Google's content CDN
+        for img in soup.find_all("img", src=re.compile(r"googleusercontent\.com")):
+            src = img.get("src", "")
+            if not src or "maps_api_static" in src:
+                continue
+            # Skip tiny icons — quality URLs contain width/height params
+            if not re.search(r"=w\d+|=s\d+", src):
+                continue
+            hq = _upgrade_image_url(src)
+            if hq not in seen_urls:
+                seen_urls.add(hq)
+                images.append({"url": hq, "alt": img.get("alt", "")})
+            if len(images) >= max_images:
+                break
+
+        # Fallback: try clicking the photos section to open the gallery
+        if len(images) < 2:
+            photos_btn = await page.query_selector(
+                'button[aria-label*="photo" i], div[data-photo-index], [jsaction*="photo" i]'
+            )
+            if photos_btn:
+                await photos_btn.click()
+                await asyncio.sleep(rand_delay())
+                html = await page.content()
+                soup = BeautifulSoup(html, "lxml")
+                for img in soup.find_all("img", src=re.compile(r"googleusercontent\.com")):
+                    src = img.get("src", "")
+                    if not src or "maps_api_static" in src:
+                        continue
+                    hq = _upgrade_image_url(src)
+                    if hq not in seen_urls:
+                        seen_urls.add(hq)
+                        images.append({"url": hq, "alt": img.get("alt", "")})
+                    if len(images) >= max_images:
+                        break
+
+    except Exception:
+        pass
+
+    return images[:max_images]
+
+
 # ─── Scraper ─────────────────────────────────────────────────────────────────
 
 async def scroll_results_panel(page: Page, times: int = 8):
@@ -191,7 +355,12 @@ async def get_listing_urls(page: Page, query: str) -> list[str]:
     """Search Google Maps and collect all listing URLs."""
     search_url = f"https://www.google.com/maps/search/{query.replace(' ', '+')}"
     print(f"\n[search] {query}")
-    await page.goto(search_url, wait_until="networkidle", timeout=30000)
+    await page.goto(search_url, wait_until="domcontentloaded", timeout=60000)
+    # Wait for results panel or the map to appear (Maps never reaches networkidle)
+    try:
+        await page.wait_for_selector('div[role="feed"], div.m6QErb', timeout=15000)
+    except PWTimeout:
+        pass
     await asyncio.sleep(rand_delay())
 
     # Handle cookie/consent popup
@@ -230,7 +399,7 @@ async def get_listing_urls(page: Page, query: str) -> list[str]:
 async def scrape_listing(page: Page, url: str, query: str) -> DaycareCenter | None:
     """Navigate to a place page and extract details."""
     try:
-        await page.goto(url, wait_until="networkidle", timeout=25000)
+        await page.goto(url, wait_until="domcontentloaded", timeout=60000)
         await asyncio.sleep(rand_delay())
 
         # Wait for the main content to render
@@ -247,7 +416,13 @@ async def scrape_listing(page: Page, url: str, query: str) -> DaycareCenter | No
 
         html = await page.content()
         final_url = page.url
-        return parse_listing_page(html, final_url, query)
+        dc = parse_listing_page(html, final_url, query)
+
+        # Scrape reviews and images while still on the page
+        dc.images = await scrape_images(page)
+        dc.reviews = await scrape_reviews(page)
+
+        return dc
 
     except PWTimeout:
         print(f"  [timeout] {url}")
@@ -322,9 +497,26 @@ async def run_scraper():
 
 
 def save_results(results: list[DaycareCenter]):
-    """Save results to JSON, overwriting each time."""
+    """Save results to JSON and CSV, overwriting each time."""
     data = [asdict(r) for r in results]
     OUTPUT_FILE.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    csv_file = OUTPUT_FILE.with_suffix(".csv")
+    if data:
+        # Flatten list/dict fields to strings for CSV
+        flat = []
+        for row in data:
+            flat.append({
+                **{k: v for k, v in row.items() if not isinstance(v, (list, dict))},
+                "categories": ", ".join(row.get("categories") or []),
+                "hours": json.dumps(row.get("hours") or {}, ensure_ascii=False),
+                "reviews": json.dumps(row.get("reviews") or [], ensure_ascii=False),
+                "images": "|".join(img["url"] for img in (row.get("images") or []) if img.get("url")),
+            })
+        with csv_file.open("w", newline="", encoding="utf-8-sig") as f:
+            writer = csv.DictWriter(f, fieldnames=flat[0].keys())
+            writer.writeheader()
+            writer.writerows(flat)
 
 
 # ─── Django Import Utility ────────────────────────────────────────────────────
@@ -404,7 +596,133 @@ def import_to_django(json_path: str = "daycare_listings.json"):
     print(f"Import complete: {created} created, {updated} updated.")
 
 
+# ─── Fill-Missing Mode ───────────────────────────────────────────────────────
+
+def _needs_update(item: dict) -> bool:
+    """Return True if the listing is missing any of the key fields."""
+    return (
+        not item.get("rating")
+        or not item.get("reviews")
+        or not item.get("images")
+        or not item.get("latitude")
+    )
+
+
+async def run_fill_missing():
+    """Re-scrape only listings that are missing rating, coords, reviews, or images."""
+    if not OUTPUT_FILE.exists():
+        print(f"No existing data file found at {OUTPUT_FILE}. Run a full scrape first.")
+        return
+
+    data = json.loads(OUTPUT_FILE.read_text(encoding="utf-8"))
+    to_update = [item for item in data if _needs_update(item)]
+
+    print(f"Total listings : {len(data)}")
+    print(f"Need updating  : {len(to_update)}")
+
+    if not to_update:
+        print("Nothing to update — all listings are complete.")
+        return
+
+    # Index existing data by place_id (or name+address as fallback) for fast merging
+    index = {}
+    for item in data:
+        key = item.get("place_id") or f"{item['name']}|{item.get('address','')}"
+        index[key] = item
+
+    async with async_playwright() as pw:
+        browser = await pw.chromium.launch(
+            headless=True,
+            args=[
+                "--no-sandbox",
+                "--disable-blink-features=AutomationControlled",
+                "--disable-dev-shm-usage",
+            ]
+        )
+        context = await browser.new_context(
+            viewport={"width": 1280, "height": 800},
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/122.0.0.0 Safari/537.36"
+            ),
+            locale="en-US",
+            timezone_id="Asia/Karachi",
+        )
+        await context.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+            window.chrome = { runtime: {} };
+        """)
+        page = await context.new_page()
+
+        updated = 0
+        for i, item in enumerate(to_update, 1):
+            url = item.get("google_maps_url", "")
+            if not url:
+                print(f"  [{i:03d}] Skipping (no URL): {item.get('name')}")
+                continue
+
+            print(f"  [{i:03d}/{len(to_update)}] {item.get('name', '')[:50]}")
+            await asyncio.sleep(rand_delay())
+
+            dc = await scrape_listing(page, url, item.get("source_query", ""))
+            if not dc:
+                continue
+
+            # Merge: only overwrite fields that were missing/zero
+            key = item.get("place_id") or f"{item['name']}|{item.get('address','')}"
+            existing = index.get(key, item)
+
+            if not existing.get("rating") and dc.rating:
+                existing["rating"] = dc.rating
+            if not existing.get("review_count") and dc.review_count:
+                existing["review_count"] = dc.review_count
+            if not existing.get("latitude") and dc.latitude:
+                existing["latitude"] = dc.latitude
+                existing["longitude"] = dc.longitude
+            if not existing.get("reviews") and dc.reviews:
+                existing["reviews"] = dc.reviews
+            if not existing.get("images") and dc.images:
+                existing["images"] = dc.images
+
+            updated += 1
+
+            # Save after every 10 updates
+            if updated % 10 == 0:
+                save_results([DaycareCenter(**{k: v for k, v in d.items()
+                                              if k in DaycareCenter.__dataclass_fields__})
+                              for d in data])
+                print(f"  Checkpoint saved ({updated} updated so far)...")
+
+        await browser.close()
+
+    # Final save using raw dicts (avoids dataclass field mismatch issues)
+    OUTPUT_FILE.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    # Rebuild CSV
+    results_dc = []
+    for d in data:
+        dc = DaycareCenter(**{k: v for k, v in d.items()
+                              if k in DaycareCenter.__dataclass_fields__})
+        results_dc.append(dc)
+    save_results(results_dc)
+
+    print(f"\nDone. {updated}/{len(to_update)} listings updated → {OUTPUT_FILE}")
+
+
 # ─── Entry Point ──────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    asyncio.run(run_scraper())
+    import argparse
+    parser = argparse.ArgumentParser(description="Google Maps Daycare Scraper")
+    parser.add_argument(
+        "--fill-missing",
+        action="store_true",
+        help="Re-scrape only listings missing rating, coordinates, reviews, or images",
+    )
+    args = parser.parse_args()
+
+    if args.fill_missing:
+        asyncio.run(run_fill_missing())
+    else:
+        asyncio.run(run_scraper())
