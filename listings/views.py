@@ -84,12 +84,14 @@ def area_listings(request, city_slug, area_slug):
 def listing_detail(request, city_slug, slug):
     city = get_object_or_404(City, slug=city_slug)
     listing = get_object_or_404(
-        DaycareListing, city=city, slug=slug, is_active=True
+        DaycareListing.objects.prefetch_related("reviews", "images"),
+        city=city, slug=slug, is_active=True
     )
     similar = DaycareListing.objects.filter(
         area=listing.area, is_active=True
     ).exclude(pk=listing.pk).order_by("-rating")[:4]
 
+    first_image = listing.images.all().first()
     return render(request, "listings/detail.html", {
         "listing": listing,
         "similar": similar,
@@ -100,6 +102,7 @@ def listing_detail(request, city_slug, slug):
             else f"{listing.name} is a daycare in {listing.address}. "
                  f"Rating: {listing.rating}/5 from {listing.review_count} reviews."
         ),
+        "og_image": first_image.url if first_image else "",
     })
 
 

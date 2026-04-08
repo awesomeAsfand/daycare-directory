@@ -9,7 +9,7 @@
     </div>
     <div class="min-w-0">
       <p class="text-sm font-medium text-gray-800 truncate">{{ listing.name }}</p>
-      <p class="text-xs text-gray-500 truncate">{{ listing.area.name|default:listing.city.name }} · ⭐ {{ listing.rating }}</p>
+      <p class="text-xs text-gray-500 truncate">{{ listing.area.name|default:listing.city.name }}{% if listing.rating %} · ⭐ {{ listing.rating }}{% endif %}</p>
     </div>
   </a>
   {% endfor %}

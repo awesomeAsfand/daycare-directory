@@ -10,8 +10,13 @@
 
   <!-- Open Graph -->
   <meta property="og:title" content="{{ title|default:'Pakistan Daycare Directory' }}" />
-  <meta property="og:description" content="{{ meta_desc|default:'' }}" />
+  <meta property="og:description" content="{{ meta_desc|default:'Find top-rated daycares, nurseries and montessori schools across Pakistan.' }}" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+  {% if og_image %}<meta property="og:image" content="{{ og_image }}" />{% endif %}
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="{{ title|default:'Pakistan Daycare Directory' }}" />
+  <meta name="twitter:description" content="{{ meta_desc|default:'Find top-rated daycares, nurseries and montessori schools across Pakistan.' }}" />
 
   <!-- Tailwind CSS (CDN — swap for CLI build in production) -->
   <script src="https://cdn.tailwindcss.com"></script>
