@@ -16,6 +16,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
     "django.contrib.sites",
+    "django.contrib.redirects",
     "listings",
 ]
 
@@ -28,6 +29,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # 301s for old listing URLs (e.g. duplicates merged by dedupe_listings)
+    "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

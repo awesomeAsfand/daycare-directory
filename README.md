@@ -39,12 +39,40 @@ cd scraper
 pip install playwright beautifulsoup4 lxml
 playwright install chromium
 
-# Run scraper (saves to scraper/daycare_listings.json)
-python gmaps_scraper.py
+# Run scraper (saves to scraper/daycare_listings.json, photos to scraper/images/)
+# Searches come from scraper/queries/islamabad.txt: every keyword in every
+# area, then a map-grid sweep. Places that aren't daycares / standalone
+# preschools in Islamabad go to daycare_listings.rejected.json with the reason.
+python gmaps_scraper.py --list                   # show the searches that would run
+python gmaps_scraper.py --areas "F-7,G-13"       # trial on a few areas (no grid)
+python gmaps_scraper.py --max-hours 2            # fresh run, stop cleanly after 2 hours
+python gmaps_scraper.py --resume --max-hours 2   # continue (also after a CAPTCHA block)
+python gmaps_scraper.py --report                 # what each keyword / area / the grid found
+python gmaps_scraper.py --fill-missing           # retry listings missing photos/reviews
+python -m unittest discover -s . -p "test_*.py"  # offline tests
 
-# Import into Django
+# Import into Django (preview first, then for real)
+python manage.py import_listings --file scraper/daycare_listings.json --city Islamabad --dry-run
 python manage.py import_listings --file scraper/daycare_listings.json --city Islamabad
+
+# Merge listings that point at the same Google place (adds 301s for removed URLs)
+python manage.py dedupe_listings            # preview
+python manage.py dedupe_listings --apply
 ```
+
+Areas come only from `scraper/queries/islamabad.txt`: the importer places each
+listing by the sector in its address (F-7/4 → F-7, sub-sector kept for the
+listing page), then an area name or spelling from `[aliases]`, then its
+listing name, then the nearest area position within 1.5 km
+(`islamabad_area_centres.csv`, regenerate with `python scraper/area_centres.py`).
+Listings that can't be placed show on the city page only; the import report
+lists them so you can add a spelling or an area.
+
+The importer matches places by Google place ID and never changes a listing's
+slug, featured/verified/active flags, or any field you have edited in the admin
+(those are recorded in the listing's "Import protection → locked fields").
+Photos are copied into `media/`; Google's photo URLs expire, so they are never
+hotlinked.
 
 ## URL structure (SEO)
 

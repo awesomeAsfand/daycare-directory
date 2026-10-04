@@ -42,3 +42,20 @@ playwright/.auth/
 # Node (for Tailwind CLI if used)
 node_modules/
 package-lock.json
+
+# DB backups
+backups/
+
+# Scraper photos, progress and backups
+scraper/images/
+scraper/*.state.json
+scraper/*.bak.json
+scraper/*.rejected.json
+scraper/trial_run*.json
+scraper/STOP
+scraper/*.tmp
+scraper/*.log
+scraper/screenshots/
+
+# Scraper output (spreadsheet copies of the JSON; contain reviewer names)
+scraper/*.csv

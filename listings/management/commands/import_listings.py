@@ -1,12 +1,69 @@
 """
 python manage.py import_listings
 python manage.py import_listings --file scraper/daycare_listings.json --city Islamabad
+python manage.py import_listings --dry-run      # report what would change, write nothing
+
+Each scraped place is matched to an existing listing by, in order:
+  1. Google place ID (0x...:0x...), also found inside older rows' maps_url
+  2. the place_id an older scraper version stored (name or ChIJ... form)
+  3. same name within SAME_PLACE_KM, or same name when only one exists
+Unmatched places become new listings.
+
+On existing listings the importer never changes slug, is_featured,
+is_verified or is_active, never blanks a field because this scrape missed it,
+and skips anything listed in the listing's locked_fields (set automatically
+when the field is edited in the admin). Reviews and photos are only replaced
+when the scrape found new ones.
+
+Areas come only from the city's queries file (scraper/queries/<city>.txt,
+[areas] section): see scraper/area_match.py for how a listing is placed.
+Listings that can't be placed get no area and still show on the city page.
+The report at the end lists listings per area and those left without one.
 """
 import json
+import math
+import re
+import sys
+from collections import Counter
 from pathlib import Path
+
+from django.conf import settings
+from django.core.files import File
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
+from django.utils import timezone
 from django.utils.text import slugify
-from listings.models import DaycareListing, City, Area, Review, ListingImage
+
+from listings.models import Area, City, DaycareListing, ListingImage, Review
+
+# The area rules live with the scraper's queries files
+sys.path.insert(0, str(Path(settings.BASE_DIR) / "scraper"))
+from area_match import AreaMatcher  # noqa: E402
+from search_plan import load_plan  # noqa: E402
+
+FEATURE_ID_RE = re.compile(r"0x[0-9a-f]+:0x[0-9a-f]+")
+SAME_PLACE_KM = 0.3
+
+
+def feature_id(item):
+    """Google's stable place ID from the item, or from its maps URL."""
+    pid = item.get("place_id", "")
+    if FEATURE_ID_RE.fullmatch(pid):
+        return pid
+    m = re.search(r"!1s(0x[0-9a-f]+:0x[0-9a-f]+)", item.get("google_maps_url", ""))
+    return m.group(1) if m else ""
+
+
+def distance_km(lat1, lng1, lat2, lng2):
+    # Equirectangular approximation; accurate to metres at city scale.
+    x = math.radians(lng2 - lng1) * math.cos(math.radians((lat1 + lat2) / 2))
+    y = math.radians(lat2 - lat1)
+    return 6371 * math.hypot(x, y)
+
+
+def is_empty(value):
+    return value is None or value == "" or value == 0 or value == [] or value == {}
+
 
 class Command(BaseCommand):
     help = "Import scraped daycare listings from a JSON file"
@@ -17,114 +74,245 @@ class Command(BaseCommand):
         parser.add_argument("--city", default="Islamabad",
                             help="City name to assign listings to")
         parser.add_argument("--dry-run", action="store_true",
-                            help="Parse and validate without writing to database")
+                            help="Report what would be created/updated without writing")
+        parser.add_argument("--areas-file",
+                            help="Queries file with the official areas "
+                                 "(default: scraper/queries/<city>.txt)")
 
     def handle(self, *args, **options):
         path = Path(options["file"])
         if not path.exists():
             raise CommandError(f"File not found: {path}")
+        self.base_dir = path.resolve().parent   # photo "file" paths are relative to this
+        self.dry_run = options["dry_run"]
+
+        areas_file = Path(options["areas_file"] or Path(settings.BASE_DIR) / "scraper" / "queries"
+                          / f"{slugify(options['city']).replace('-', '_')}.txt")
+        if not areas_file.exists():
+            raise CommandError(f"Areas file not found: {areas_file} (use --areas-file)")
+        plan = load_plan(areas_file, options["city"])
+        self.matcher = AreaMatcher(plan)
+        # Checked again here so areas added to [exclude] after a scrape still apply
+        self.exclude = plan.exclude
+        self.area_counts = Counter()
+        self.no_area = []
+        self.unlisted_sectors = Counter()
 
         raw = json.loads(path.read_text(encoding="utf-8"))
         self.stdout.write(f"Loaded {len(raw)} records from {path}")
-
-        if options["dry_run"]:
+        if self.dry_run:
             self.stdout.write(self.style.WARNING("DRY RUN — no DB writes."))
 
-        city, _ = City.objects.get_or_create(
-            slug=slugify(options["city"]),
-            defaults={"name": options["city"]},
-        )
+        city = City.objects.filter(slug=slugify(options["city"])).first()
+        if not city:
+            if self.dry_run:
+                self.stdout.write(f"City {options['city']!r} would be created.")
+                city = City(name=options["city"], slug=slugify(options["city"]))
+            else:
+                city = City.objects.create(name=options["city"], slug=slugify(options["city"]))
 
-        created = updated = skipped = 0
+        self.stats = Counter()
+        self.now = timezone.now()
+        seen_ids = set()
 
         for item in raw:
             name = item.get("name", "").strip()
             if not name:
-                skipped += 1
+                self.stats["skipped (no name)"] += 1
                 continue
-
-            # Resolve area
-            area = None
-            area_name = item.get("area", "").strip()
-            if area_name and not options["dry_run"]:
-                area, _ = Area.objects.get_or_create(
-                    city=city,
-                    slug=slugify(area_name),
-                    defaults={"name": area_name},
-                )
-
-            # Generate a unique slug within this city
-            base_slug = slugify(name)
-            slug = base_slug
-            counter = 1
-            while DaycareListing.objects.filter(slug=slug, city=city).exclude(
-                place_id=item.get("place_id", "") or "__none__"
-            ).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-
-            defaults = {
-                "name":         name,
-                "slug":         slug,
-                "area":         area,
-                "address":      item.get("address", ""),
-                "phone":        item.get("phone", ""),
-                "website":      item.get("website", ""),
-                "rating":       float(item.get("rating") or 0),
-                "review_count": int(item.get("review_count") or 0),
-                "latitude":     float(item.get("latitude") or 0),
-                "longitude":    float(item.get("longitude") or 0),
-                "place_id":     item.get("place_id", ""),
-                "categories":   item.get("categories", []),
-                "hours":        item.get("hours", {}),
-                "description":  item.get("description", ""),
-                "maps_url":     item.get("google_maps_url", ""),
-            }
-
-            if options["dry_run"]:
-                self.stdout.write(f"  [dry] {name} | {area_name}")
+            excluded = next((a for a in self.exclude if a.lower() in item.get("address", "").lower()), None)
+            if excluded:
+                self.stats[f"skipped (excluded area: {excluded})"] += 1
                 continue
+            try:
+                with transaction.atomic():
+                    obj = self.import_item(city, item, name)
+                if obj and obj.pk:
+                    seen_ids.add(obj.pk)
+            except Exception as e:
+                self.stats["failed"] += 1
+                self.stderr.write(f"  [error] {name}: {e}")
 
-            place_id = item.get("place_id", "")
-            if place_id:
-                obj, is_new = DaycareListing.objects.update_or_create(
-                    place_id=place_id, city=city, defaults=defaults
-                )
-            else:
-                obj, is_new = DaycareListing.objects.update_or_create(
-                    slug=slugify(name), city=city, defaults=defaults
-                )
+        if city.pk:
+            not_seen = DaycareListing.objects.filter(city=city).exclude(pk__in=seen_ids).count()
+            self.stats["existing listings not in this file (left unchanged)"] = not_seen
 
-            if is_new:
-                created += 1
-            else:
-                updated += 1
+        self.stdout.write("")
+        for key, count in self.stats.items():
+            self.stdout.write(f"  {key}: {count}")
+        self.area_report()
+        self.stdout.write(self.style.SUCCESS("\nDone." + (" (dry run)" if self.dry_run else "")))
 
-            # Import reviews (replace all each run to stay fresh)
-            obj.reviews.all().delete()
-            for rev in item.get("reviews", []):
-                if rev.get("author") or rev.get("text"):
-                    Review.objects.create(
-                        listing=obj,
-                        author=rev.get("author", ""),
-                        rating=int(rev.get("rating") or 0),
-                        text=rev.get("text", ""),
-                        date=rev.get("date", ""),
-                    )
+    # ── Matching ─────────────────────────────────────────────────────────────
 
-            # Import images (replace all each run)
-            obj.images.all().delete()
-            for i, img in enumerate(item.get("images", [])):
-                if img.get("url"):
-                    ListingImage.objects.create(
-                        listing=obj,
-                        url=img["url"],
-                        alt=img.get("alt", ""),
-                        order=i,
-                    )
+    def find_existing(self, city, item, fid, name):
+        if not city.pk:
+            return None, None
+        qs = DaycareListing.objects.filter(city=city).order_by("pk")
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"\nDone: {created} created, {updated} updated, {skipped} skipped."
-            )
+        if fid:
+            hits = list(qs.filter(place_id=fid)) or list(qs.filter(maps_url__contains=f"!1s{fid}"))
+            if hits:
+                return self.pick(hits, name), "place ID"
+
+        old_id = item.get("place_id", "")
+        if old_id and old_id != fid:
+            hits = list(qs.filter(place_id=old_id))
+            if hits:
+                return self.pick(hits, name), "old-style ID"
+
+        candidates = list(qs.filter(name__iexact=name))
+        lat, lng = float(item.get("latitude") or 0), float(item.get("longitude") or 0)
+        if lat and lng:
+            close = [o for o in candidates
+                     if o.latitude and distance_km(lat, lng, o.latitude, o.longitude) <= SAME_PLACE_KM]
+            if close:
+                return self.pick(close, name), "name + location"
+            # A same-named listing far away is another branch, not this place.
+            candidates = [o for o in candidates if not o.latitude]
+        if len(candidates) == 1:
+            return candidates[0], "name only"
+        return None, None
+
+    def pick(self, hits, name):
+        if len(hits) > 1:
+            self.stats["matched more than one listing (run dedupe_listings)"] += 1
+            self.stderr.write(f"  [duplicate] {name}: {len(hits)} listings match, updating the oldest")
+        return hits[0]
+
+    # ── Import ───────────────────────────────────────────────────────────────
+
+    def record_area(self, name, item, place):
+        if place.area:
+            self.area_counts[place.area] += 1
+            self.stats[f"area from {place.method}"] += 1
+        else:
+            self.stats["no area"] += 1
+            self.no_area.append((name, item.get("address", ""), place.unlisted_sector))
+            if place.unlisted_sector:
+                self.unlisted_sectors[place.unlisted_sector] += 1
+
+    def area_report(self):
+        out = self.stdout.write
+        out("\nListings per area:")
+        listed = [(a, self.area_counts.get(a, 0)) for a in self.matcher.areas]
+        out("  " + ", ".join(f"{a} {n}" for a, n in listed if n))
+        empty = [a for a, n in listed if not n]
+        if empty:
+            out(f"  Areas with no listings ({len(empty)}): " + ", ".join(empty))
+        if self.unlisted_sectors:
+            out("  Sectors in addresses that aren't in the areas file (add them to place these): "
+                + ", ".join(f"{s} {n}" for s, n in self.unlisted_sectors.most_common()))
+        if self.no_area:
+            out(f"\nNo area ({len(self.no_area)}) — shown on the city page only:")
+            for name, address, sector in self.no_area:
+                note = f"  [{sector} not in areas file]" if sector else ""
+                out(f"  - {name[:45]:45} | {address[:70]}{note}")
+
+    def resolve_area(self, city, area_name):
+        if not area_name:
+            return None
+        if self.dry_run or not city.pk:
+            return Area.objects.filter(city=city, slug=slugify(area_name)).first() if city.pk else None
+        area, _ = Area.objects.get_or_create(
+            city=city, slug=slugify(area_name), defaults={"name": area_name},
         )
+        return area
+
+    def import_item(self, city, item, name):
+        fid = feature_id(item)
+        obj, how = self.find_existing(city, item, fid, name)
+
+        listing_type = item.get("listing_type", "")
+        lat, lng = float(item.get("latitude") or 0), float(item.get("longitude") or 0)
+        place = self.matcher.match(item.get("address", ""), lat, lng, name)
+        self.record_area(name, item, place)
+        values = {
+            "name":         name,
+            "listing_type": listing_type if listing_type in dict(DaycareListing.TYPE_CHOICES) else "",
+            "area":         self.resolve_area(city, place.area),
+            "sub_area":     place.sub_area,
+            "address":      item.get("address", ""),
+            "phone":        item.get("phone", ""),
+            "website":      item.get("website", ""),
+            "description":  item.get("description", ""),
+            "rating":       float(item.get("rating") or 0),
+            "review_count": int(item.get("review_count") or 0),
+            "latitude":     lat,
+            "longitude":    lng,
+            "categories":   item.get("categories") or [],
+            "hours":        item.get("hours") or {},
+            "maps_url":     item.get("google_maps_url", ""),
+        }
+
+        if obj is None:
+            self.stats["created"] += 1
+            if self.dry_run:
+                self.stdout.write(f"  [new] {name}")
+                return None
+            obj = DaycareListing.objects.create(
+                city=city,
+                slug=self.unique_slug(city, name),
+                place_id=fid or item.get("place_id", ""),
+                last_seen_at=self.now,
+                **{k: v for k, v in values.items() if not (k == "listing_type" and not v)},
+            )
+        else:
+            self.stats[f"updated (matched by {how})"] += 1
+            if self.dry_run:
+                if how != "place ID":
+                    self.stdout.write(f"  [match by {how}] {name} -> {obj.slug}")
+                return obj
+            locked = set(obj.locked_fields or [])
+            for field, value in values.items():
+                if field not in locked and not is_empty(value):
+                    setattr(obj, field, value)
+            if fid:
+                obj.place_id = fid
+            obj.last_seen_at = self.now
+            obj.save()
+
+        self.import_reviews(obj, item)
+        self.import_images(obj, item)
+        return obj
+
+    def unique_slug(self, city, name):
+        base = slugify(name)[:290] or "daycare"
+        slug, n = base, 1
+        while DaycareListing.objects.filter(city=city, slug=slug).exists():
+            slug = f"{base}-{n}"
+            n += 1
+        return slug
+
+    def import_reviews(self, obj, item):
+        reviews = [r for r in item.get("reviews") or [] if r.get("author") or r.get("text")]
+        if not reviews or "reviews" in (obj.locked_fields or []):
+            return
+        obj.reviews.all().delete()
+        Review.objects.bulk_create([
+            Review(
+                listing=obj,
+                author=r.get("author", "")[:255],
+                rating=int(r.get("rating") or 0),
+                text=r.get("text", ""),
+                date=r.get("date", "")[:100],
+            )
+            for r in reviews
+        ])
+
+    def import_images(self, obj, item):
+        images = item.get("images") or []
+        files = [(img, self.base_dir / img["file"]) for img in images if img.get("file")]
+        files = [(img, p) for img, p in files if p.is_file()]
+        if len(files) < len(images):
+            # Bare Google URLs expire within months, so they are never imported.
+            self.stats["photos skipped (no downloaded file)"] += len(images) - len(files)
+        if not files or "images" in (obj.locked_fields or []):
+            return
+        obj.images.all().delete()
+        for i, (img, p) in enumerate(files):
+            li = ListingImage(listing=obj, url=img.get("url", "")[:1000],
+                              alt=img.get("alt", "")[:255], order=i)
+            with p.open("rb") as fh:
+                li.image.save(f"{i + 1}{p.suffix}", File(fh), save=True)
+            self.stats["photos imported"] += 1

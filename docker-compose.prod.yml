@@ -14,7 +14,8 @@ services:
       target: prod       # uses prod stage (gunicorn, collectstatic)
     restart: always
     command: []          # use Dockerfile CMD (gunicorn)
-    volumes: []          # no source mount in prod
+    volumes:
+      - media_volume:/app/media   # listing photos; nginx serves the same volume
     ports: []            # Nginx proxies, not direct port binding
     env_file:
       - .env.prod        # separate prod env file
@@ -24,7 +25,8 @@ services:
       context: .
       target: prod
     restart: always
-    volumes: []
+    volumes:
+      - media_volume:/app/media
     env_file:
       - .env.prod
 

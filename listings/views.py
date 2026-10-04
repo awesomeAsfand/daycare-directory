@@ -91,9 +91,10 @@ def listing_detail(request, city_slug, slug):
         area=listing.area, is_active=True
     ).exclude(pk=listing.pk).order_by("-rating")[:4]
 
-    first_image = listing.images.all().first()
+    images = [img for img in listing.images.all() if img.image]
     return render(request, "listings/detail.html", {
         "listing": listing,
+        "images": images,
         "similar": similar,
         "title": f"{listing.name} — Daycare in {listing.area or city.name}",
         "meta_desc": (
@@ -102,7 +103,7 @@ def listing_detail(request, city_slug, slug):
             else f"{listing.name} is a daycare in {listing.address}. "
                  f"Rating: {listing.rating}/5 from {listing.review_count} reviews."
         ),
-        "og_image": first_image.url if first_image else "",
+        "og_image": request.build_absolute_uri(images[0].image.url) if images else "",
     })
 
 
