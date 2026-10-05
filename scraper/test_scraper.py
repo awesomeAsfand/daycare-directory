@@ -534,5 +534,56 @@ class DubaiAreaMatchTests(unittest.TestCase):
         self.assertTrue(any(ln > 56 for la, ln in grid))   # Hatta
 
 
+class DubaiTrialTests(unittest.TestCase):
+    """Cases from the Dubai trial (2026-10-05), with Google's real addresses."""
+
+    @classmethod
+    def setUpClass(cls):
+        from area_match import AreaMatcher
+        cls.m = AreaMatcher(load_plan(Path(__file__).parent / "queries" / "dubai.txt"))
+
+    def test_areas_from_trial_addresses(self):
+        cases = [
+            ("Flamingo Tower, Z - Al Barsha South Third - Al Barsha South - Dubai - United Arab Emirates",
+             ("Arjan", "")),
+            ("59 - 5 Street 5 - Jabal Ali First - The Gardens - Dubai - United Arab Emirates",
+             ("Discovery Gardens", "")),
+            ("Wadi Al Safa 6 - Saheel - Dubai - United Arab Emirates", ("Arabian Ranches", "")),
+            ("9A St - Al Barsha Second - Al Barsha - Dubai - United Arab Emirates", ("Al Barsha", "Al Barsha 2")),
+            ("Emirates Living Community - First Al Khail St - Al Thanyah Third - The Greens - Dubai - "
+             "United Arab Emirates", ("The Greens", "")),
+            ("AMSA Building - Kaheel Blvd - Al Barsha South Fourth - Jumeirah Village Circle - Dubai - "
+             "United Arab Emirates", ("Jumeirah Village Circle", "")),
+            ("Al Thamam 41, Remraam Community - Dubai - United Arab Emirates", ("Remraam", "")),
+        ]
+        for address, expected in cases:
+            with self.subTest(address=address):
+                r = self.m.match(address)
+                self.assertEqual((r.area, r.sub_area), expected)
+
+    def test_not_areas_are_ignored(self):
+        # A road named after an area, with no community in the address: the
+        # listing name decides (here a branch name)
+        r = self.m.match("Al Bahar Tower 1 Plaza Level Jumeirah Beach Road - Dubai - United Arab Emirates",
+                         name="Jebel Ali Village Early Childhood Centre - Jumeirah Beach Residence Br.")
+        self.assertEqual((r.area, r.method), ("Jumeirah Beach Residence", "listing name (name)"))
+        self.assertEqual(self.m.match("Jumeirah International Nurseries").area, "")
+
+    def test_nanny_agencies_rejected(self):
+        self.assertEqual(classify("Yaya Middle East | Trusted Nannies & Maids", ["Child care agency"], DXB, "Dubai"),
+                         ("", "category: Child care agency"))
+        self.assertEqual(classify("Kids Kingdom - Nursery & Daycare in JLT", ["Child care agency"], DXB, "Dubai"),
+                         ("daycare", ""))
+
+    def test_name_ignores_panel_headings(self):
+        html = ('<h1 class="fontTitleLarge">Results</h1><h1></h1>'
+                '<h1 class="DUwDvf lfPIob">Paddington Park Early Childhood Center</h1>')
+        self.assertEqual(g.parse_listing_page(html, "https://x", "q").name, "Paddington Park Early Childhood Center")
+        self.assertEqual(g.parse_listing_page("<h1>Hours</h1>", "https://x", "q").name, "")
+        self.assertEqual(g.place_name_from_url(
+            "https://www.google.com/maps/place/Gardenia+Nursery+-+The+Greens,+Dubai/@25.09,55.16,17z/data=!4m7"),
+            "Gardenia Nursery - The Greens, Dubai")
+
+
 if __name__ == "__main__":
     unittest.main()

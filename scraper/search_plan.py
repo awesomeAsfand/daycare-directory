@@ -21,6 +21,8 @@ A queries file (e.g. queries/dubai.txt) has these sections:
     [exclude]           areas left out even where they cross the boundary;
                         a place whose address mentions one is rejected
     [aliases]           other spellings: <spelling> = <area as in [areas]>
+    [not_areas]         phrases that contain an area name but aren't that
+                        area ("Jumeirah Beach Road"): ignored by area matching
     [area_match]        how import_listings places listings in areas
         centres = islamabad_area_centres.csv
         max_km = 2.0
@@ -79,6 +81,7 @@ class QueryPlan:
     grid: dict = field(default_factory=dict)
     boundary: list | None = None   # polygons, see load_boundary()
     exclude: list = field(default_factory=list)
+    not_areas: list = field(default_factory=list)    # phrases that contain an area name but aren't it
     aliases: dict = field(default_factory=dict)      # spelling -> area
     area_match: dict = field(default_factory=dict)
     country: dict = field(default_factory=dict)      # [country]: name, code, timezone, phone_code
@@ -166,6 +169,8 @@ def load_plan(path: Path, city: str | None = None) -> QueryPlan:
                 plan.boundary = load_boundary(path.parent / value.strip())
         elif section == "exclude":
             plan.exclude.append(line)
+        elif section == "not_areas":
+            plan.not_areas.append(line)
         else:
             raise ValueError(f"{path.name}: line outside a [section]: {raw!r}")
 
@@ -275,7 +280,7 @@ def build_tasks(plan: QueryPlan, areas: list | None = None,
 # ─── Listing filter ──────────────────────────────────────────────────────────
 
 # Google categories (lower-cased) that are in scope on their own
-DAYCARE_CATEGORIES = {"day care center", "child care agency", "childcare", "creche"}
+DAYCARE_CATEGORIES = {"day care center", "childcare", "creche"}
 PRESCHOOL_CATEGORIES = {
     "preschool", "montessori preschool", "montessori school", "kindergarten",
     "nursery school", "playgroup",
@@ -284,6 +289,8 @@ PRESCHOOL_CATEGORIES = {
 GENERIC_CATEGORIES = {
     "school", "educational institution", "general education school", "education center",
     "school house", "learning center", "private educational institution",
+    # In Dubai mostly nanny, maid and babysitting agencies
+    "child care agency",
 }
 
 EARLY_YEARS_NAME_RE = re.compile(

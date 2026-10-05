@@ -7,10 +7,13 @@ match() tries, in order:
      up to the main sector (F-7); the sub-sector is kept separately so the
      listing can show "F-7/4, F-7". Off elsewhere: Dubai addresses are full
      of shop and block numbers like "Shop G-12" that look like sectors
-  2. an area name or one of its [aliases] in the address. Several names can
-     appear: in comma-style (Pakistan) addresses the longest name wins; in
-     " - " style (UAE) addresses, which run from specific to general
-     ("Jumeirah Beach Rd - Al Safa 1 - Dubai"), the last one does.
+  2. an area name or one of its [aliases] in the address, ignoring
+     [not_areas] phrases ("Jumeirah Beach Road"). Several names can appear:
+     in comma-style (Pakistan) addresses the longest name wins; in " - "
+     style (UAE) addresses, where Google ends with the community people
+     know ("Jabal Ali First - The Gardens - Dubai"), the last one does,
+     unless an earlier mention is a longer spelling of it that is another
+     area ("Al Barsha South Third - Al Barsha South": Arjan).
      With "numbered = yes" in [area_match] (Dubai), a number or ordinal
      after the name becomes the sub-area: "Al Barsha 1" and "Al Barsha
      First" both give area Al Barsha, sub-area "Al Barsha 1"
@@ -79,6 +82,8 @@ class AreaMatcher:
         self.names = sorted(((_name_pattern(spelling), area, spelling) for spelling, area in names.items()),
                             key=lambda p: -len(p[0].pattern))
 
+        self.not_areas = [_name_pattern(phrase) for phrase in plan.not_areas]
+
         self.max_km = float(plan.area_match.get("max_km", 2.0))
         self.centres = load_area_centres(plan)
 
@@ -107,16 +112,28 @@ class AreaMatcher:
         if sector:
             return AreaMatch("", sub, "", unlisted_sector=sector)
         lowered = text.lower()
-        found = []   # (end, length, area) of every name mention
+        # [not_areas] phrases ("Jumeirah Beach Road") are blanked out, keeping
+        # the positions of everything else
+        for pattern in self.not_areas:
+            lowered = pattern.sub(lambda m: " " * len(m.group()), lowered)
+        found = []   # (end, length, area, text) of every name mention
         for pattern, area, _ in self.names:
             for m in pattern.finditer(lowered):
-                found.append((m.end(), m.end() - m.start(), area))
+                found.append((m.end(), m.end() - m.start(), area, m.group()))
         if not found:
             return None
         if " - " in text:
             # UAE style: the last mention wins; of names ending at the same
             # place ("Jumeirah Village Circle" / "Village Circle"), the longest
-            area = max(found)[2]
+            last = max(found)
+            area = last[2]
+            # ...unless an earlier mention is a more specific spelling of it
+            # that is another area: Google writes "Al Barsha South Third -
+            # Al Barsha South" for Arjan (Al Barsha South Third = Arjan)
+            specific = [f for f in found if f[2] != area and len(f[3]) > len(last[3])
+                        and f[3].startswith(last[3])]
+            if specific:
+                area = max(specific)[2]
         else:
             # Comma style: the longest name wins, e.g. "National Police
             # Foundation O-9" over "Police Foundation"

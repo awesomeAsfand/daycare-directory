@@ -128,6 +128,7 @@ Jumeirah Village Circle (JVC)
 Jumeirah Village Triangle (JVT)
 Dubai Sports City (Sports City)
 Motor City
+Dubai Studio City
 Dubai Production City (IMPZ)
 Arabian Ranches
 Mudon
@@ -135,6 +136,7 @@ Town Square
 Damac Hills (Akoya)
 Damac Hills 2
 The Sustainable City
+Remraam
 Dubailand
 Dubai Silicon Oasis (DSO)
 Academic City
@@ -187,11 +189,31 @@ Nadd Hessa = Dubai Silicon Oasis
 Dubai International Academic City = Academic City
 Dubai Investments Park = Dubai Investment Park
 # Al Barsha South's numbered parts are separate communities: these win over
-# "Al Barsha South" because they are longer at the same place
+# "Al Barsha South" because they are longer at the same place. Google writes
+# Arjan as "Al Barsha South Third - Al Barsha South" (seen in the trial)
+Al Barsha South 3 = Arjan
+Al Barsha South Third = Arjan
 Al Barsha South 4 = Jumeirah Village Circle
 Al Barsha South Fourth = Jumeirah Village Circle
 Al Barsha South 5 = Jumeirah Village Triangle
 Al Barsha South Fifth = Jumeirah Village Triangle
+# Names Google used in the trial (2026-10-05)
+The Gardens = Discovery Gardens
+Wadi Al Safa 6 = Arabian Ranches
+Saheel = Arabian Ranches
+Majan = Dubailand
+Hattan = The Lakes
+
+[not_areas]
+# Phrases that contain an area name but aren't that area; ignored when
+# placing a listing. "Jumeirah Beach Road" runs past Jumeirah, Umm Suqeim
+# and JBR; the others are business names (chains named after a place).
+Jumeirah Beach Road
+Jumeirah Beach Rd
+Jumeirah Village South
+Jumeirah International
+Madinat Jumeirah
+Jebel Ali Village
 
 [boundary]
 # Dubai emirate, from OpenStreetMap (includes Hatta, and the sea, which

@@ -34,6 +34,7 @@ import random
 from collections import Counter
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
+from urllib.parse import quote_plus, unquote_plus
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright, Page, TimeoutError as PWTimeout
 
@@ -59,6 +60,8 @@ MIN_IMAGE_BYTES = 5_000   # anything smaller is an icon or placeholder
 # pictures always use /a/ or /a-/, so those are the ones to exclude.
 PHOTO_URL_RE = re.compile(r"https://[\w.-]*googleusercontent\.com/(?!a-?/)[\w-]+/[^\s\"')]+")
 MIN_PHOTO_PX = 100   # size suffixes below this (=w32-h32, =s40) are icons
+# h1 headings of Google's panels, never a place name
+PANEL_HEADINGS = {"", "results", "hours", "sponsored"}
 
 
 class ScraperBlocked(Exception):
@@ -108,6 +111,12 @@ def extract_place_id(url: str) -> str:
     """
     match = re.search(r"!1s(0x[0-9a-f]+:0x[0-9a-f]+)", url)
     return match.group(1) if match else ""
+
+
+def place_name_from_url(url: str) -> str:
+    """'.../maps/place/Gardenia+Nursery+-+The+Greens/...' -> 'Gardenia Nursery - The Greens'"""
+    match = re.search(r"/maps/place/([^/@]+)/", url)
+    return unquote_plus(match.group(1)) if match else ""
 
 
 def extract_coords(url: str) -> tuple[float, float]:
@@ -198,10 +207,14 @@ def parse_listing_page(html: str, url: str, query: str,
     soup = BeautifulSoup(html, "lxml")
     dc = DaycareCenter(google_maps_url=url, source_query=query)
 
-    # Name — h1 or the main title element
-    name_tag = soup.find("h1")
-    if name_tag:
-        dc.name = name_tag.get_text(strip=True)
+    # Name — the place title (h1.DUwDvf); otherwise the first h1 that isn't
+    # a panel heading such as "Results" or "Hours"
+    title = soup.select_one("h1.DUwDvf")
+    if title and title.get_text(strip=True):
+        dc.name = title.get_text(strip=True)
+    else:
+        dc.name = next((h.get_text(strip=True) for h in soup.find_all("h1")
+                        if h.get_text(strip=True).lower() not in PANEL_HEADINGS), "")
 
     # All visible text sections for targeted extraction
     all_text = soup.get_text(" ", strip=True)
@@ -543,6 +556,38 @@ async def get_listing_urls(page: Page, task: SearchTask) -> list[str]:
     return list(urls.values())[:MAX_RESULTS_PER_QUERY]
 
 
+async def open_by_name_search(page: Page, url: str, city: str) -> bool:
+    """Load a place through a search for its name, for places whose own link
+    gives an empty panel. Google either opens the place straight away or
+    lists results; then the result with the same place ID is clicked
+    (opening its link directly would give the empty panel again).
+    Returns whether the place's title loaded."""
+    name, fid = place_name_from_url(url), extract_place_id(url)
+    if not name or not fid:
+        return False
+    await asyncio.sleep(rand_delay())
+    await page.goto(f"https://www.google.com/maps/search/{quote_plus(f'{name} {city}'.strip())}",
+                    wait_until="domcontentloaded", timeout=60000)
+    await check_not_blocked(page)
+    await asyncio.sleep(rand_delay())
+    # The place's own URL may write the ID's ":" as "%3A"
+    if fid not in unquote_plus(page.url):
+        link = (await page.query_selector(f'a[href*="{fid}"]')
+                or await page.query_selector(f'a[href*="{fid.replace(":", "%3A")}"]'))
+        if not link:
+            return False
+        await link.click()
+        await asyncio.sleep(rand_delay())
+    try:
+        await page.wait_for_function(
+            "() => { const h = document.querySelector('h1.DUwDvf'); return h && h.innerText.trim(); }",
+            timeout=10000)
+    except PWTimeout:
+        return False
+    await dismiss_sign_in_prompt(page)
+    return True
+
+
 async def scrape_listing(page: Page, url: str, query: str,
                          plan: QueryPlan | None = None) -> tuple[DaycareCenter | None, str]:
     """Navigate to a place page and extract details.
@@ -551,13 +596,16 @@ async def scrape_listing(page: Page, url: str, query: str,
     a place that doesn't belong is returned straight away with the reason,
     without fetching its photos and reviews. Returns (place, reject reason).
     """
+    city = plan.city if plan else ""
+    phone_code = plan.country.get("phone_code", "") if plan else ""
     try:
         await page.goto(url, wait_until="domcontentloaded", timeout=60000)
         await check_not_blocked(page)
         await asyncio.sleep(rand_delay())
 
-        # Wait for the main content to render
-        await page.wait_for_selector("h1", timeout=10000)
+        # Wait for the main content to render. "attached", not visible: on
+        # an empty panel (below) the title is there but hidden
+        await page.wait_for_selector("h1", state="attached", timeout=10000)
 
         # Expand "See more" if present
         try:
@@ -570,10 +618,17 @@ async def scrape_listing(page: Page, url: str, query: str,
 
         await dismiss_sign_in_prompt(page)
 
-        html = await page.content()
+        dc = parse_listing_page(await page.content(), page.url, query, city, phone_code)
+        if not dc.name or not (dc.categories or dc.address):
+            # For some places Google serves an empty panel (no name, category
+            # or address) when the place link is opened directly, every
+            # time; found through a search, the same place loads in full
+            print(f"    [empty page] trying a name search: {place_name_from_url(url)}")
+            if not await open_by_name_search(page, url, city):
+                print(f"  [load failed] {url}")
+                return None, ""   # not recorded, so a later search can retry it
+            dc = parse_listing_page(await page.content(), page.url, query, city, phone_code)
         final_url = page.url
-        dc = parse_listing_page(html, final_url, query,
-                                plan.city if plan else "", plan.country.get("phone_code", "") if plan else "")
         # The final URL sometimes loses the data= segment; the search-result
         # link always has it.
         if not dc.place_id:
