@@ -1,0 +1,223 @@
+# Dubai search list for the scraper (DRAFT 2026-10-05, step B4: to be checked)
+#
+# Each keyword is combined with each area: "<keyword> in <area> Dubai".
+# Lines starting with # are comments.
+#
+# Areas are the community names parents search for ("Al Quoz", "Jumeirah"),
+# not Dubai Municipality's official spellings ("Al Qouz", "Jumeira"), which
+# Google often puts in addresses: those are aliases below. Short forms in
+# brackets are aliases too: "Jumeirah Lake Towers (JLT)".
+#
+# Numbered communities share one area page: "Al Barsha 1" and "Al Barsha
+# First" both go to Al Barsha, with "Al Barsha 1" shown on the listing
+# ([area_match] numbered = yes). Separate places that only look numbered
+# get their own entry (Damac Hills 2).
+#
+# Sources for where nurseries are: the area filters of edcare.ae and
+# edarabia.com nursery listings for Dubai (checked 2026-10-05), plus
+# Dubai's residential communities. Industrial zones, free zones with no
+# residents and empty desert are left out; the map-grid sweep catches
+# nurseries outside these areas.
+#
+# Not included on purpose:
+# - Deira and Bur Dubai as areas: they are districts that span many of the
+#   communities below, and an address naming both would be ambiguous.
+# - Other emirates' areas with the same names (Al Nahda, Al Khan are also in
+#   Sharjah): the Dubai boundary check rejects those.
+#
+# To check in the trial: whether Google puts the official community after
+# the marketing name ("Discovery Gardens - Jabal Ali 1"), which would send
+# the listing to the official area (the last name in an address wins).
+
+[country]
+name = United Arab Emirates
+code = ae
+timezone = Asia/Dubai
+phone_code = 971
+
+[keywords]
+# "Early childhood centre" is KHDA's term and many Dubai nurseries use it in
+# their name. To review after the trial: drop any keyword that finds nothing
+# the others don't.
+nursery
+early learning centre
+early childhood centre
+daycare
+
+[areas]
+# ── Deira side ───────────────────────────────────────────────
+Abu Hail
+Al Mamzar
+Al Muraqqabat
+Al Rigga
+Port Saeed
+Al Muteena
+Hor Al Anz
+Al Garhoud
+Dubai Festival City (Festival City)
+Dubai Creek Harbour (Creek Harbour)
+Al Qusais
+Al Nahda
+Al Twar
+Muhaisnah
+Al Warqa
+Mirdif
+Al Rashidiya
+Nad Al Hamar
+Al Mizhar
+Al Khawaneej
+Oud Al Muteena
+
+# ── Bur Dubai side ───────────────────────────────────────────
+Al Karama (Karama)
+Al Mankhool (Mankhool)
+Oud Metha
+Umm Hurair
+Al Jaddaf
+Dubai Healthcare City (DHCC)
+Al Jafiliya (Jafiliya)
+Al Satwa (Satwa)
+
+# ── Jumeirah coast and Sheikh Zayed Road ─────────────────────
+Al Wasl
+Al Safa
+Jumeirah (Jumeira)
+Umm Suqeim
+Al Manara
+Umm Al Sheif
+Al Sufouh
+Al Quoz
+Al Barsha
+Al Barsha South
+Arjan
+Barsha Heights (TECOM)
+Dubai Media City
+Downtown Dubai
+Business Bay
+DIFC
+
+# ── Meydan and around ────────────────────────────────────────
+Meydan
+Nad Al Sheba
+Al Barari
+Dubai Hills Estate (Dubai Hills)
+
+# ── Marina, JLT and the "Emirates Living" communities ────────
+Dubai Marina
+Jumeirah Beach Residence (JBR)
+Jumeirah Lake Towers (JLT)
+Palm Jumeirah
+Emirates Hills
+The Springs
+The Meadows
+The Lakes
+The Greens
+Jumeirah Islands
+Jumeirah Park
+Jumeirah Golf Estates
+
+# ── Jebel Ali side ───────────────────────────────────────────
+Discovery Gardens
+Al Furjan
+Jebel Ali (Jabal Ali)
+Dubai Investment Park (DIP)
+Dubai South
+
+# ── Al Khail Road / Dubailand side ───────────────────────────
+Jumeirah Village Circle (JVC)
+Jumeirah Village Triangle (JVT)
+Dubai Sports City (Sports City)
+Motor City
+Dubai Production City (IMPZ)
+Arabian Ranches
+Mudon
+Town Square
+Damac Hills (Akoya)
+Damac Hills 2
+The Sustainable City
+Dubailand
+Dubai Silicon Oasis (DSO)
+Academic City
+International City
+
+# ── Outside the city ─────────────────────────────────────────
+Hatta
+
+[aliases]
+# Official Dubai Municipality spellings and other names Google uses
+Al Qouz = Al Quoz
+Nadd Al Shiba = Nad Al Sheba
+Nad Al Shiba = Nad Al Sheba
+Nadd Al Hamar = Nad Al Hamar
+Muhaissanah = Muhaisnah
+Muhaisanah = Muhaisnah
+Mhaisnah = Muhaisnah
+Al Khwaneej = Al Khawaneej
+Al Warqaa = Al Warqa
+Mirdiff = Mirdif
+Rashidiya = Al Rashidiya
+Garhoud = Al Garhoud
+Al Jadaf = Al Jaddaf
+Culture Village = Al Jaddaf
+Al Jafliya = Al Jafiliya
+Umm Al Sheef = Umm Al Sheif
+Marsa Dubai = Dubai Marina
+Nakhlat Jumeira = Palm Jumeirah
+The Palm = Palm Jumeirah
+Jumeirah Lakes Towers = Jumeirah Lake Towers
+Downtown Burj Dubai = Downtown Dubai
+Dubai International Financial Centre = DIFC
+Meydan City = Meydan
+Mohammed Bin Rashid City = Meydan
+MBR City = Meydan
+Sobha Hartland = Meydan
+Al Merkadh = Meydan
+Springs = The Springs
+Meadows = The Meadows
+The Views = The Greens
+Dubai World Central = Dubai South
+Emaar South = Dubai South
+International Media Production Zone = Dubai Production City
+Dubai Land = Dubailand
+# Official names for parts of Dubailand; without this, "Wadi Al Safa 3"
+# would be read as Al Safa 3 (Jumeirah)
+Wadi Al Safa = Dubailand
+Silicon Oasis = Dubai Silicon Oasis
+Nadd Hessa = Dubai Silicon Oasis
+Dubai International Academic City = Academic City
+Dubai Investments Park = Dubai Investment Park
+# Al Barsha South's numbered parts are separate communities: these win over
+# "Al Barsha South" because they are longer at the same place
+Al Barsha South 4 = Jumeirah Village Circle
+Al Barsha South Fourth = Jumeirah Village Circle
+Al Barsha South 5 = Jumeirah Village Triangle
+Al Barsha South Fifth = Jumeirah Village Triangle
+
+[boundary]
+# Dubai emirate, from OpenStreetMap (includes Hatta, and the sea, which
+# doesn't matter for places on land). Places are kept only if their map pin
+# is inside it: this is what rejects Sharjah's Al Nahda, Al Khan, Muwaileh
+# and the rest, right across the street from Dubai's.
+file = dubai_boundary.geojson
+
+[grid]
+# Map-grid sweep: the keyword is searched on a map centred on every cell.
+# The emirate is mostly desert and sea (1,271 cells), so only cells within
+# near_areas_km of an area position below are searched: about 190 cells,
+# covering the city and Hatta, and the gaps between the listed areas.
+step_km = 2.5
+zoom = 14
+near_areas_km = 4
+# To review after the trial: add a second keyword if "nursery" misses places
+keywords = nursery
+
+[area_match]
+# Numbered communities roll up: "Al Barsha 1" -> area Al Barsha, sub-area "Al Barsha 1"
+numbered = yes
+# Where to place a listing whose address and name give no area: the nearest
+# area position, if within max_km. Positions from OpenStreetMap
+# (python scraper/area_centres.py queries/dubai.txt); four wrong matches
+# were corrected by hand, marked "set by hand" in the CSV. Dubai communities
+# are 1-3 km across; to tune after the trial.
+centres = dubai_area_centres.csv
+max_km = 1.5

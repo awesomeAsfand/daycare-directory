@@ -15,6 +15,7 @@ A queries file (e.g. queries/dubai.txt) has these sections:
         step_km = 2.5
         zoom = 14
         keywords = daycare, montessori
+        near_areas_km = 4                   (only cells this close to an [area_match] centre)
     [boundary]
         file = islamabad_boundary.geojson   (relative to the queries file)
     [exclude]           areas left out even where they cross the boundary;
@@ -37,6 +38,7 @@ places. Google's addresses are unreliable for this (many Islamabad addresses
 never say "Islamabad", some in Bani Gala say "Rawalpindi"), so the boundary
 check uses the place's map coordinates.
 """
+import csv
 import json
 import math
 import re
@@ -198,6 +200,26 @@ def grid_cells(bbox: tuple, step_km: float, boundary: list | None = None) -> lis
     return cells
 
 
+def distance_km(lat1, lng1, lat2, lng2):
+    # Equirectangular approximation; accurate to metres at city scale
+    x = math.radians(lng2 - lng1) * math.cos(math.radians((lat1 + lat2) / 2))
+    y = math.radians(lat2 - lat1)
+    return 6371 * math.hypot(x, y)
+
+
+def load_area_centres(plan: QueryPlan) -> dict:
+    """{area: (lat, lng)} from the [area_match] centres CSV; areas without a
+    position, or no longer in [areas], are left out."""
+    centres = {}
+    name = plan.area_match.get("centres")
+    if name and plan.path:
+        with (plan.path.parent / name).open(encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                if row["lat"] and row["lng"] and row["area"] in plan.areas:
+                    centres[row["area"]] = (float(row["lat"]), float(row["lng"]))
+    return centres
+
+
 def build_tasks(plan: QueryPlan, areas: list | None = None,
                 include_areas: bool = True, include_grid: bool = True) -> list[SearchTask]:
     """Area searches (area by area, every keyword), then the grid sweep.
@@ -232,7 +254,16 @@ def build_tasks(plan: QueryPlan, areas: list | None = None,
         step = float(plan.grid.get("step_km", 2.5))
         zoom = int(plan.grid.get("zoom", 14))
         keywords = [k.strip() for k in plan.grid.get("keywords", "daycare").split(",") if k.strip()]
-        for lat, lng in grid_cells(bbox, step, plan.boundary):
+        cells = grid_cells(bbox, step, plan.boundary)
+        if "near_areas_km" in plan.grid:
+            # Only cells near a listed area: skips sea and empty desert that
+            # lie inside the boundary (most of Dubai emirate)
+            near = float(plan.grid["near_areas_km"])
+            centres = list(load_area_centres(plan).values())
+            if not centres:
+                raise ValueError("[grid] near_areas_km needs [area_match] centres")
+            cells = [c for c in cells if min(distance_km(*c, *x) for x in centres) <= near]
+        for lat, lng in cells:
             for kw in keywords:
                 tasks.append(SearchTask(
                     key=f"grid:{kw}@{lat:.4f},{lng:.4f}", query=kw,
@@ -257,7 +288,7 @@ GENERIC_CATEGORIES = {
 
 EARLY_YEARS_NAME_RE = re.compile(
     r"day\s?care|child\s?care|cr[eè]che|montessori|pre[\s-]?school|nursery|kindergarten"
-    r"|play\s?group|toddler|early\s+(?:years|learning)",
+    r"|play\s?group|toddler|early\s+(?:years|learning|childhood)",
     re.I,
 )
 DAYCARE_NAME_RE = re.compile(r"day\s?care|child\s?care|cr[eè]che", re.I)

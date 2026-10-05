@@ -466,5 +466,73 @@ class RunScraperTests(unittest.TestCase):
         self.assertTrue((self.tmp / "out.rejected.bak.json").exists())
 
 
+class DubaiAreaMatchTests(unittest.TestCase):
+    """Area matching against the real Dubai areas file."""
+
+    @classmethod
+    def setUpClass(cls):
+        from area_match import AreaMatcher
+        cls.m = AreaMatcher(load_plan(Path(__file__).parent / "queries" / "dubai.txt"))
+
+    def check(self, address):
+        r = self.m.match(address)
+        return r.area, r.sub_area
+
+    def test_numbered_communities_roll_up(self):
+        cases = [
+            ("Villa 12 - Al Barsha - Al Barsha 1 - Dubai - United Arab Emirates", ("Al Barsha", "Al Barsha 1")),
+            ("Street 5 - Al Barsha First - Dubai - United Arab Emirates", ("Al Barsha", "Al Barsha 1")),
+            ("Al Wasl Rd - Umm Suqeim - Umm Suqeim 2 - Dubai - United Arab Emirates", ("Umm Suqeim", "Umm Suqeim 2")),
+            # Official spellings take the area's name
+            ("Warehouse 4 - Al Qouz 3 - Dubai - United Arab Emirates", ("Al Quoz", "Al Quoz 3")),
+            ("Villa 7 - Jumeira 1 - Dubai - United Arab Emirates", ("Jumeirah", "Jumeirah 1")),
+            ("Nadd Al Shiba 4 - Dubai - United Arab Emirates", ("Nad Al Sheba", "Nad Al Sheba 4")),
+            # Another name keeps its own: Wadi Al Safa is part of Dubailand
+            ("Villa 3 - Wadi Al Safa 3 - Dubai - United Arab Emirates", ("Dubailand", "Wadi Al Safa 3")),
+            ("Arabian Ranches 2 - Dubai - United Arab Emirates", ("Arabian Ranches", "Arabian Ranches 2")),
+            # Not numbered
+            ("Cluster Y - Jumeirah Lake Towers - Dubai - United Arab Emirates", ("Jumeirah Lake Towers", "")),
+            ("Mirdif - Dubai - United Arab Emirates", ("Mirdif", "")),
+        ]
+        for address, expected in cases:
+            with self.subTest(address=address):
+                self.assertEqual(self.check(address), expected)
+
+    def test_last_name_in_address_wins(self):
+        cases = [
+            # A road named after another area comes first
+            ("Shop 5, Jumeirah Beach Rd - Al Safa 1 - Dubai - United Arab Emirates", ("Al Safa", "Al Safa 1")),
+            ("District 12 - Jumeirah Village Circle - Dubai - United Arab Emirates", ("Jumeirah Village Circle", "")),
+            ("Al Barsha South Fourth - Dubai - United Arab Emirates", ("Jumeirah Village Circle", "")),
+            ("Al Barsha South 1 - Dubai - United Arab Emirates", ("Al Barsha South", "Al Barsha South 1")),
+            ("Frond K - Palm Jumeirah - Dubai - United Arab Emirates", ("Palm Jumeirah", "")),
+            ("Tower 2 - Barsha Heights - Dubai - United Arab Emirates", ("Barsha Heights", "")),
+            ("Damac Hills 2 - Dubai - United Arab Emirates", ("Damac Hills 2", "")),
+            ("Oud Al Muteena 3 - Dubai - United Arab Emirates", ("Oud Al Muteena", "Oud Al Muteena 3")),
+            # Shop numbers aren't sectors, and a building number isn't a sub-area
+            ("Shop G-12, Marina Gate - Dubai Marina 23 - Dubai - United Arab Emirates", ("Dubai Marina", "")),
+        ]
+        for address, expected in cases:
+            with self.subTest(address=address):
+                self.assertEqual(self.check(address), expected)
+
+    def test_search_list(self):
+        plan = load_plan(Path(__file__).parent / "queries" / "dubai.txt")
+        tasks = build_tasks(plan)
+        self.assertIn("nursery in Jumeirah Lake Towers Dubai", [t.query for t in tasks])
+        grid = [t.center for t in tasks if t.is_grid]
+        self.assertEqual(len(tasks) - len(grid), len(plan.areas) * len(plan.keywords))
+
+        # Grid only near listed areas: no cells far out at sea or deep in
+        # the desert, but Hatta (far to the east) is covered
+        from search_plan import distance_km, load_area_centres
+        centres = load_area_centres(plan)
+        self.assertEqual(len(centres), len(plan.areas))
+        self.assertLess(len(grid), 250)
+        self.assertTrue(all(min(distance_km(*c, *x) for x in centres.values()) <= 4 for c in grid))
+        self.assertNotIn(True, [abs(la - 25.40) < 0.02 and abs(ln - 55.10) < 0.02 for la, ln in grid])   # sea
+        self.assertTrue(any(ln > 56 for la, ln in grid))   # Hatta
+
+
 if __name__ == "__main__":
     unittest.main()
