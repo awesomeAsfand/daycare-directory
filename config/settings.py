@@ -80,7 +80,15 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    # Hashed + compressed files in production; plain files in development
+    # and tests, which run without collectstatic
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage" if DEBUG
+        else "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -88,6 +96,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SITE_ID = 1
+# Domain used for absolute links in the sitemap; synced into the Site record
+# by `manage.py sync_site` (run on every container start)
+SITE_DOMAIN = config("DOMAIN", default="localhost:8000")
 
 # Trust X-Forwarded-Proto from Nginx reverse proxy
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -113,3 +124,18 @@ CACHES = {
 
 # AdSense
 ADSENSE_PUBLISHER_ID = config("ADSENSE_PUBLISHER_ID", default="")
+
+# Shown on the Contact and Privacy pages
+CONTACT_EMAIL = config("CONTACT_EMAIL", default="")
+
+# ── Production hardening (DEBUG=False) ───────────────────────────────────────
+if not DEBUG:
+    if SECRET_KEY.startswith("django-insecure"):
+        from django.core.exceptions import ImproperlyConfigured
+        raise ImproperlyConfigured("Set a real SECRET_KEY in .env.prod")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    # Tell browsers to only use HTTPS. Start at 0, raise to e.g. 31536000
+    # (a year) once HTTPS is confirmed working: browsers remember it.
+    SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=0, cast=int)

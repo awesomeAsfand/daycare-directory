@@ -91,16 +91,77 @@ hotlinked.
 2. **Featured listings** — set `is_featured=True` in Django admin; charge daycares PKR 2,000–5,000/mo
 3. **Verified badge** — `is_verified=True`; upsell to listing owners
 
-## Deployment (DigitalOcean)
+## Deployment (Docker, e.g. a DigitalOcean droplet)
+
+Production runs from `docker-compose.prod.yml` on its own (it is not layered on
+`docker-compose.yml`): PostgreSQL, Redis, Django under gunicorn, and nginx with
+HTTPS from Let's Encrypt. The database and Redis are not reachable from outside.
+In the commands below, `$P` stands for:
 
 ```bash
-# On your droplet
-sudo apt install postgresql nginx python3-venv
-git clone <repo> && cd daycare-directory-pakistan
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py collectstatic --noinput
-gunicorn config.wsgi:application --bind 127.0.0.1:8000 --workers 3 --daemon
-# Point Nginx to 127.0.0.1:8000
+P="docker compose -f docker-compose.prod.yml --env-file .env.prod"
 ```
+
+### 1. Server and settings
+
+```bash
+# Ubuntu droplet with Docker installed; point the domain's A records
+# (example.pk and www.example.pk) at the droplet's IP first
+git clone <repo> daycare-directory && cd daycare-directory
+cp .env.prod.example .env.prod
+nano .env.prod      # SECRET_KEY, DB_PASSWORD, DOMAIN, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, CONTACT_EMAIL
+```
+
+### 2. First HTTPS certificate
+
+nginx won't start without a certificate, so get the first one with certbot's own
+web server, before starting nginx (port 80 must be free):
+
+```bash
+source .env.prod
+$P run --rm -p 80:80 certbot certonly --standalone \
+  -d $DOMAIN -d www.$DOMAIN --email $SSL_EMAIL --agree-tos --no-eff-email
+```
+
+### 3. Start the site
+
+```bash
+$P up -d --build
+$P exec web python manage.py createsuperuser
+```
+
+On every start the web container waits for the database, applies migrations,
+sets the sitemap's domain from `DOMAIN` (`manage.py sync_site`) and collects
+static files.
+
+### 4. Copy the data from your computer
+
+The scrape and import run on your computer; copy the result to the server rather
+than scraping there.
+
+```bash
+# On your computer (Git Bash: prefix with MSYS_NO_PATHCONV=1)
+docker compose exec db pg_dump -U daycare_user -d daycare_db -Fc -f /tmp/site.dump
+docker compose cp db:/tmp/site.dump site.dump
+tar czf media.tgz media
+scp site.dump media.tgz root@<server>:daycare-directory/
+
+# On the server
+$P cp site.dump db:/tmp/site.dump
+$P exec db pg_restore -U daycare_user -d daycare_db --clean --if-exists --no-owner /tmp/site.dump
+tar xzf media.tgz && $P cp media/. web:/app/media/
+$P exec web python manage.py sync_site     # the restore brought your local domain
+```
+
+The restore replaces the server's database, including admin users, with yours.
+
+### 5. Certificate renewal
+
+Let's Encrypt certificates last 90 days. Renew from cron, e.g. weekly:
+
+```bash
+0 3 * * 1  cd /root/daycare-directory && docker compose -f docker-compose.prod.yml --env-file .env.prod run --rm certbot && docker compose -f docker-compose.prod.yml --env-file .env.prod exec nginx nginx -s reload
+```
+
+Once HTTPS works, set `SECURE_HSTS_SECONDS=31536000` in `.env.prod` and restart
+(`$P up -d`). Set `ADSENSE_PUBLISHER_ID` once AdSense approves the site.

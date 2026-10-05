@@ -6,4 +6,5 @@ def global_context(request):
     return {
         "cities": City.objects.prefetch_related("areas").all(),
         "ADSENSE_PUBLISHER_ID": settings.ADSENSE_PUBLISHER_ID,
+        "CONTACT_EMAIL": settings.CONTACT_EMAIL,
     }

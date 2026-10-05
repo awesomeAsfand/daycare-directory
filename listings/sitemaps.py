@@ -3,6 +3,17 @@ from django.urls import reverse
 from .models import DaycareListing, City, Area
 
 
+class PageSitemap(Sitemap):
+    changefreq = "yearly"
+    priority = 0.3
+
+    def items(self):
+        return ["about", "privacy", "contact"]
+
+    def location(self, name):
+        return reverse(name)
+
+
 class CitySitemap(Sitemap):
     changefreq = "weekly"
     priority = 0.9

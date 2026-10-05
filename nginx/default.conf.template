@@ -1,3 +1,8 @@
+# Nginx config template. The nginx image substitutes ${DOMAIN} (set in
+# .env.prod) when the container starts; nginx's own $variables are left alone.
+# Needs a certificate for ${DOMAIN} and www.${DOMAIN}: see "Deployment" in
+# README.md for getting the first one.
+
 upstream django {
     server web:8000;
 }
@@ -5,7 +10,7 @@ upstream django {
 # Redirect HTTP → HTTPS
 server {
     listen 80;
-    server_name _;
+    server_name ${DOMAIN} www.${DOMAIN};
 
     # Certbot challenge (needed for SSL renewal)
     location /.well-known/acme-challenge/ {
@@ -13,27 +18,35 @@ server {
     }
 
     location / {
-        return 301 https://$host$request_uri;
+        return 301 https://${DOMAIN}$request_uri;
     }
+}
+
+# www → bare domain, so search engines see one site
+server {
+    listen 443 ssl http2;
+    server_name www.${DOMAIN};
+
+    ssl_certificate     /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+
+    return 301 https://${DOMAIN}$request_uri;
 }
 
 # HTTPS — main server
 server {
     listen 443 ssl http2;
-    server_name daycares.pk www.daycares.pk;   # ← change to your domain
+    server_name ${DOMAIN};
 
-    ssl_certificate     /etc/letsencrypt/live/daycares.pk/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/daycares.pk/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
 
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_ciphers         HIGH:!aNULL:!MD5;
     ssl_session_cache   shared:SSL:10m;
 
-    # Security headers
-    add_header X-Frame-Options           "SAMEORIGIN"    always;
-    add_header X-Content-Type-Options    "nosniff"       always;
-    add_header X-XSS-Protection          "1; mode=block" always;
-    add_header Referrer-Policy           "strict-origin-when-cross-origin" always;
+    # Security headers for pages come from Django (SecurityMiddleware,
+    # XFrameOptionsMiddleware); adding them here too sends conflicting values.
 
     # Gzip
     gzip              on;
@@ -48,20 +61,16 @@ server {
         alias /app/staticfiles/;
         expires 30d;
         add_header Cache-Control "public, immutable";
+        add_header X-Content-Type-Options "nosniff" always;
     }
 
     location /media/ {
         alias /app/media/;
         expires 7d;
+        add_header X-Content-Type-Options "nosniff" always;
     }
 
-    # Sitemap + robots — cache at Nginx level
-    location ~* ^/(sitemap\.xml|robots\.txt)$ {
-        proxy_pass         http://django;
-        proxy_cache_valid  200 1h;
-    }
-
-    # Django app
+    # Django app (also serves sitemap.xml and robots.txt)
     location / {
         proxy_pass          http://django;
         proxy_set_header    Host              $host;

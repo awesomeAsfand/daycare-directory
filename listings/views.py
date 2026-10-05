@@ -1,7 +1,18 @@
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.db.models import Q
 from django.views.decorators.cache import cache_page
 from .models import DaycareListing, City, Area
+
+
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin/",
+        "Disallow: /search/",
+        f"Sitemap: {request.build_absolute_uri('/sitemap.xml')}",
+    ]
+    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")
 
 
 @cache_page(60 * 30)  # 30 min cache

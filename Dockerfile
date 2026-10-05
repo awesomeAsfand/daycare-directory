@@ -12,8 +12,10 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
+    postgresql-client \
     curl \
     && rm -rf /var/lib/apt/lists/*
+# postgresql-client provides pg_isready, which entrypoint.sh waits on
 
 # ── Stage 2: dependencies ─────────────────────────────────────
 FROM base AS deps
@@ -36,7 +38,12 @@ FROM deps AS prod
 
 COPY . .
 
-RUN python manage.py collectstatic --noinput
+# Executable whatever the checkout's file mode (e.g. cloned on Windows)
+RUN chmod +x /app/entrypoint.sh
+
+# Collect with production storage (hashed, compressed files); the real
+# SECRET_KEY isn't needed for this step
+RUN DEBUG=False SECRET_KEY=collectstatic-only python manage.py collectstatic --noinput
 
 EXPOSE 8000
 

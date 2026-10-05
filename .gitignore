@@ -59,3 +59,8 @@ scraper/screenshots/
 
 # Scraper output (spreadsheet copies of the JSON; contain reviewer names)
 scraper/*.csv
+
+# Environment files with secrets (examples are committed)
+.env.*
+!.env.example
+!.env.prod.example

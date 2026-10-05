@@ -1,44 +1,72 @@
+# Production stack. Standalone: run it on its own, NOT layered on
+# docker-compose.yml (Compose merges lists such as ports/volumes, so an
+# override can't remove the dev source mount or the exposed DB port).
+#
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+#
+# See "Deployment" in README.md for the first run (SSL certificate, data).
+
 services:
 
+  # ── PostgreSQL (not reachable from outside) ──────────────────
   db:
+    image: postgres:16-alpine
     restart: always
-    ports: []            # don't expose DB port in production
-
-  redis:
-    restart: always
-    ports: []            # don't expose Redis port in production
-
-  web:
-    build:
-      context: .
-      target: prod       # uses prod stage (gunicorn, collectstatic)
-    restart: always
-    command: []          # use Dockerfile CMD (gunicorn)
     volumes:
-      - media_volume:/app/media   # listing photos; nginx serves the same volume
-    ports: []            # Nginx proxies, not direct port binding
-    env_file:
-      - .env.prod        # separate prod env file
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-  celery:
+  # ── Redis (cache) ────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── Django (gunicorn) ────────────────────────────────────────
+  web:
     build:
       context: .
       target: prod
     restart: always
-    volumes:
-      - media_volume:/app/media
     env_file:
       - .env.prod
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - static_volume:/app/staticfiles   # collected on start, served by nginx
+      - media_volume:/app/media          # listing photos, served by nginx
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
-  # ── Nginx reverse proxy ──────────────────────────────────────
+  # ── Nginx reverse proxy + HTTPS ──────────────────────────────
   nginx:
     image: nginx:1.25-alpine
     restart: always
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}     # substituted into the config template below
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/media:ro
       - certbot_certs:/etc/letsencrypt:ro
@@ -46,7 +74,7 @@ services:
     depends_on:
       - web
 
-  # ── Certbot (SSL — run once to get cert, then renews) ────────
+  # ── Certbot (run on demand: first certificate and renewals) ──
   certbot:
     image: certbot/certbot
     profiles:
@@ -54,15 +82,11 @@ services:
     volumes:
       - certbot_certs:/etc/letsencrypt
       - certbot_www:/var/www/certbot
-    command: >
-      certonly --webroot
-      --webroot-path=/var/www/certbot
-      --email ${SSL_EMAIL}
-      --agree-tos
-      --no-eff-email
-      -d ${DOMAIN}
+    command: renew --webroot --webroot-path=/var/www/certbot
 
 volumes:
+  postgres_data:
+  redis_data:
   static_volume:
   media_volume:
   certbot_certs:

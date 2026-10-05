@@ -59,3 +59,4 @@ scraper/STOP
 scraper/*.tmp
 scraper/*.log
 scraper/screenshots/
+scraper/*.csv

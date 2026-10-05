@@ -116,8 +116,13 @@
       {% endfor %}
 
     </div>
-    <div class="border-t border-gray-100 text-center text-xs text-gray-400 py-4">
-      © {% now "Y" %} DaycaresPK. All rights reserved.
+    <div class="border-t border-gray-100 text-center text-xs text-gray-400 py-4 space-y-2">
+      <nav class="flex justify-center gap-4 text-gray-500">
+        <a href="{% url 'about' %}" class="hover:text-brand-600">About</a>
+        <a href="{% url 'privacy' %}" class="hover:text-brand-600">Privacy Policy</a>
+        <a href="{% url 'contact' %}" class="hover:text-brand-600">Contact</a>
+      </nav>
+      <p>© {% now "Y" %} DaycaresPK. All rights reserved.</p>
     </div>
   </footer>
 

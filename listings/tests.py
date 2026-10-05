@@ -263,3 +263,30 @@ class AdminLockingTests(ImportTestBase):
                          and resp.context["adminform"].form.errors)
         listing.refresh_from_db()
         self.assertEqual(listing.locked_fields, ["phone"])
+
+
+@override_settings(SITE_DOMAIN="daycares.example", CONTACT_EMAIL="hello@daycares.example")
+class SitePagesTests(TestCase):
+    def test_pages_render_and_are_linked(self):
+        for url, text in [("/about/", "What we list"), ("/privacy-policy/", "Google Ads Settings"),
+                          ("/contact/", "hello@daycares.example")]:
+            with self.subTest(url=url):
+                resp = self.client.get(url)
+                self.assertContains(resp, text)
+                # Footer links on every page
+                for link in ("/about/", "/privacy-policy/", "/contact/"):
+                    self.assertContains(resp, f'href="{link}"')
+
+    def test_robots_txt(self):
+        resp = self.client.get("/robots.txt")
+        self.assertEqual(resp["Content-Type"], "text/plain")
+        self.assertContains(resp, "Disallow: /admin/")
+        self.assertContains(resp, "Sitemap: http://testserver/sitemap.xml")
+
+    def test_sitemap_uses_site_domain(self):
+        call_command("sync_site", stdout=StringIO())
+        City.objects.create(name="Islamabad", slug="islamabad")
+        resp = self.client.get("/sitemap.xml")
+        self.assertContains(resp, "<loc>http://daycares.example/islamabad/</loc>")
+        self.assertContains(resp, "<loc>http://daycares.example/privacy-policy/</loc>")
+        self.assertNotContains(resp, "example.com")
