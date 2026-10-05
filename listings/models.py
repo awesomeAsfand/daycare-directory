@@ -1,3 +1,5 @@
+import re
+
 from django.db import models, transaction
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -151,8 +153,9 @@ class DaycareListing(models.Model):
 
     @property
     def short_address(self):
-        """First line of address."""
-        return self.address.split(",")[0] if self.address else ""
+        """First part of the address. Google separates parts with commas in
+        Pakistan and with " - " in the UAE ("Al Wasl Rd - Umm Suqeim 2 - Dubai")."""
+        return re.split(r",| - ", self.address)[0].strip() if self.address else ""
 
     def __str__(self):
         return f"{self.name} ({self.area or self.city})"

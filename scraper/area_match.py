@@ -2,9 +2,11 @@
 Put a listing in one of the areas from a queries file ([areas] section).
 
 match() tries, in order:
-  1. a CDA sector in the address, in any of Google's spellings (F-7/4, F 7/4,
-     F-7-1, F7), rolled up to the main sector (F-7); the sub-sector is kept
-     separately so the listing can show "F-7/4, F-7"
+  1. with "sectors = cda" in [area_match] (Islamabad), a CDA sector in the
+     address, in any of Google's spellings (F-7/4, F 7/4, F-7-1, F7), rolled
+     up to the main sector (F-7); the sub-sector is kept separately so the
+     listing can show "F-7/4, F-7". Off elsewhere: Dubai addresses are full
+     of shop and block numbers like "Shop G-12" that look like sectors
   2. an area name or one of its [aliases] in the address
   3. the same two checks on the listing's name ("Daffodils School Tarnol")
   4. the nearest area position ([area_match] centres CSV) to the map pin,
@@ -59,7 +61,9 @@ def distance_km(lat1, lng1, lat2, lng2):
 class AreaMatcher:
     def __init__(self, plan: QueryPlan):
         self.areas = list(plan.areas)
-        self.sectors = {a for a in self.areas if re.fullmatch(r"[B-I]-\d{1,2}", a)}
+        self.match_sectors = plan.area_match.get("sectors", "").lower() == "cda"
+        self.sectors = ({a for a in self.areas if re.fullmatch(r"[B-I]-\d{1,2}", a)}
+                        if self.match_sectors else set())
 
         # Names and aliases, longest first, so "National Police Foundation O-9"
         # wins over "Police Foundation" and "Gulberg Residencia" over "Gulberg"
@@ -97,7 +101,7 @@ class AreaMatcher:
 
     def match_text(self, text: str) -> AreaMatch | None:
         """Sector or area name in a piece of text, or None."""
-        sector, sub = self.find_sector(text)
+        sector, sub = self.find_sector(text) if self.match_sectors else ("", "")
         if sector in self.sectors:
             return AreaMatch(sector, sub, "sector")
         if sector in self.sector_aliases:

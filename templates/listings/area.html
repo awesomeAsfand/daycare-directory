@@ -18,7 +18,7 @@
 <!-- ── Header ─────────────────────────────────────────────── -->
 <div class="max-w-6xl mx-auto px-4 py-6">
   <h1 class="text-2xl font-bold text-gray-900">
-    Daycare Centers in {{ area.name }}, {{ city.name }}
+    {{ site.title_nouns }} in {{ area.name }}, {{ city.name }}
   </h1>
   <p class="text-gray-500 mt-1 text-sm">
     {{ listings.count }} listing{{ listings.count|pluralize }} in this area
@@ -61,8 +61,8 @@
       {% if area.meta_description %}
         {{ area.meta_description }}
       {% else %}
-        Looking for a daycare or nursery in {{ area.name }}, {{ city.name }}?
-        Browse our complete list of verified daycare centres in this area.
+        Looking for a {{ site.noun }} in {{ area.name }}, {{ city.name }}?
+        Browse our list of {{ site.nouns }} in this area.
         Each listing includes ratings from Google Maps, contact numbers and directions — so you can find the right fit for your child without the hassle.
       {% endif %}
     </p>

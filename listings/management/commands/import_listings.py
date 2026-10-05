@@ -1,7 +1,7 @@
 """
-python manage.py import_listings
-python manage.py import_listings --file scraper/daycare_listings.json --city Islamabad
-python manage.py import_listings --dry-run      # report what would change, write nothing
+python manage.py import_listings --city Dubai              # scraper/dubai_listings.json
+python manage.py import_listings --city Dubai --dry-run    # report what would change, write nothing
+python manage.py import_listings --city Islamabad --file scraper/daycare_listings.json
 
 Each scraped place is matched to an existing listing by, in order:
   1. Google place ID (0x...:0x...), also found inside older rows' maps_url
@@ -69,10 +69,11 @@ class Command(BaseCommand):
     help = "Import scraped daycare listings from a JSON file"
 
     def add_arguments(self, parser):
-        parser.add_argument("--file", default="scraper/daycare_listings.json",
-                            help="Path to JSON file produced by the scraper")
-        parser.add_argument("--city", default="Islamabad",
-                            help="City name to assign listings to")
+        parser.add_argument("--file",
+                            help="Path to JSON file produced by the scraper "
+                                 "(default: scraper/<city>_listings.json)")
+        parser.add_argument("--city", required=True,
+                            help="City name to assign listings to, e.g. Dubai")
         parser.add_argument("--dry-run", action="store_true",
                             help="Report what would be created/updated without writing")
         parser.add_argument("--areas-file",
@@ -80,14 +81,15 @@ class Command(BaseCommand):
                                  "(default: scraper/queries/<city>.txt)")
 
     def handle(self, *args, **options):
-        path = Path(options["file"])
+        city_file = slugify(options["city"]).replace("-", "_")   # "Abu Dhabi" -> abu_dhabi
+        scraper_dir = Path(settings.BASE_DIR) / "scraper"
+        path = Path(options["file"] or scraper_dir / f"{city_file}_listings.json")
         if not path.exists():
             raise CommandError(f"File not found: {path}")
         self.base_dir = path.resolve().parent   # photo "file" paths are relative to this
         self.dry_run = options["dry_run"]
 
-        areas_file = Path(options["areas_file"] or Path(settings.BASE_DIR) / "scraper" / "queries"
-                          / f"{slugify(options['city']).replace('-', '_')}.txt")
+        areas_file = Path(options["areas_file"] or scraper_dir / "queries" / f"{city_file}.txt")
         if not areas_file.exists():
             raise CommandError(f"Areas file not found: {areas_file} (use --areas-file)")
         plan = load_plan(areas_file, options["city"])
@@ -252,7 +254,7 @@ class Command(BaseCommand):
                 return None
             obj = DaycareListing.objects.create(
                 city=city,
-                slug=self.unique_slug(city, name),
+                slug=self.unique_slug(city, name, values["area"] and values["area"].name),
                 place_id=fid or item.get("place_id", ""),
                 last_seen_at=self.now,
                 **{k: v for k, v in values.items() if not (k == "listing_type" and not v)},
@@ -276,8 +278,10 @@ class Command(BaseCommand):
         self.import_images(obj, item)
         return obj
 
-    def unique_slug(self, city, name):
-        base = slugify(name)[:290] or "daycare"
+    def unique_slug(self, city, name, area=None):
+        # A name in Arabic script slugifies to nothing: fall back to
+        # "nursery-al-barsha" (the site's noun and the area or city)
+        base = slugify(name)[:290] or slugify(f"{settings.SITE_CONFIG['noun']} {area or city.name}")
         slug, n = base, 1
         while DaycareListing.objects.filter(city=city, slug=slug).exists():
             slug = f"{base}-{n}"

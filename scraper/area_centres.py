@@ -2,8 +2,8 @@
 Look up a map position for every area in a queries file, using OpenStreetMap's
 Nominatim, and write them to <queries>_area_centres.csv for review.
 
-    python scraper/area_centres.py                       # queries/islamabad.txt
-    python scraper/area_centres.py queries/lahore.txt
+    python scraper/area_centres.py queries/dubai.txt
+    python scraper/area_centres.py queries/islamabad.txt
 
 import_listings uses the positions to place a listing whose address names no
 area: it goes to the nearest area within [area_match] max_km. Results outside
@@ -23,12 +23,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from search_plan import in_boundary, load_plan  # noqa: E402
 
-USER_AGENT = "DaycaresPK-directory-scraper/1.0"
+USER_AGENT = "childcare-directory-scraper/1.0"
 
 
-def lookup(query: str) -> list[dict]:
+def lookup(query: str, country_code: str = "") -> list[dict]:
     url = "https://nominatim.openstreetmap.org/search?" + urllib.parse.urlencode(
-        {"q": query, "format": "json", "limit": 5, "countrycodes": "pk"}
+        {"q": query, "format": "json", "limit": 5, **({"countrycodes": country_code} if country_code else {})}
     )
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     with urllib.request.urlopen(req, timeout=30) as resp:
@@ -42,7 +42,7 @@ def main(queries_file: Path):
     for area in plan.areas:
         lat = lng = ""
         found = "not found"
-        for hit in lookup(f"{area}, {plan.city}"):
+        for hit in lookup(f"{area}, {plan.city}", plan.country.get("code", "")):
             la, ln = float(hit["lat"]), float(hit["lon"])
             if plan.boundary is None or in_boundary(la, ln, plan.boundary):
                 lat, lng, found = f"{la:.5f}", f"{ln:.5f}", hit["display_name"][:120]
@@ -61,4 +61,7 @@ def main(queries_file: Path):
 
 
 if __name__ == "__main__":
-    main(Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).parent / "queries" / "islamabad.txt")
+    if len(sys.argv) != 2:
+        sys.exit("usage: python scraper/area_centres.py queries/<city>.txt")
+    path = Path(sys.argv[1])
+    main(path if path.exists() else Path(__file__).parent / path)

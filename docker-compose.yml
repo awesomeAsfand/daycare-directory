@@ -93,7 +93,7 @@ services:
       target: dev        # dev stage has Playwright installed
     profiles:
       - scraper          # only starts with: docker compose --profile scraper up
-    command: python scraper/gmaps_scraper.py
+    command: python scraper/gmaps_scraper.py -q queries/dubai.txt
     volumes:
       - .:/app
     env_file:

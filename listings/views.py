@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.db.models import Q
@@ -17,6 +18,7 @@ def robots_txt(request):
 
 @cache_page(60 * 30)  # 30 min cache
 def index(request):
+    site = settings.SITE_CONFIG
     cities = City.objects.prefetch_related("areas").all()
     featured = DaycareListing.objects.filter(
         is_featured=True, is_active=True
@@ -25,15 +27,16 @@ def index(request):
     return render(request, "listings/index.html", {
         "cities": cities,
         "featured": featured,
-        "title": "Daycare Centers in Pakistan — Find the Best Daycares",
+        "title": f"{site['title_nouns']} in {site['in_country']} — Find the Best {site['nouns'].title()}",
         "meta_desc": (
-            "Find top-rated daycares, nurseries and montessori schools "
-            "in Islamabad, Lahore and across Pakistan."
+            f"Find top-rated {site['nouns']} across {site['in_country']}. "
+            f"Compare ratings, opening hours and contact details."
         ),
     })
 
 
 def city_listings(request, city_slug):
+    site = settings.SITE_CONFIG
     city = get_object_or_404(City, slug=city_slug)
     qs = DaycareListing.objects.filter(city=city, is_active=True).select_related("area")
 
@@ -65,15 +68,16 @@ def city_listings(request, city_slug):
         "active_area": area_slug,
         "q": q,
         "sort": sort,
-        "title": f"Daycare Centers in {city.name} | Pakistan Daycare Directory",
+        "title": f"{site['title_nouns']} in {city.name} | {site['name']}",
         "meta_desc": (
-            f"Find the best daycare centers, nurseries and preschools in {city.name}. "
+            f"Find the best {site['nouns']} in {city.name}. "
             f"Compare ratings, hours and contact info."
         ),
     })
 
 
 def area_listings(request, city_slug, area_slug):
+    site = settings.SITE_CONFIG
     city = get_object_or_404(City, slug=city_slug)
     area = get_object_or_404(Area, city=city, slug=area_slug)
     qs = DaycareListing.objects.filter(
@@ -84,15 +88,16 @@ def area_listings(request, city_slug, area_slug):
         "city": city,
         "area": area,
         "listings": qs,
-        "title": f"Daycare Centers in {area.name}, {city.name}",
+        "title": f"{site['title_nouns']} in {area.name}, {city.name}",
         "meta_desc": area.meta_description or (
-            f"Daycare centers and nurseries in {area.name}, {city.name}. "
+            f"{site['nouns'].capitalize()} in {area.name}, {city.name}. "
             f"Find ratings, contact info and more."
         ),
     })
 
 
 def listing_detail(request, city_slug, slug):
+    site = settings.SITE_CONFIG
     city = get_object_or_404(City, slug=city_slug)
     listing = get_object_or_404(
         DaycareListing.objects.prefetch_related("reviews", "images"),
@@ -107,11 +112,11 @@ def listing_detail(request, city_slug, slug):
         "listing": listing,
         "images": images,
         "similar": similar,
-        "title": f"{listing.name} — Daycare in {listing.area or city.name}",
+        "title": f"{listing.name} — {site['noun'].capitalize()} in {listing.area or city.name}",
         "meta_desc": (
             listing.description[:155]
             if listing.description
-            else f"{listing.name} is a daycare in {listing.address}. "
+            else f"{listing.name} is a {site['noun']} in {listing.address}. "
                  f"Rating: {listing.rating}/5 from {listing.review_count} reviews."
         ),
         "og_image": request.build_absolute_uri(images[0].image.url) if images else "",

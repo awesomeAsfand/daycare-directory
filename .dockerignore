@@ -17,6 +17,7 @@ build/
 local_settings.py
 staticfiles/
 media/
+media_*/
 
 # Environment (never bake .env into image)
 .env
@@ -25,6 +26,7 @@ media/
 
 # Scraper output (large JSON)
 scraper/daycare_listings.json
+scraper/*_listings.json
 scraper/screenshots/
 
 # Docker files (not needed inside image)

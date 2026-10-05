@@ -1,6 +1,16 @@
-# DaycaresPK — Pakistan Daycare Directory
+# Childcare Directory (UAE / Pakistan)
 
-A Django-powered directory of daycare centres, nurseries and Montessori schools across Pakistan, monetised with Google AdSense.
+A Django-powered directory of nurseries and daycare centres, monetised with Google AdSense.
+One codebase runs a separate site per country, each with its own database, domain and `.env`:
+
+| `SITE` | Site | Status |
+|--------|------|--------|
+| `uae`  | Nurseries in the UAE, starting with Dubai (brand name is a placeholder) | In progress |
+| `pk`   | DaycaresPK: daycares and preschools in Islamabad | Parked 2026-10-05 (git tag `pakistan-parked`) |
+
+`SITE` in `.env` picks the site's name, wording, time zone and country
+(`config/sites.py`; `SITE_NAME` overrides the brand name). Templates in
+`templates/sites/<site>/` replace the shared ones for that site (e.g. the About page).
 
 ## Tech stack
 
@@ -14,8 +24,8 @@ A Django-powered directory of daycare centres, nurseries and Montessori schools 
 
 ```bash
 # 1. Clone & create virtual env
-git clone https://github.com/YOUR_USERNAME/daycare-directory-pakistan.git
-cd daycare-directory-pakistan
+git clone https://github.com/YOUR_USERNAME/daycare-directory.git
+cd daycare-directory
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
@@ -39,32 +49,35 @@ cd scraper
 pip install playwright beautifulsoup4 lxml
 playwright install chromium
 
-# Run scraper (saves to scraper/daycare_listings.json, photos to scraper/images/)
-# Searches come from scraper/queries/islamabad.txt: every keyword in every
-# area, then a map-grid sweep. Places that aren't daycares / standalone
-# preschools in Islamabad go to daycare_listings.rejected.json with the reason.
-python gmaps_scraper.py --list                   # show the searches that would run
-python gmaps_scraper.py --areas "F-7,G-13"       # trial on a few areas (no grid)
-python gmaps_scraper.py --max-hours 2            # fresh run, stop cleanly after 2 hours
-python gmaps_scraper.py --resume --max-hours 2   # continue (also after a CAPTCHA block)
-python gmaps_scraper.py --report                 # what each keyword / area / the grid found
-python gmaps_scraper.py --fill-missing           # retry listings missing photos/reviews
+# One queries file per city: scraper/queries/<city>.txt holds the country
+# settings, keywords, areas, boundary and grid (see search_plan.py). Output
+# goes to scraper/<city>_listings.json, photos to scraper/images/. Places that
+# don't belong in the directory go to <city>_listings.rejected.json with the reason.
+python gmaps_scraper.py -q queries/dubai.txt --list                  # show the searches that would run
+python gmaps_scraper.py -q queries/dubai.txt --areas "JLT,Al Barsha" # trial on a few areas (no grid)
+python gmaps_scraper.py -q queries/dubai.txt --max-hours 2           # fresh run, stop cleanly after 2 hours
+python gmaps_scraper.py -q queries/dubai.txt --resume --max-hours 2  # continue (also after a CAPTCHA block)
+python gmaps_scraper.py -q queries/dubai.txt --report                # what each keyword / area / the grid found
+python gmaps_scraper.py -q queries/dubai.txt --fill-missing          # retry listings missing photos/reviews
 python -m unittest discover -s . -p "test_*.py"  # offline tests
 
-# Import into Django (preview first, then for real)
-python manage.py import_listings --file scraper/daycare_listings.json --city Islamabad --dry-run
-python manage.py import_listings --file scraper/daycare_listings.json --city Islamabad
+# Import into Django (preview first, then for real); reads scraper/dubai_listings.json
+python manage.py import_listings --city Dubai --dry-run
+python manage.py import_listings --city Dubai
+# The parked Islamabad scrape kept its old file name:
+python manage.py import_listings --city Islamabad --file scraper/daycare_listings.json
 
 # Merge listings that point at the same Google place (adds 301s for removed URLs)
 python manage.py dedupe_listings            # preview
 python manage.py dedupe_listings --apply
 ```
 
-Areas come only from `scraper/queries/islamabad.txt`: the importer places each
-listing by the sector in its address (F-7/4 → F-7, sub-sector kept for the
-listing page), then an area name or spelling from `[aliases]`, then its
-listing name, then the nearest area position within 1.5 km
-(`islamabad_area_centres.csv`, regenerate with `python scraper/area_centres.py`).
+Areas come only from the city's queries file: the importer places each
+listing by an area name or spelling from `[aliases]` in its address, then its
+listing name, then the nearest area position within `[area_match] max_km`
+(`<city>_area_centres.csv`, generate with `python scraper/area_centres.py queries/<city>.txt`).
+Islamabad's file also sets `sectors = cda`, which reads CDA sectors first
+(F-7/4 → F-7, sub-sector kept for the listing page).
 Listings that can't be placed show on the city page only; the import report
 lists them so you can add a spelling or an area.
 
@@ -78,17 +91,16 @@ hotlinked.
 
 | URL | Target keyword |
 |-----|---------------|
-| `/` | Pakistan daycare directory |
-| `/islamabad/` | Daycare centers in Islamabad |
-| `/islamabad/f-7/` | Daycare in F-7 Islamabad |
-| `/islamabad/dha/` | Daycare in DHA Islamabad |
-| `/islamabad/best-stars-daycare/detail/` | Individual listing |
+| `/` | Nurseries in the UAE |
+| `/dubai/` | Nurseries in Dubai |
+| `/dubai/al-barsha/` | Nursery in Al Barsha, Dubai |
+| `/dubai/tiny-tots-nursery/detail/` | Individual listing |
 | `/sitemap.xml` | Auto-generated sitemap |
 
 ## Monetisation
 
 1. **Google AdSense** — set `ADSENSE_PUBLISHER_ID` in `.env`; ad slots are pre-wired in templates
-2. **Featured listings** — set `is_featured=True` in Django admin; charge daycares PKR 2,000–5,000/mo
+2. **Featured listings** — set `is_featured=True` in Django admin; charge a monthly fee
 3. **Verified badge** — `is_verified=True`; upsell to listing owners
 
 ## Deployment (Docker, e.g. a DigitalOcean droplet)
@@ -106,7 +118,7 @@ P="docker compose -f docker-compose.prod.yml --env-file .env.prod"
 
 ```bash
 # Ubuntu droplet with Docker installed; point the domain's A records
-# (example.pk and www.example.pk) at the droplet's IP first
+# (example.ae and www.example.ae) at the droplet's IP first
 git clone <repo> daycare-directory && cd daycare-directory
 cp .env.prod.example .env.prod
 nano .env.prod      # SECRET_KEY, DB_PASSWORD, DOMAIN, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, CONTACT_EMAIL

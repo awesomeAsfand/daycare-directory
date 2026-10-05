@@ -19,6 +19,12 @@
 #
 # Gaps in this list are caught by the map-grid sweep that runs after these searches.
 
+[country]
+name = Pakistan
+code = pk
+timezone = Asia/Karachi
+phone_code = 92
+
 [keywords]
 # "child care" was dropped after the 2026-10-03 trial: it found no place
 # that another keyword didn't.
@@ -167,6 +173,8 @@ Model Town Humak = Humak
 # Diplomatic Enclave daycare landing in Noorpur Shahan).
 centres = islamabad_area_centres.csv
 max_km = 1.5
+# Read CDA sectors in addresses (F-7/4 -> area F-7, sub-area F-7/4)
+sectors = cda
 
 [grid]
 # Map-grid sweep: each keyword is searched on a map centred on every cell.

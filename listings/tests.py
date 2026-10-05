@@ -56,7 +56,8 @@ class ImportTestBase(TestCase):
         path = self.tmp / "listings.json"
         path.write_text(json.dumps(items), encoding="utf-8")
         out = StringIO()
-        call_command("import_listings", "--file", str(path), *extra, stdout=out, stderr=out)
+        call_command("import_listings", "--file", str(path), "--city", "Islamabad", *extra,
+                     stdout=out, stderr=out)
         return out.getvalue()
 
     def legacy_listing(self, **kw):
@@ -290,3 +291,63 @@ class SitePagesTests(TestCase):
         self.assertContains(resp, "<loc>http://daycares.example/islamabad/</loc>")
         self.assertContains(resp, "<loc>http://daycares.example/privacy-policy/</loc>")
         self.assertNotContains(resp, "example.com")
+
+
+def site_settings(site):
+    """override_settings for running the tests as another site (config/sites.py)."""
+    from django.conf import settings
+    from config.sites import SITES
+    templates = [{**settings.TEMPLATES[0],
+                  "DIRS": [settings.BASE_DIR / "templates" / "sites" / site, settings.BASE_DIR / "templates"]}]
+    return override_settings(SITE=site, SITE_CONFIG=SITES[site], TEMPLATES=templates)
+
+
+# The home page is cached (cache_page): a page cached as one site must not leak into another
+@override_settings(CACHES={"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}})
+class SiteConfigTests(TestCase):
+    def setUp(self):
+        self.city = City.objects.create(name="Dubai", slug="dubai")
+        area = Area.objects.create(city=self.city, name="Umm Suqeim", slug="umm-suqeim")
+        self.listing = DaycareListing.objects.create(
+            name="Tiny Tots Nursery", slug="tiny-tots-nursery", city=self.city, area=area,
+            address="Villa 12, Al Wasl Rd - Umm Suqeim 2 - Dubai - United Arab Emirates",
+        )
+
+    def test_uae_site(self):
+        with site_settings("uae"):
+            home = self.client.get("/")
+            self.assertContains(home, "<title>Nurseries in the UAE — Find the Best Nurseries</title>", html=True)
+            self.assertContains(home, "NurseriesUAE")
+            self.assertNotContains(home, "Pakistan")
+            self.assertContains(self.client.get("/dubai/"), "Nurseries in Dubai")
+            self.assertContains(self.client.get("/dubai/umm-suqeim/"), "Nurseries in Umm Suqeim, Dubai")
+            detail = self.client.get(self.listing.get_absolute_url())
+            self.assertContains(detail, '"addressCountry": "AE"')
+            self.assertContains(detail, "Dubai, United Arab Emirates")
+            self.assertContains(detail, "Tiny Tots Nursery — Nursery in Umm Suqeim")
+            about = self.client.get("/about/")
+            self.assertContains(about, "FS1, FS2 or KG")
+            self.assertNotContains(about, "Islamabad")
+
+    def test_pakistan_site(self):
+        with site_settings("pk"):
+            self.assertContains(self.client.get("/dubai/"), "Daycare Centers in Dubai")
+            self.assertContains(self.client.get(self.listing.get_absolute_url()), '"addressCountry": "PK"')
+            self.assertContains(self.client.get("/about/"), "Islamabad")
+
+    def test_site_name_override(self):
+        from config.sites import SITES
+        with override_settings(SITE_CONFIG={**SITES["uae"], "name": "Little Steps"}):
+            self.assertContains(self.client.get("/contact/"), "<title>Contact Little Steps</title>", html=True)
+
+    def test_short_address_uae_format(self):
+        self.assertEqual(self.listing.short_address, "Villa 12")
+        self.listing.address = "Al Wasl Rd - Umm Suqeim 2 - Dubai - United Arab Emirates"
+        self.assertEqual(self.listing.short_address, "Al Wasl Rd")
+
+
+class ArabicNameImportTests(ImportTestBase):
+    def test_arabic_only_name_gets_readable_slug(self):
+        with site_settings("uae"):
+            self.run_import([self.item(name="حضانة الأطفال", place_id="0xd:0xe", google_maps_url="")])
+        self.assertEqual(DaycareListing.objects.get().slug, "nursery-f-7")

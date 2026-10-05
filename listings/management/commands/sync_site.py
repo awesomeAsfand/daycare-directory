@@ -17,6 +17,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         domain = settings.SITE_DOMAIN
         site, _ = Site.objects.update_or_create(
-            pk=settings.SITE_ID, defaults={"domain": domain, "name": "DaycaresPK"},
+            pk=settings.SITE_ID, defaults={"domain": domain, "name": settings.SITE_CONFIG["name"]},
         )
         self.stdout.write(f"Site domain: {site.domain}")

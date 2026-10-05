@@ -1,18 +1,19 @@
 """
 Google Maps Daycare Scraper
-Playwright + BeautifulSoup | Pakistan Directory Project
+Playwright + BeautifulSoup
 
 Usage:
     pip install playwright beautifulsoup4 lxml asyncio
     playwright install chromium
-    python gmaps_scraper.py                          # all searches in queries/islamabad.txt
-    python gmaps_scraper.py --areas "F-7,G-9"        # trial: only these areas, no grid
-    python gmaps_scraper.py --resume --max-hours 2   # continue, stop after 2 hours
-    python gmaps_scraper.py --report                 # what each keyword/area found
-    python gmaps_scraper.py --fill-missing           # re-visit listings missing data
+    python gmaps_scraper.py -q queries/dubai.txt                    # all searches, output dubai_listings.json
+    python gmaps_scraper.py -q queries/dubai.txt --areas "JLT,Al Barsha"   # trial: only these areas, no grid
+    python gmaps_scraper.py -q queries/dubai.txt --resume --max-hours 2    # continue, stop after 2 hours
+    python gmaps_scraper.py -q queries/dubai.txt --report           # what each keyword/area found
+    python gmaps_scraper.py -q queries/dubai.txt --fill-missing     # re-visit listings missing data
 
 Searches come from a queries file (see search_plan.py): every keyword in
-every area, then a map-grid sweep. Each place is checked against the
+every area, then a map-grid sweep. The output defaults to
+<queries file name>_listings.json next to this script. Each place is checked against the
 directory's rules (search_plan.classify); places that don't belong are
 written to <output>.rejected.json with the reason instead of being scraped
 in full.
@@ -36,14 +37,13 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright, Page, TimeoutError as PWTimeout
 
+from area_match import AreaMatcher
 from search_plan import QueryPlan, SearchTask, build_tasks, classify, load_plan
 
 
 # ─── Config ──────────────────────────────────────────────────────────────────
 
 SCRAPER_DIR = Path(__file__).parent
-QUERIES_FILE = SCRAPER_DIR / "queries" / "islamabad.txt"
-OUTPUT_FILE = SCRAPER_DIR / "daycare_listings.json"
 IMAGES_DIR = SCRAPER_DIR / "images"
 SCREENSHOTS_DIR = SCRAPER_DIR / "screenshots"   # pages where nothing was found
 STOP_FILE = SCRAPER_DIR / "STOP"   # create this file to stop a run cleanly
@@ -71,8 +71,8 @@ class ScraperBlocked(Exception):
 class DaycareCenter:
     name: str = ""
     address: str = ""
-    city: str = "Islamabad"
-    area: str = ""           # e.g. F-7, DHA, Bahria Town
+    city: str = ""
+    area: str = ""           # from the queries file's areas (area_match.py); import_listings re-checks it
     phone: str = ""
     website: str = ""
     rating: float = 0.0
@@ -137,24 +137,17 @@ def image_dir_name(dc: "DaycareCenter") -> str:
     return "noid_" + hashlib.sha1(listing_key(dc).encode("utf-8")).hexdigest()[:16]
 
 
-def extract_area(address: str) -> str:
-    """Try to extract the area/sector from a Pakistani address."""
-    patterns = [
-        r"\b(F-\d+(?:/\d+)?)\b",
-        r"\b(G-\d+(?:/\d+)?)\b",
-        r"\b(I-\d+(?:/\d+)?)\b",
-        r"\b(E-\d+(?:/\d+)?)\b",
-        r"\b(DHA(?:\s+Phase\s+\d+)?)\b",
-        r"\b(Bahria Town(?:\s+Phase\s+\d+)?)\b",
-        r"\b(PWD(?:\s+Housing)?)\b",
-        r"\b(Bani Gala)\b",
-        r"\b(Margalla Hills)\b",
-    ]
-    for p in patterns:
-        m = re.search(p, address, re.IGNORECASE)
-        if m:
-            return m.group(1)
-    return ""
+def default_output(queries_file: Path) -> Path:
+    """queries/dubai.txt -> scraper/dubai_listings.json"""
+    return SCRAPER_DIR / f"{queries_file.stem}_listings.json"
+
+
+def find_phone(text: str, phone_code: str = "") -> str:
+    """A phone number in page text: international (+971 4 123 4567, +92 300 ...)
+    or local (04 123 4567, 050 123 4567, 051 2345678)."""
+    intl = rf"\+{phone_code}" if phone_code else r"\+\d{1,3}"
+    m = re.search(rf"({intl}[\s\-]?\d[\d\s\-]{{7,}}\d|\b0\d{{1,3}}[\s\-]?\d{{3}}[\s\-]?\d{{3,5}}\b)", text)
+    return m.group(1).strip() if m else ""
 
 
 # ─── Parser ──────────────────────────────────────────────────────────────────
@@ -196,8 +189,12 @@ def parse_hours(soup: BeautifulSoup) -> dict:
                 hours[day] = clean_text(cells[1].get_text(" ", strip=True))
     return hours
 
-def parse_listing_page(html: str, url: str, query: str) -> DaycareCenter:
-    """Parse a single Google Maps place page into a DaycareCenter."""
+def parse_listing_page(html: str, url: str, query: str,
+                       city: str = "", phone_code: str = "") -> DaycareCenter:
+    """Parse a single Google Maps place page into a DaycareCenter.
+
+    `city` and `phone_code` (from the queries file) help the fallbacks used
+    when the address or phone button is missing."""
     soup = BeautifulSoup(html, "lxml")
     dc = DaycareCenter(google_maps_url=url, source_query=query)
 
@@ -243,25 +240,22 @@ def parse_listing_page(html: str, url: str, query: str) -> DaycareCenter:
         dc.address = clean_text(
             re.sub(r"^Address:\s*", "", addr_tag.get("aria-label", "")) or addr_tag.get_text(" ", strip=True)
         )
-    else:
-        # Fallback: find text next to map pin icon
+    elif city:
+        # Fallback: a short text with a number followed by the city name
+        city_re = re.compile(rf"\d+.+\b{re.escape(city)}\b", re.I)
         for tag in soup.find_all(["div", "span"]):
             text = tag.get_text(strip=True)
-            if re.search(r"\d+.+Islamabad|Lahore", text) and len(text) < 150:
+            if city_re.search(text) and len(text) < 150:
                 dc.address = text
                 break
 
-    dc.area = extract_area(dc.address)
-
-    # Phone number — from the phone button ("Phone: +92 ..."); scanning the
+    # Phone number — from the phone button ("Phone: +971 ..."); scanning the
     # whole page as a fallback can pick up numbers quoted in reviews
     phone_tag = soup.find("button", {"data-item-id": re.compile(r"^phone:")})
     if phone_tag:
         dc.phone = clean_text(re.sub(r"^Phone:\s*", "", phone_tag.get("aria-label", "")))
     if not dc.phone:
-        phone_match = re.search(r"(\+92[\s\-]?\d[\d\s\-]{8,}|\b0\d{2,3}[\s\-]?\d{6,8}\b)", all_text)
-        if phone_match:
-            dc.phone = phone_match.group(1).strip()
+        dc.phone = find_phone(all_text, phone_code)
 
     # Website — the "authority" link; otherwise the first non-Google link
     website_tag = soup.find("a", {"data-item-id": "authority"}, href=True)
@@ -578,7 +572,8 @@ async def scrape_listing(page: Page, url: str, query: str,
 
         html = await page.content()
         final_url = page.url
-        dc = parse_listing_page(html, final_url, query)
+        dc = parse_listing_page(html, final_url, query,
+                                plan.city if plan else "", plan.country.get("phone_code", "") if plan else "")
         # The final URL sometimes loses the data= segment; the search-result
         # link always has it.
         if not dc.place_id:
@@ -644,8 +639,9 @@ def _load_results(output: Path) -> list[DaycareCenter]:
             for d in data]
 
 
-async def launch_browser(pw):
-    """Headless Chromium set up to get Google Maps' English desktop layout."""
+async def launch_browser(pw, timezone_id: str = "UTC"):
+    """Headless Chromium set up to get Google Maps' English desktop layout,
+    in the time zone of the country being scraped ([country] timezone)."""
     browser = await pw.chromium.launch(
         headless=True,
         args=[
@@ -662,7 +658,7 @@ async def launch_browser(pw):
             "Chrome/122.0.0.0 Safari/537.36"
         ),
         locale="en-US",
-        timezone_id="Asia/Karachi",
+        timezone_id=timezone_id,
     )
     # Stealth: remove webdriver flag
     await context.add_init_script("""
@@ -677,7 +673,7 @@ def _add_found_by(found_by: list, key: str):
         found_by.append(key)
 
 
-async def run_scraper(tasks: list[SearchTask], plan: QueryPlan, output: Path = OUTPUT_FILE,
+async def run_scraper(tasks: list[SearchTask], plan: QueryPlan, output: Path,
                       resume: bool = False, max_hours: float | None = None):
     """Main scraper entrypoint.
 
@@ -715,6 +711,7 @@ async def run_scraper(tasks: list[SearchTask], plan: QueryPlan, output: Path = O
     completed = set(state["completed"])
     todo = [t for t in tasks if t.key not in completed]
     deadline = time.monotonic() + max_hours * 3600 if max_hours else None
+    matcher = AreaMatcher(plan)
 
     def save():
         save_results(results, output)
@@ -739,7 +736,7 @@ async def run_scraper(tasks: list[SearchTask], plan: QueryPlan, output: Path = O
 
     stop_reason = ""
     async with async_playwright() as pw:
-        browser, page = await launch_browser(pw)
+        browser, page = await launch_browser(pw, plan.country.get("timezone", "UTC"))
         try:
             for n, task in enumerate(todo, len(tasks) - len(todo) + 1):
                 stop_reason = should_stop()
@@ -783,6 +780,8 @@ async def run_scraper(tasks: list[SearchTask], plan: QueryPlan, output: Path = O
                         print(f"  - {dc.name[:50]} | rejected: {reason}")
                     else:
                         dc.search_area = task.area
+                        dc.city = plan.city
+                        dc.area = matcher.match(dc.address, dc.latitude, dc.longitude, dc.name).area
                         dc.found_by = [task.key]
                         results.append(dc)
                         kept[key] = dc
@@ -832,7 +831,7 @@ def _key_parts(key: str) -> tuple[str, str, str]:
     return method, rest, ""
 
 
-def print_report(output: Path = OUTPUT_FILE):
+def print_report(output: Path):
     """Summarise what each keyword, area and the grid sweep contributed."""
     state = _load_json(_state_file(output), None)
     if state is None:
@@ -892,7 +891,7 @@ def print_report(output: Path = OUTPUT_FILE):
         print("\nRejected: " + ", ".join(f"{k} {v}" for k, v in reasons.most_common()))
 
 
-def save_results(results: list[DaycareCenter], output: Path = OUTPUT_FILE):
+def save_results(results: list[DaycareCenter], output: Path):
     """Save results to JSON and CSV, overwriting each time."""
     data = [asdict(r) for r in results]
     write_json(output, data)
@@ -1014,7 +1013,7 @@ def _needs_update(item: dict) -> bool:
     )
 
 
-async def run_fill_missing(output: Path = OUTPUT_FILE):
+async def run_fill_missing(output: Path, timezone_id: str = "UTC"):
     """Re-scrape only listings that are missing rating, coords, reviews, or images."""
     if not output.exists():
         print(f"No existing data file found at {output}. Run a full scrape first.")
@@ -1031,7 +1030,7 @@ async def run_fill_missing(output: Path = OUTPUT_FILE):
         return
 
     async with async_playwright() as pw:
-        browser, page = await launch_browser(pw)
+        browser, page = await launch_browser(pw, timezone_id)
 
         def checkpoint():
             write_json(output, data)
@@ -1111,12 +1110,12 @@ if __name__ == "__main__":
         help="Print what each keyword, area and the grid sweep found, then exit",
     )
     parser.add_argument(
-        "--output", type=Path, default=OUTPUT_FILE,
-        help=f"JSON output file (default: {OUTPUT_FILE.name})",
+        "-q", "--queries-file", type=Path, required=True,
+        help="Country, keywords, areas and grid to search, e.g. queries/dubai.txt",
     )
     parser.add_argument(
-        "--queries-file", type=Path, default=QUERIES_FILE,
-        help=f"Keywords, areas and grid to search (default: queries/{QUERIES_FILE.name})",
+        "--output", type=Path,
+        help="JSON output file (default: <queries file name>_listings.json, e.g. dubai_listings.json)",
     )
     parser.add_argument(
         "--city", help="City that addresses must be in (default: from the queries file name)",
@@ -1147,12 +1146,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
     MAX_RESULTS_PER_QUERY = args.max_per_query
 
+    # "queries/dubai.txt" works from the project root as well as from scraper/
+    if not args.queries_file.exists() and (SCRAPER_DIR / args.queries_file).exists():
+        args.queries_file = SCRAPER_DIR / args.queries_file
+    if not args.queries_file.exists():
+        parser.error(f"queries file not found: {args.queries_file}")
+    plan = load_plan(args.queries_file, args.city)
+    args.output = args.output or default_output(args.queries_file)
+
     if args.report:
         print_report(args.output)
     elif args.fill_missing:
-        asyncio.run(run_fill_missing(args.output))
+        asyncio.run(run_fill_missing(args.output, plan.country.get("timezone", "UTC")))
     else:
-        plan = load_plan(args.queries_file, args.city)
         if args.queries:
             tasks = [SearchTask(key=f"query:{q}", query=q, keyword=q) for q in args.queries]
         else:

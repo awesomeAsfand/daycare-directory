@@ -1,7 +1,16 @@
 from pathlib import Path
 from decouple import config
 
+from config.sites import SITES
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Which directory this deployment runs: "uae" or "pk" (see config/sites.py)
+SITE = config("SITE", default="uae")
+if SITE not in SITES:
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured(f"SITE must be one of {', '.join(SITES)}, not {SITE!r}")
+SITE_CONFIG = {**SITES[SITE], "name": config("SITE_NAME", default=SITES[SITE]["name"])}
 
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-change-me-in-production")
 DEBUG = config("DEBUG", default=True, cast=bool)
@@ -38,7 +47,8 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        # The site's own templates first, then the shared ones
+        "DIRS": [BASE_DIR / "templates" / "sites" / SITE, BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -73,7 +83,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "Asia/Karachi"
+TIME_ZONE = SITE_CONFIG["time_zone"]
 USE_I18N = True
 USE_TZ = True
 
@@ -91,7 +101,9 @@ STORAGES = {
 }
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# Locally, keep each site's photos apart (MEDIA_DIR=media_uae): listing IDs
+# restart in each site's database and photos are stored by listing ID
+MEDIA_ROOT = BASE_DIR / config("MEDIA_DIR", default="media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -115,8 +127,12 @@ REDIS_URL = config("REDIS_URL", default="redis://localhost:6379/0")
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 
+# In development nothing is cached, so pages show imports and template
+# changes straight away (the home page is otherwise cached for 30 minutes)
 CACHES = {
     "default": {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+    } if DEBUG else {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": REDIS_URL,
     }

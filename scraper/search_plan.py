@@ -1,8 +1,13 @@
 """
 Search planning and listing filters for gmaps_scraper.py.
 
-A queries file (e.g. queries/islamabad.txt) has three sections:
+A queries file (e.g. queries/dubai.txt) has these sections:
 
+    [country]           country settings: key = value lines
+        name = United Arab Emirates
+        code = ae                           (ISO code, for OpenStreetMap lookups)
+        timezone = Asia/Dubai               (the scraper's browser time zone)
+        phone_code = 971                    (to find phone numbers in page text)
     [keywords]          one search keyword per line
     [areas]             one area per line; "(...)" notes are ignored
     [grid]              map-grid sweep: key = value lines
@@ -18,6 +23,7 @@ A queries file (e.g. queries/islamabad.txt) has three sections:
     [area_match]        how import_listings places listings in areas
         centres = islamabad_area_centres.csv
         max_km = 2.0
+        sectors = cda   (Islamabad only: read CDA sectors such as F-7/4)
                         (see area_match.py)
 
 Area searches are "<keyword> in <area> <city>". Grid searches run each grid
@@ -73,6 +79,7 @@ class QueryPlan:
     exclude: list = field(default_factory=list)
     aliases: dict = field(default_factory=dict)      # spelling -> area
     area_match: dict = field(default_factory=dict)
+    country: dict = field(default_factory=dict)      # [country]: name, code, timezone, phone_code
     path: Path | None = None                         # the queries file
 
 
@@ -145,6 +152,9 @@ def load_plan(path: Path, city: str | None = None) -> QueryPlan:
         elif section == "area_match":
             key, _, value = line.partition("=")
             plan.area_match[key.strip().lower()] = value.strip()
+        elif section == "country":
+            key, _, value = line.partition("=")
+            plan.country[key.strip().lower()] = value.strip()
         elif section == "grid":
             key, _, value = line.partition("=")
             plan.grid[key.strip().lower()] = value.strip()
@@ -260,10 +270,21 @@ SCHOOL_CHAIN_RE = re.compile(
 )
 
 
+# Last part of a Google address, dropped before reading the city
+COUNTRY_NAMES = {"pakistan", "united arab emirates", "uae"}
+
+
+def address_parts(address: str) -> list[str]:
+    """Google separates address parts with commas in Pakistan and with " - "
+    in the UAE ("Al Wasl Rd - Umm Suqeim 2 - Dubai - United Arab Emirates")."""
+    return [p.strip() for p in re.split(r",| - ", address) if p.strip()]
+
+
 def address_city(address: str) -> str:
-    """City from a Google address: '..., F-7/4, Islamabad, 44000, Pakistan' -> 'Islamabad'."""
-    parts = [p.strip() for p in address.split(",") if p.strip()]
-    while parts and (parts[-1].lower() == "pakistan" or re.fullmatch(r"\d{4,6}", parts[-1])):
+    """City from a Google address: '..., F-7/4, Islamabad, 44000, Pakistan' -> 'Islamabad',
+    'Al Barsha 1 - Dubai - United Arab Emirates' -> 'Dubai'."""
+    parts = address_parts(address)
+    while parts and (parts[-1].lower() in COUNTRY_NAMES or re.fullmatch(r"\d{4,6}", parts[-1])):
         parts.pop()
     if not parts:
         return ""
@@ -276,11 +297,19 @@ def location_problem(address: str, city: str, lat: float = 0, lng: float = 0,
     """"" if the place is in the city, else the reason it isn't (or can't be told)."""
     if boundary is not None and lat and lng:
         return "" if in_boundary(lat, lng, boundary) else f"outside {city} boundary"
-    # No coordinates: fall back to the address, where the city must end one
-    # of the comma-separated parts ("G-13/2 Islamabad", "Islamabad 44000"),
-    # so that a road like "Islamabad Highway, Rawalpindi" doesn't count
+    # No coordinates: fall back to the address
     if not address:
         return "no address or location"
+    if " - " in address:
+        # UAE style: the city is always the last part before the country
+        # ("... - Al Ain - United Arab Emirates"); a road such as
+        # "Dubai - Al Ain Rd" would otherwise look like a "Dubai" part
+        if address_city(address).lower() == city.lower():
+            return ""
+        return f"outside {city} ({address_city(address) or 'unknown city'})"
+    # Pakistan style: the city must end one of the comma-separated parts
+    # ("G-13/2 Islamabad", "Islamabad 44000"), so that a road like
+    # "Islamabad Highway, Rawalpindi" doesn't count
     city_part = re.compile(rf"(?:^|\s){re.escape(city)}(?:\s+Capital Territory)?(?:\s+\d{{4,6}})?$", re.I)
     if any(city_part.search(part.strip()) for part in address.split(",")):
         return ""

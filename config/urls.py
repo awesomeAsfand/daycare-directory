@@ -15,10 +15,20 @@ sitemaps = {
 }
 
 
+class SitePage(TemplateView):
+    """A static page; title and meta_desc are filled from settings.SITE_CONFIG
+    on each request, e.g. "About {name}"."""
+    title = meta_desc = ""
+
+    def get_context_data(self, **kwargs):
+        site = settings.SITE_CONFIG
+        return super().get_context_data(
+            title=self.title.format(**site), meta_desc=self.meta_desc.format(**site), **kwargs,
+        )
+
+
 def page(template, title, meta_desc):
-    return TemplateView.as_view(
-        template_name=template, extra_context={"title": title, "meta_desc": meta_desc},
-    )
+    return SitePage.as_view(template_name=template, title=title, meta_desc=meta_desc)
 
 
 urlpatterns = [
@@ -33,16 +43,16 @@ urlpatterns = [
     # Site pages come before the listings URLs, whose "<city>/" pattern
     # would otherwise catch them
     path("about/", page(
-        "pages/about.html", "About DaycaresPK",
-        "DaycaresPK is a free directory of daycares, preschools and Montessori centres in Islamabad.",
+        "pages/about.html", "About {name}",
+        "{name} is a free directory of {nouns} in {in_country}.",
     ), name="about"),
     path("privacy-policy/", page(
-        "pages/privacy.html", "Privacy Policy — DaycaresPK",
-        "How DaycaresPK handles information, cookies and advertising.",
+        "pages/privacy.html", "Privacy Policy — {name}",
+        "How {name} handles information, cookies and advertising.",
     ), name="privacy"),
     path("contact/", page(
-        "pages/contact.html", "Contact DaycaresPK",
-        "Contact DaycaresPK to correct, claim or remove a daycare listing, or to send feedback.",
+        "pages/contact.html", "Contact {name}",
+        "Contact {name} to correct, claim or remove a {noun} listing, or to send feedback.",
     ), name="contact"),
     path("", include("listings.urls", namespace="listings")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

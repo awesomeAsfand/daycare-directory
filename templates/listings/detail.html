@@ -15,7 +15,7 @@
     "@type": "PostalAddress",
     "streetAddress": "{{ listing.address|escapejs }}",
     "addressLocality": "{{ listing.city.name|escapejs }}",
-    "addressCountry": "PK"
+    "addressCountry": "{{ site.country_code }}"
   },
   {% if listing.phone %}"telephone": "{{ listing.phone|escapejs }}",{% endif %}
   {% if listing.website %}"url": "{{ listing.website|escapejs }}",{% endif %}
@@ -34,7 +34,7 @@
   },
   {% endif %}
   {% if og_image %}"image": "{{ og_image|escapejs }}",{% endif %}
-  "areaServed": "{{ listing.city.name|escapejs }}, Pakistan"
+  "areaServed": "{{ listing.city.name|escapejs }}, {{ site.country|escapejs }}"
 }
 </script>
 
@@ -282,7 +282,7 @@
 <div class="bg-white border-t border-gray-200 py-8 mt-4">
   <div class="max-w-4xl mx-auto px-4">
     <h2 class="font-semibold text-gray-700 mb-4">
-      Other daycares in {% if listing.area %}{{ listing.area.name }}{% else %}{{ listing.city.name }}{% endif %}
+      Other {{ site.nouns }} in {% if listing.area %}{{ listing.area.name }}{% else %}{{ listing.city.name }}{% endif %}
     </h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {% for listing in similar %}

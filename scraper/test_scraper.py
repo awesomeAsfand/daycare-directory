@@ -25,6 +25,7 @@ BOUNDARY = load_boundary(Path(__file__).parent / "queries" / "islamabad_boundary
 
 ISB = "House 5, Street 9, F-7/3 F 7/3 F-7, Islamabad, 44000, Pakistan"
 RWP = "Street 2, Bahria Town Phase 7, Rawalpindi, 46000, Pakistan"
+DXB = "Shop G-12, Al Wasl Rd - Umm Suqeim - Umm Suqeim 2 - Dubai - United Arab Emirates"
 
 QUERIES = """\
 # comment
@@ -56,6 +57,18 @@ class PlanTests(unittest.TestCase):
         self.assertEqual(plan.keywords, ["daycare", "montessori"])
         self.assertEqual(plan.areas, ["F-7", "E-18"])
         self.assertEqual(plan.grid["step_km"], "2.5")
+
+    def test_country_section(self):
+        dubai = self.tmp / "dubai.txt"
+        dubai.write_text("[country]\nname = United Arab Emirates\ncode = ae\ntimezone = Asia/Dubai\n"
+                         "phone_code = 971\n" + QUERIES, encoding="utf-8")
+        plan = load_plan(dubai)
+        self.assertEqual(plan.city, "Dubai")
+        self.assertEqual(plan.country, {"name": "United Arab Emirates", "code": "ae",
+                                        "timezone": "Asia/Dubai", "phone_code": "971"})
+        self.assertEqual(g.default_output(dubai), g.SCRAPER_DIR / "dubai_listings.json")
+        self.assertEqual(load_plan(Path(__file__).parent / "queries" / "islamabad.txt").country["timezone"],
+                         "Asia/Karachi")
 
     def test_area_label_drops_notes(self):
         self.assertEqual(area_label("B-17 (Multi Gardens)"), "B-17")
@@ -163,6 +176,19 @@ class ClassifyTests(unittest.TestCase):
         self.assertEqual(address_city(ISB), "Islamabad")
         self.assertEqual(address_city("Sector G-9, Islamabad 44000, Pakistan"), "Islamabad")
         self.assertEqual(address_city("Bani Gala, Islamabad Capital Territory, Pakistan"), "Islamabad")
+        # UAE addresses use " - " between parts
+        self.assertEqual(address_city(DXB), "Dubai")
+        self.assertEqual(address_city("Villa 5, Street 12 - Al Khalidiyah - W 10 - Abu Dhabi - "
+                                      "United Arab Emirates"), "Abu Dhabi")
+
+    def test_location_from_uae_address(self):
+        # No coordinates: the city must be one of the address parts
+        self.assertEqual(classify("Tiny Tots Nursery", ["Nursery school"], DXB, "Dubai"), ("preschool", ""))
+        self.assertEqual(classify("Tiny Tots Nursery", ["Nursery school"], "Al Nahda - Sharjah - "
+                                  "United Arab Emirates", "Dubai"), ("", "outside Dubai (Sharjah)"))
+        # "Dubai" in a road name doesn't count
+        self.assertEqual(classify("Tiny Tots Nursery", ["Nursery school"], "Dubai - Al Ain Rd - Al Ain - "
+                                  "United Arab Emirates", "Dubai"), ("", "outside Dubai (Al Ain)"))
 
 
 class AreaMatchTests(unittest.TestCase):
@@ -207,6 +233,15 @@ class AreaMatchTests(unittest.TestCase):
         for address, area in cases:
             with self.subTest(address=address):
                 self.assertEqual(self.check(address), (area, "", "name"))
+
+    def test_sectors_only_with_cda_setting(self):
+        # Islamabad's file turns sector matching on; without it (Dubai), shop
+        # and block numbers like "Shop G-12" must not be read as sectors
+        from area_match import AreaMatcher
+        self.assertTrue(self.m.match_sectors)
+        dubai = AreaMatcher(QueryPlan(city="Dubai", areas=["Umm Suqeim"]))
+        r = dubai.match(DXB)
+        self.assertEqual((r.area, r.sub_area, r.method, r.unlisted_sector), ("Umm Suqeim", "", "name", ""))
 
     def test_no_false_matches(self):
         for address in ["Mohallah No 9, Some Road, Pakistan", "House 1-A, Block C, Street 5, Pakistan"]:
@@ -291,6 +326,27 @@ class ParserTests(unittest.TestCase):
         dc = g.parse_listing_page("<h1>Old Place</h1><span>Permanently closed</span>", "https://x", "q")
         self.assertTrue(dc.closed)
 
+    def test_find_phone(self):
+        cases = [
+            ("Call +971 4 123 4567 today", "971", "+971 4 123 4567"),
+            ("Mobile +971 50 123 4567", "971", "+971 50 123 4567"),
+            ("Tel 04 123 4567", "971", "04 123 4567"),
+            ("Tel 050-1234567", "971", "050-1234567"),
+            ("Phone +92 300 1234567", "92", "+92 300 1234567"),
+            ("Phone 051 2345678", "92", "051 2345678"),
+            ("Phone +92 300 1234567", "", "+92 300 1234567"),   # no phone code: any country
+            ("Rated 4.5 by 120 parents", "971", ""),
+        ]
+        for text, code, expected in cases:
+            with self.subTest(text=text):
+                self.assertEqual(g.find_phone(text, code), expected)
+
+    def test_address_fallback_uses_city(self):
+        html = "<h1>Tiny Tots</h1><div>Villa 12, Al Wasl Rd, Dubai</div>"
+        self.assertEqual(g.parse_listing_page(html, "https://x", "q", city="Dubai").address,
+                         "Villa 12, Al Wasl Rd, Dubai")
+        self.assertEqual(g.parse_listing_page(html, "https://x", "q", city="Sharjah").address, "")
+
 
 class FakeBrowser:
     async def close(self):
@@ -347,7 +403,7 @@ class RunScraperTests(unittest.TestCase):
         async def no_sleep(*a):
             pass
 
-        async def fake_launch(pw):
+        async def fake_launch(pw, timezone_id="UTC"):
             return FakeBrowser(), None
 
         with mock.patch.object(g, "async_playwright", FakePlaywright), \
