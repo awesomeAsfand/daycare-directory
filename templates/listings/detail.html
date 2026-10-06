@@ -256,6 +256,31 @@
       {% endif %}
     </div>
 
+    {# Nursery details: shown once confirmed in the admin #}
+    {% if listing.has_details %}
+    <div class="bg-white border border-gray-200 rounded-xl p-5">
+      <h2 class="font-semibold text-gray-700 text-sm mb-3">Nursery details</h2>
+      <dl class="space-y-2 text-sm">
+        {% if listing.age_range_label %}
+        <div class="flex justify-between gap-2"><dt class="text-gray-500">Ages</dt><dd class="text-gray-700 text-right">{{ listing.age_range_label }}</dd></div>
+        {% endif %}
+        {% if listing.curriculum_labels %}
+        <div class="flex justify-between gap-2"><dt class="text-gray-500">Curriculum</dt><dd class="text-gray-700 text-right">{{ listing.curriculum_labels|join:", " }}</dd></div>
+        {% endif %}
+        {% if listing.licensed_by %}
+        <div class="flex justify-between gap-2"><dt class="text-gray-500">Licensed by</dt><dd class="text-gray-700 text-right">{{ listing.get_licensed_by_display }}</dd></div>
+        {% endif %}
+        {% if listing.fees_label %}
+        <div class="flex justify-between gap-2"><dt class="text-gray-500">Fees</dt><dd class="text-gray-700 text-right">{{ listing.fees_label }}{% if listing.fees_note %}<br><span class="text-xs text-gray-400">{{ listing.fees_note }}</span>{% endif %}</dd></div>
+        {% endif %}
+      </dl>
+      <p class="text-xs text-gray-400 mt-3 leading-relaxed">
+        {% if listing.details_source %}From the <a href="{{ listing.details_source }}" target="_blank" rel="noopener nofollow" class="underline hover:text-brand-600">nursery's website</a>{% else %}From the nursery{% endif %}{% if listing.details_checked %}, checked {{ listing.details_checked|date:"M Y" }}{% endif %}.
+        Fees and places change: confirm with the nursery before enrolling.
+      </p>
+    </div>
+    {% endif %}
+
     <!-- Hours -->
     {% if listing.hours %}
     <div class="bg-white border border-gray-200 rounded-xl p-5">

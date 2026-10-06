@@ -1,6 +1,26 @@
+from django import forms
 from django.contrib import admin
+from django.db.models import Q
 from django.utils.html import format_html
-from .models import SCRAPED_FIELDS, DaycareListing, City, Area, Review, ListingImage
+from .models import CURRICULA, SCRAPED_FIELDS, DaycareListing, City, Area, Review, ListingImage
+
+
+class DetailsFilter(admin.SimpleListFilter):
+    """Listings with nursery details still to check, for the review queue."""
+    title = "nursery details"
+    parameter_name = "details"
+
+    def lookups(self, request, model_admin):
+        return [("to_review", "Found, not confirmed yet"), ("none", "None found")]
+
+    def queryset(self, request, queryset):
+        found = (Q(age_from_months__isnull=False) | Q(age_to_months__isnull=False)
+                 | ~Q(curriculum=[]) | ~Q(licensed_by="") | Q(fees_from_aed__isnull=False))
+        if self.value() == "to_review":
+            return queryset.filter(found, details_confirmed=False)
+        if self.value() == "none":
+            return queryset.exclude(found)
+        return queryset
 
 
 def image_preview(obj, height):
@@ -39,14 +59,27 @@ class ReviewInline(admin.TabularInline):
     fields = ["author", "rating", "text", "date"]
 
 
+class DaycareListingForm(forms.ModelForm):
+    curriculum = forms.MultipleChoiceField(
+        choices=list(CURRICULA.items()), required=False, widget=forms.CheckboxSelectMultiple,
+    )
+
+    class Meta:
+        model = DaycareListing
+        fields = "__all__"
+
+
 @admin.register(DaycareListing)
 class DaycareAdmin(admin.ModelAdmin):
+    form = DaycareListingForm
     inlines = [ListingImageInline, ReviewInline]
     list_display = [
         "name", "listing_type", "city", "area", "rating", "review_count",
-        "is_featured", "is_verified", "is_active", "last_seen_at",
+        "is_featured", "is_verified", "is_active", "details_confirmed", "last_seen_at",
     ]
-    list_filter = ["listing_type", "city", "area", "is_featured", "is_verified", "is_active"]
+    list_filter = ["listing_type", "city", "area", "is_featured", "is_verified", "is_active",
+                   "details_confirmed", DetailsFilter]
+    actions = ["confirm_details"]
     search_fields = ["name", "address", "phone"]
     list_editable = ["is_featured", "is_verified", "is_active"]
     prepopulated_fields = {"slug": ["name"]}
@@ -66,6 +99,11 @@ class DaycareAdmin(admin.ModelAdmin):
         ("Status", {
             "fields": ("is_active", "is_verified", "is_featured")
         }),
+        ("Nursery details (from the nursery's website, KHDA or the nursery)", {
+            "fields": ("age_from_months", "age_to_months", "curriculum", "licensed_by",
+                       ("fees_from_aed", "fees_to_aed"), "fees_note",
+                       "details_source", "details_checked", "details_confirmed"),
+        }),
         ("Import protection", {
             "fields": ("locked_fields", "last_seen_at"),
         }),
@@ -74,6 +112,11 @@ class DaycareAdmin(admin.ModelAdmin):
             "classes": ("collapse",),
         }),
     )
+
+    @admin.action(description="Confirm details (show them on the site)")
+    def confirm_details(self, request, queryset):
+        n = queryset.update(details_confirmed=True)
+        self.message_user(request, f"Details confirmed for {n} listing{'s' if n != 1 else ''}.")
 
     # Anything edited by hand is locked so the next import_listings run keeps it.
 

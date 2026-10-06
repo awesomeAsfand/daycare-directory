@@ -1,3 +1,4 @@
+import csv
 import json
 import shutil
 import tempfile
@@ -364,3 +365,97 @@ class ImportRulesTests(ImportTestBase):
         self.assertEqual(list(DaycareListing.objects.values_list("name", flat=True)), ["Little Kingdom Childcare"])
         self.assertIn("skipped (placeholder map pin shared by many places): 5", out)
         self.assertIn("Fun Kids Amusement Arcade (not a nursery (name))", out)
+
+
+class NurseryDetailsTests(ImportTestBase):
+    def listing(self, **kw):
+        fields = dict(name="Tiny Tots", slug="tiny-tots", city=self.city, age_from_months=1.5,
+                      age_to_months=60, curriculum=["eyfs", "montessori"], licensed_by="KHDA",
+                      fees_from_aed=40755, fees_to_aed=52800, fees_note="3-5 days a week, 2026-27",
+                      details_source="https://tinytots.example/fees")
+        fields.update(kw)
+        return DaycareListing.objects.create(**fields)
+
+    def test_labels(self):
+        from listings.models import months_label
+        self.assertEqual([months_label(m) for m in (1.5, 3, 6, 12, 18, 24, 60)],
+                         ["45 days", "3 months", "6 months", "1 year", "18 months", "2 years", "5 years"])
+        l = self.listing()
+        self.assertEqual(l.age_range_label, "45 days – 5 years")
+        self.assertEqual(l.curriculum_labels, ["British (EYFS)", "Montessori"])
+        self.assertEqual(l.fees_label, "AED 40,755 – 52,800 a year")
+        self.assertEqual(self.listing(slug="b", fees_from_aed=30000, fees_to_aed=None).fees_label,
+                         "from AED 30,000 a year")
+
+    def test_details_shown_only_when_confirmed(self):
+        l = self.listing()
+        self.assertNotContains(self.client.get(l.get_absolute_url()), "Nursery details")
+        l.details_confirmed = True
+        l.save()
+        resp = self.client.get(l.get_absolute_url())
+        for text in ("Nursery details", "45 days – 5 years", "British (EYFS), Montessori",
+                     "KHDA (Dubai)", "AED 40,755 – 52,800 a year", "https://tinytots.example/fees"):
+            self.assertContains(resp, text)
+
+    def test_apply_details_keeps_confirmed(self):
+        new = DaycareListing.objects.create(name="New", slug="new", city=self.city)
+        done = self.listing(details_confirmed=True)
+        path = self.tmp / "details.json"
+        path.write_text(json.dumps([{"url": "https://x.example/", "listing_ids": [new.pk, done.pk],
+                                     "source": "https://x.example/about", "age_from_months": 3,
+                                     "age_to_months": 48, "curriculum": ["reggio"], "licensed_by": "KHDA",
+                                     "fees_from_aed": None}]), encoding="utf-8")
+        out = StringIO()
+        call_command("apply_details", "--file", str(path), stdout=out)
+        self.assertIn("Listings updated: 1; skipped (details already confirmed): 1", out.getvalue())
+        new.refresh_from_db()
+        done.refresh_from_db()
+        self.assertEqual((new.age_range_label, new.curriculum, new.details_confirmed), ("3 months – 4 years", ["reggio"], False))
+        self.assertEqual(new.details_source, "https://x.example/about")
+        self.assertEqual(done.curriculum, ["eyfs", "montessori"])   # untouched
+
+    def test_apply_details_rejects_unknown_curriculum(self):
+        from django.core.management.base import CommandError
+        path = self.tmp / "details.json"
+        path.write_text(json.dumps([{"url": "u", "listing_ids": [], "curriculum": ["astrology"]}]), encoding="utf-8")
+        with self.assertRaises(CommandError):
+            call_command("apply_details", "--file", str(path), stdout=StringIO())
+
+    def test_apply_details_from_csv(self):
+        l = DaycareListing.objects.create(name="Csv", slug="csv", city=self.city)
+        path = self.tmp / "details.csv"
+        path.write_text(
+            "listing_ids,names,areas,website,ages_from,ages_to,curriculum,licensed_by,fees_from_aed,"
+            "fees_to_aed,fees_note,source,check,evidence_ages,evidence_curriculum,evidence_licence\n"
+            f"{l.pk},Csv,,https://csv.example/,45 days,5 years,British (EYFS); montessori,KHDA,27200,54000,"
+            "\"3-5 days a week, 2026-27\",https://csv.example/fees,,,,\n", encoding="utf-8-sig")
+        call_command("apply_details", "--file", str(path), "--confirm", stdout=StringIO())
+        l.refresh_from_db()
+        self.assertEqual((l.age_range_label, l.curriculum, l.licensed_by, l.fees_label, l.fees_note, l.details_confirmed),
+                         ("45 days – 5 years", ["eyfs", "montessori"], "KHDA", "AED 27,200 – 54,000 a year",
+                          "3-5 days a week, 2026-27", True))
+
+    def test_correct_details(self):
+        from django.core.management.base import CommandError
+        a = DaycareListing.objects.create(name="Branch A", slug="a", city=self.city)
+        b = DaycareListing.objects.create(name="Branch B", slug="b", city=self.city)
+        header = ("listing_ids,names,areas,website,ages_from,ages_to,curriculum,licensed_by,fees_from_aed,"
+                  "fees_to_aed,fees_note,source,check,evidence_ages,evidence_curriculum,evidence_licence\n")
+        details = self.tmp / "details.csv"
+        details.write_text(header + f'"{a.pk} {b.pk}",A | B,,https://chain.example/,18 months,2 years,'
+                           "British (EYFS); Waldorf / Steiner,,,,,,,,,\n", encoding="utf-8-sig")
+        fixes = self.tmp / "fixes.csv"
+        cols = "listing_ids,name,areas,field,current_value,correct_value,what_the_site_says,page_checked,note\n"
+        fixes.write_text(cols + f"{a.pk},Branch A,,ages_from,18 months,birth (0),,https://chain.example/a,\n"
+                         f"{a.pk},Branch A,,curriculum,British (EYFS); Waldorf / Steiner,British (EYFS),,,\n",
+                         encoding="utf-8-sig")
+        call_command("correct_details", "--details", str(details), "--corrections", str(fixes), stdout=StringIO())
+        rows = list(csv.DictReader(details.open(encoding="utf-8-sig")))
+        by_id = {r["listing_ids"]: r for r in rows}
+        self.assertEqual(len(rows), 2)   # the chain row was split per branch
+        self.assertEqual((by_id[str(a.pk)]["ages_from"], by_id[str(a.pk)]["curriculum"]), ("45 days", "British (EYFS)"))
+        self.assertEqual(by_id[str(b.pk)]["ages_from"], "18 months")   # the other branch untouched
+        # A correction that doesn't match the CSV stops the run
+        fixes.write_text(cols + f"{b.pk},Branch B,,ages_to,9 years,5 years,,,\n", encoding="utf-8-sig")
+        with self.assertRaises(CommandError):
+            call_command("correct_details", "--details", str(details), "--corrections", str(fixes), stdout=StringIO())

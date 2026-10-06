@@ -66,3 +66,7 @@ scraper/*.csv
 .env.*
 !.env.example
 !.env.prod.example
+
+# Nursery website passages collected by collect_details (reviewed values are kept)
+scraper/details/*_raw.json
+scraper/details/*.log

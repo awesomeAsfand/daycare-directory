@@ -15,6 +15,42 @@ SCRAPED_FIELDS = [
 ]
 
 
+# Curricula and approaches a nursery can follow (DaycareListing.curriculum)
+CURRICULA = {
+    "eyfs": "British (EYFS)",
+    "montessori": "Montessori",
+    "reggio": "Reggio Emilia",
+    "ib": "IB",
+    "american": "American",
+    "canadian": "Canadian",
+    "french": "French",
+    "indian": "Indian",
+    "highscope": "HighScope",
+    "waldorf": "Waldorf / Steiner",
+    "forest": "Forest school",
+    "arabic": "Arabic / English bilingual",
+}
+
+REGULATOR_CHOICES = [
+    ("KHDA", "KHDA (Dubai)"),
+    ("ADEK", "ADEK (Abu Dhabi)"),
+    ("SPEA", "SPEA (Sharjah)"),
+    ("MOE", "Ministry of Education"),
+    ("other", "Other"),
+]
+
+
+def months_label(months) -> str:
+    """1.5 -> "45 days", 6 -> "6 months", 18 -> "18 months", 60 -> "5 years"."""
+    m = float(months)
+    if m < 3 and m != int(m):
+        return f"{round(m * 30)} days"
+    if m < 24 and m % 12:
+        return f"{m:g} months"
+    years = m / 12
+    return f"{years:g} year{'' if years == 1 else 's'}"
+
+
 class City(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
@@ -109,6 +145,35 @@ class DaycareListing(models.Model):
     is_featured = models.BooleanField(default=False)  # paid placement
     is_active = models.BooleanField(default=True)
 
+    # Nursery details: from the nursery's website, KHDA or the nursery itself,
+    # never from Google, so import_listings doesn't touch them. Shown on the
+    # site only once details_confirmed is ticked in the admin.
+    age_from_months = models.DecimalField(
+        "youngest age (months)", max_digits=5, decimal_places=2, null=True, blank=True,
+        help_text="45 days = 1.5",
+    )
+    age_to_months = models.DecimalField(
+        "oldest age (months)", max_digits=5, decimal_places=2, null=True, blank=True,
+        help_text="5 years = 60",
+    )
+    curriculum = models.JSONField(
+        default=list, blank=True, help_text="Keys from CURRICULA, e.g. [\"eyfs\", \"montessori\"]",
+    )
+    licensed_by = models.CharField(max_length=10, choices=REGULATOR_CHOICES, blank=True)
+    fees_from_aed = models.PositiveIntegerField("fees from (AED a year)", null=True, blank=True)
+    fees_to_aed = models.PositiveIntegerField("fees to (AED a year)", null=True, blank=True)
+    fees_note = models.CharField(
+        max_length=200, blank=True,
+        help_text='What the fees cover, e.g. "3-5 days a week, 2026-27"',
+    )
+    details_source = models.URLField(
+        max_length=500, blank=True, help_text="Page the details were taken from",
+    )
+    details_checked = models.DateField(null=True, blank=True, help_text="When the details were last checked")
+    details_confirmed = models.BooleanField(
+        default=False, help_text="Show the details on the site. Leave unticked until checked.",
+    )
+
     # Import protection
     locked_fields = models.JSONField(
         default=list, blank=True,
@@ -150,6 +215,38 @@ class DaycareListing(models.Model):
         if self.area and self.sub_area:
             return f"{self.sub_area}, {self.area.name}"
         return self.area.name if self.area else (self.city.name if self.city else "")
+
+    @property
+    def age_range_label(self):
+        """"45 days – 5 years", "from 6 months", "up to 4 years" or ""."""
+        lo, hi = self.age_from_months, self.age_to_months
+        if lo is not None and hi is not None:
+            return f"{months_label(lo)} – {months_label(hi)}"
+        if lo is not None:
+            return f"from {months_label(lo)}"
+        if hi is not None:
+            return f"up to {months_label(hi)}"
+        return ""
+
+    @property
+    def curriculum_labels(self):
+        return [CURRICULA[key] for key in self.curriculum or [] if key in CURRICULA]
+
+    @property
+    def fees_label(self):
+        """"AED 40,755 – 52,800 a year", "from AED 30,000 a year" or ""."""
+        lo, hi = self.fees_from_aed, self.fees_to_aed
+        if lo and hi and lo != hi:
+            return f"AED {lo:,} – {hi:,} a year"
+        if lo or hi:
+            return f"{'from ' if lo and not hi else ''}AED {(lo or hi):,} a year"
+        return ""
+
+    @property
+    def has_details(self):
+        return self.details_confirmed and bool(
+            self.age_range_label or self.curriculum_labels or self.licensed_by or self.fees_label
+        )
 
     @property
     def short_address(self):
