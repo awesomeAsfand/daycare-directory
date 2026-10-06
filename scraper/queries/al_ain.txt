@@ -1,0 +1,97 @@
+# Al Ain search list for the scraper (DRAFT 2026-10-07: to be checked)
+#
+# Each keyword is combined with each area: "<keyword> in <area> Al Ain".
+# Lines starting with # are comments.
+#
+# Al Ain is in the Emirate of Abu Dhabi but has its own city page
+# (decided 2026-10-07). The boundary is the Al Ain region; Al Buraimi
+# (Oman) is across the border inside the same built-up area, so the map pin
+# check matters here.
+#
+# Google's Al Ain addresses end "... - Al Ain - Abu Dhabi - United Arab
+# Emirates": the district name comes before "Al Ain".
+#
+# Sources: the area lists of edcare.ae nursery listings for Al Ain
+# (checked 2026-10-07), plus Al Ain's residential districts.
+
+[country]
+name = United Arab Emirates
+code = ae
+timezone = Asia/Dubai
+phone_code = 971
+
+[keywords]
+nursery
+early learning centre
+daycare
+
+[areas]
+Central District (Al Ain City Centre)
+Al Jimi
+Al Muwaiji
+Al Maqam
+Al Towayya
+Hili
+Al Qattara
+Al Khabisi
+Zakher
+Al Masoudi
+Falaj Hazza
+Asharej
+Al Mutarad
+Al Sarooj
+Al Yahar
+Al Foah
+Al Bateen
+Al Jahili
+Al Khrair
+Al Salamat
+Al Dhahir
+Al Agabiyya
+Al Kuwaitat
+Al Markhaniya
+Al Niyadat
+
+[aliases]
+Al Muwai'ji = Al Muwaiji
+Muwaiji = Al Muwaiji
+Jimi = Al Jimi
+Al Tawia = Al Towayya
+Al Tiwayya = Al Towayya
+Al Hili = Hili
+Al Qattarah = Al Qattara
+Zakhir = Zakher
+Asharij = Asharej
+Al Mutaredh = Al Mutarad
+Al Mutawaa = Al Mutarad
+Al Dahir = Al Dhahir
+Al Agabiya = Al Agabiyya
+Al Markhaniyah = Al Markhaniya
+Al Markhaniyyah = Al Markhaniya
+
+[not_areas]
+# Contain an area name but aren't that area
+Hili Mall
+Al Jimi Mall
+Al Jahili Fort
+Al Jahili Park
+Al Qattara Fort
+
+[keep]
+# Places the category or name rules reject, kept by decision:
+# <Google place ID> = <name, as a note>
+
+[boundary]
+# Al Ain region of Abu Dhabi emirate, from OpenStreetMap
+file = al_ain_boundary.geojson
+
+[grid]
+step_km = 2.5
+zoom = 14
+near_areas_km = 4
+keywords = nursery
+
+[area_match]
+numbered = yes
+centres = al_ain_area_centres.csv
+max_km = 1.5

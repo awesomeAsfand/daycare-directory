@@ -318,7 +318,7 @@ SCHOOL_CHAIN_RE = re.compile(
 # the name also says nursery, daycare, preschool and so on
 NOT_NURSERY_NAME_RE = re.compile(
     r"play\s?(?:ground|area|land|zone)|entertainment|amusement|arcade|activity\s+cent"
-    r"|kids\s+(?:zone|club)|gymboree|tuition",
+    r"|kid[sz]\s+(?:zone|club)|game\s+hall|gymboree|tuition",
     re.I,
 )
 # Google's separate entries for a building's entrance ("... Nursery Entrance")

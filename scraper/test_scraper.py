@@ -438,7 +438,9 @@ class RunScraperTests(unittest.TestCase):
         self.assertIn("Rejected: category: School 1, outside Islamabad 1", out)
 
     def test_resume_skips_finished_searches(self):
-        self.run_scraper(max_hours=1e-9)   # stops before the first search
+        # deadline already passed, so it stops before the first search (a tiny
+        # positive value didn't work on Windows: monotonic() ticks every ~15 ms)
+        self.run_scraper(max_hours=-1)
         self.assertEqual(self.visits, [])
         self.run_scraper(resume=True)
         self.assertEqual(len(json.loads(self.output.read_text(encoding="utf-8"))), 2)
@@ -637,6 +639,47 @@ class DubaiFullRunTests(unittest.TestCase):
         # The location still counts
         self.assertEqual(classify("Dubai Infants School", ["Day care center"], "Al Nahda - Sharjah - "
                                   "United Arab Emirates", "Dubai", keep=True)[1], "outside Dubai (Sharjah)")
+
+
+class AbuDhabiAlAinTests(unittest.TestCase):
+    """The Abu Dhabi and Al Ain queries files (2026-10-07)."""
+
+    @classmethod
+    def setUpClass(cls):
+        from area_match import AreaMatcher
+        q = Path(__file__).parent / "queries"
+        cls.ad, cls.aa = load_plan(q / "abu_dhabi.txt"), load_plan(q / "al_ain.txt")
+        cls.mad, cls.maa = AreaMatcher(cls.ad), AreaMatcher(cls.aa)
+
+    def test_cities_and_boundaries(self):
+        self.assertEqual((self.ad.city, self.aa.city), ("Abu Dhabi", "Al Ain"))
+        # Al Dhafra (Ruwais) is in neither; Al Ain and Abu Dhabi don't overlap
+        self.assertEqual(classify("Tiny Tots Nursery", ["Nursery school"], "", "Abu Dhabi", False,
+                                  24.11, 52.73, self.ad.boundary)[1], "outside Abu Dhabi boundary")
+        self.assertEqual(classify("Tiny Tots Nursery", ["Nursery school"], "", "Abu Dhabi", False,
+                                  24.25, 55.73, self.ad.boundary)[1], "outside Abu Dhabi boundary")
+        self.assertEqual(classify("Tiny Tots Nursery", ["Nursery school"], "", "Al Ain", False,
+                                  24.25, 55.73, self.aa.boundary), ("preschool", ""))
+
+    def test_areas(self):
+        cases = [
+            (self.mad, "Villa 12 - Khalifa City B - SE-45 - Abu Dhabi - United Arab Emirates", "Shakhbout City"),
+            (self.mad, "Street 9 - Mohamed Bin Zayed City - ME-9 - Abu Dhabi - United Arab Emirates", "Mohammed Bin Zayed City"),
+            (self.mad, "Corniche Rd - Al Khalidiya - W10-02 - Abu Dhabi - United Arab Emirates", "Al Khalidiyah"),
+            (self.mad, "Zayed Sports City - Abu Dhabi - United Arab Emirates", ""),
+            (self.maa, "Villa 5 - Al Jimi - Al Ain - Abu Dhabi - United Arab Emirates", "Al Jimi"),
+            (self.maa, "Shop 3, Hili Mall - Al Ain - Abu Dhabi - United Arab Emirates", ""),
+        ]
+        for m, address, area in cases:
+            with self.subTest(address=address):
+                self.assertEqual(m.match(address).area, area)
+
+    def test_search_lists(self):
+        for plan in (self.ad, self.aa):
+            tasks = build_tasks(plan)
+            self.assertEqual(len([t for t in tasks if not t.is_grid]), len(plan.areas) * 3)
+            self.assertNotIn("early childhood centre", plan.keywords)
+            self.assertLess(len([t for t in tasks if t.is_grid]), 200)
 
 
 if __name__ == "__main__":
