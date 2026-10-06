@@ -56,6 +56,8 @@ Hor Al Anz
 Al Garhoud
 Dubai Festival City (Festival City)
 Dubai Creek Harbour (Creek Harbour)
+Ras Al Khor
+Umm Ramool
 Al Qusais
 Al Nahda
 Al Twar
@@ -77,6 +79,7 @@ Al Jaddaf
 Dubai Healthcare City (DHCC)
 Al Jafiliya (Jafiliya)
 Al Satwa (Satwa)
+Dubai Design District
 
 # ── Jumeirah coast and Sheikh Zayed Road ─────────────────────
 Al Wasl
@@ -137,6 +140,7 @@ Damac Hills (Akoya)
 Damac Hills 2
 The Sustainable City
 Remraam
+Liwan
 Dubailand
 Dubai Silicon Oasis (DSO)
 Academic City
@@ -203,6 +207,10 @@ Wadi Al Safa 6 = Arabian Ranches
 Saheel = Arabian Ranches
 Majan = Dubailand
 Hattan = The Lakes
+# Names Google used in the full run (2026-10-06): International City is in
+# Warsan First, Phase 2 in Warsan Fourth ("Warsan 4, International City")
+Warsan = International City
+Warisan = International City
 
 [not_areas]
 # Phrases that contain an area name but aren't that area; ignored when
@@ -214,6 +222,11 @@ Jumeirah Village South
 Jumeirah International
 Madinat Jumeirah
 Jebel Ali Village
+
+[keep]
+# Places the category or name rules reject, kept by decision:
+# <Google place ID> = <name, as a note>
+0x3e5f5d326152a035:0x2dd3b34f1d7319f1 = Dubai Infants School (2026-10-06)
 
 [boundary]
 # Dubai emirate, from OpenStreetMap (includes Hatta, and the sea, which

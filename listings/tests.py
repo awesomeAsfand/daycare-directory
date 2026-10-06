@@ -351,3 +351,16 @@ class ArabicNameImportTests(ImportTestBase):
         with site_settings("uae"):
             self.run_import([self.item(name="حضانة الأطفال", place_id="0xd:0xe", google_maps_url="")])
         self.assertEqual(DaycareListing.objects.get().slug, "nursery-f-7")
+
+
+class ImportRulesTests(ImportTestBase):
+    def test_placeholder_pin_and_rules_skipped(self):
+        pin = dict(latitude=33.70, longitude=73.05, address="Islamabad", categories=["Nursery school"])
+        items = [self.item(name=f"Ghost {i}", place_id=f"0x{i}:0x1", google_maps_url="", **pin) for i in range(5)]
+        items.append(self.item(name="Fun Kids Amusement Arcade", place_id="0x9:0x9", google_maps_url="",
+                               categories=["Preschool"]))
+        items.append(self.item(categories=["Nursery school"]))
+        out = self.run_import(items)
+        self.assertEqual(list(DaycareListing.objects.values_list("name", flat=True)), ["Little Kingdom Childcare"])
+        self.assertIn("skipped (placeholder map pin shared by many places): 5", out)
+        self.assertIn("Fun Kids Amusement Arcade (not a nursery (name))", out)

@@ -39,7 +39,7 @@ from listings.models import Area, City, DaycareListing, ListingImage, Review
 # The area rules live with the scraper's queries files
 sys.path.insert(0, str(Path(settings.BASE_DIR) / "scraper"))
 from area_match import AreaMatcher  # noqa: E402
-from search_plan import load_plan  # noqa: E402
+from search_plan import classify, load_plan, pin_of, placeholder_pins  # noqa: E402
 
 FEATURE_ID_RE = re.compile(r"0x[0-9a-f]+:0x[0-9a-f]+")
 SAME_PLACE_KM = 0.3
@@ -93,9 +93,11 @@ class Command(BaseCommand):
         if not areas_file.exists():
             raise CommandError(f"Areas file not found: {areas_file} (use --areas-file)")
         plan = load_plan(areas_file, options["city"])
+        self.plan = plan
         self.matcher = AreaMatcher(plan)
         # Checked again here so areas added to [exclude] after a scrape still apply
         self.exclude = plan.exclude
+        self.rule_skips = []
         self.area_counts = Counter()
         self.no_area = []
         self.unlisted_sectors = Counter()
@@ -116,6 +118,7 @@ class Command(BaseCommand):
         self.stats = Counter()
         self.now = timezone.now()
         seen_ids = set()
+        pins = placeholder_pins(raw)
 
         for item in raw:
             name = item.get("name", "").strip()
@@ -125,6 +128,14 @@ class Command(BaseCommand):
             excluded = next((a for a in self.exclude if a.lower() in item.get("address", "").lower()), None)
             if excluded:
                 self.stats[f"skipped (excluded area: {excluded})"] += 1
+                continue
+            if pin_of(item) in pins:
+                self.stats["skipped (placeholder map pin shared by many places)"] += 1
+                continue
+            reason = self.rules_reason(item, name)
+            if reason:
+                self.stats["skipped by the directory rules (listed below)"] += 1
+                self.rule_skips.append((name, reason))
                 continue
             try:
                 with transaction.atomic():
@@ -142,8 +153,25 @@ class Command(BaseCommand):
         self.stdout.write("")
         for key, count in self.stats.items():
             self.stdout.write(f"  {key}: {count}")
+        if self.rule_skips:
+            self.stdout.write("\nSkipped by the directory rules:")
+            for name, reason in sorted(self.rule_skips, key=lambda s: s[1]):
+                self.stdout.write(f"  {name} ({reason})")
         self.area_report()
         self.stdout.write(self.style.SUCCESS("\nDone." + (" (dry run)" if self.dry_run else "")))
+
+    def rules_reason(self, item, name):
+        """Why the directory's current rules (search_plan.classify) leave this
+        place out, or "". The scraper checked it already; checking again here
+        means rules changed after a scrape still apply. Records without
+        categories (older files) are not re-checked."""
+        if not item.get("categories"):
+            return ""
+        lat, lng = float(item.get("latitude") or 0), float(item.get("longitude") or 0)
+        _, reason = classify(name, item["categories"], item.get("address", ""), self.plan.city,
+                             item.get("closed", False), lat, lng, self.plan.boundary, self.exclude,
+                             keep=feature_id(item) in self.plan.keep)
+        return reason
 
     # ── Matching ─────────────────────────────────────────────────────────────
 

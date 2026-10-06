@@ -23,6 +23,8 @@ A queries file (e.g. queries/dubai.txt) has these sections:
     [aliases]           other spellings: <spelling> = <area as in [areas]>
     [not_areas]         phrases that contain an area name but aren't that
                         area ("Jumeirah Beach Road"): ignored by area matching
+    [keep]              places the category and name rules would reject but
+                        that belong: <Google place ID> = <name, as a note>
     [area_match]        how import_listings places listings in areas
         centres = islamabad_area_centres.csv
         max_km = 2.0
@@ -44,6 +46,7 @@ import csv
 import json
 import math
 import re
+from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import quote_plus
@@ -82,6 +85,7 @@ class QueryPlan:
     boundary: list | None = None   # polygons, see load_boundary()
     exclude: list = field(default_factory=list)
     not_areas: list = field(default_factory=list)    # phrases that contain an area name but aren't it
+    keep: set = field(default_factory=set)           # place IDs kept whatever the name/category rules say
     aliases: dict = field(default_factory=dict)      # spelling -> area
     area_match: dict = field(default_factory=dict)
     country: dict = field(default_factory=dict)      # [country]: name, code, timezone, phone_code
@@ -171,6 +175,9 @@ def load_plan(path: Path, city: str | None = None) -> QueryPlan:
             plan.exclude.append(line)
         elif section == "not_areas":
             plan.not_areas.append(line)
+        elif section == "keep":
+            # "<place ID> = <name>": the name is only a note
+            plan.keep.add(line.partition("=")[0].strip())
         else:
             raise ValueError(f"{path.name}: line outside a [section]: {raw!r}")
 
@@ -303,9 +310,33 @@ DAYCARE_NAME_RE = re.compile(r"day\s?care|child\s?care|cr[eè]che", re.I)
 # (unless the name also says daycare)
 SCHOOL_CHAIN_RE = re.compile(
     r"\b(?:school\s+systems?|systems?|campus|academy|college|grammar|high\s+school|secondary"
-    r"|primary\s+school|junior\s+school|public\s+school|international\s+school|cadet|university)\b",
+    r"|primary\s+school|junior\s+school|public\s+school|private\s+school|international\s+school"
+    r"|foundation\s+stage|cadet|university)\b",
     re.I,
 )
+# Places for children that aren't nurseries (seen in the Dubai scrape), unless
+# the name also says nursery, daycare, preschool and so on
+NOT_NURSERY_NAME_RE = re.compile(
+    r"play\s?(?:ground|area|land|zone)|entertainment|amusement|arcade|activity\s+cent"
+    r"|kids\s+(?:zone|club)|gymboree|tuition",
+    re.I,
+)
+# Google's separate entries for a building's entrance ("... Nursery Entrance")
+ENTRANCE_RE = re.compile(r"\bentrance\b", re.I)
+
+
+def pin_of(item: dict) -> tuple | None:
+    """A scraped place's map pin, rounded to about a metre, or None."""
+    lat, lng = float(item.get("latitude") or 0), float(item.get("longitude") or 0)
+    return (round(lat, 5), round(lng, 5)) if lat and lng else None
+
+
+def placeholder_pins(items: list, min_places: int = 5) -> set:
+    """Map pins shared exactly by min_places or more places. Google puts
+    listings with no real location on the city's default point (in the
+    Dubai scrape, 43 'nurseries' with no reviews or street address)."""
+    counts = Counter(pin_of(i) for i in items)
+    return {pin for pin, n in counts.items() if pin and n >= min_places}
 
 
 # Last part of a Google address, dropped before reading the city
@@ -356,9 +387,12 @@ def location_problem(address: str, city: str, lat: float = 0, lng: float = 0,
 
 def classify(name: str, categories: list, address: str, city: str, closed: bool = False,
              lat: float = 0, lng: float = 0, boundary: list | None = None,
-             exclude: list = ()) -> tuple[str, str]:
+             exclude: list = (), keep: bool = False) -> tuple[str, str]:
     """Return (listing_type, "") for places that belong in the directory,
-    or ("", reason) for places that don't."""
+    or ("", reason) for places that don't.
+
+    keep=True (the place is in the queries file's [keep] list) skips the
+    category and name rules; closed places and the location still count."""
     if closed:
         return "", "permanently closed"
     for area in exclude:
@@ -372,15 +406,26 @@ def classify(name: str, categories: list, address: str, city: str, closed: bool 
     cat = category.lower()
     daycare_name = bool(DAYCARE_NAME_RE.search(name))
 
-    if cat in DAYCARE_CATEGORIES or cat in PRESCHOOL_CATEGORIES:
+    if keep:
+        pass
+    elif cat in DAYCARE_CATEGORIES or cat in PRESCHOOL_CATEGORIES:
         pass
     elif cat in GENERIC_CATEGORIES and EARLY_YEARS_NAME_RE.search(name):
         pass
     else:
         return "", f"category: {category or 'none'}"
 
-    if SCHOOL_CHAIN_RE.search(name) and not daycare_name:
+    early_years_name = bool(EARLY_YEARS_NAME_RE.search(name))
+    if keep:
+        pass
+    elif SCHOOL_CHAIN_RE.search(name) and not daycare_name:
         return "", "part of a school (name)"
+    elif re.search(r"\bschool\b", name, re.I) and not early_years_name:
+        return "", "school (name)"
+    elif NOT_NURSERY_NAME_RE.search(name) and not early_years_name:
+        return "", "not a nursery (name)"
+    elif ENTRANCE_RE.search(name):
+        return "", "building entrance (name)"
 
     if cat in DAYCARE_CATEGORIES or daycare_name:
         return "daycare", ""

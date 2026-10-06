@@ -585,5 +585,59 @@ class DubaiTrialTests(unittest.TestCase):
             "Gardenia Nursery - The Greens, Dubai")
 
 
+class DubaiFullRunTests(unittest.TestCase):
+    """Cases from the full Dubai run (2026-10-06)."""
+
+    def check(self, name, category="Nursery school"):
+        return classify(name, [category], DXB, "Dubai")
+
+    def test_not_nurseries_rejected(self):
+        for name in ["BUSTAN AL FARAH KIDS ENTERTAINMENT HALL", "JAW Kids Amusement Arcade",
+                     "Kiddie Clouds Kids Activity Center", "Little Kids Playground", "Kids Zone",
+                     "Fun First Kids club Kidzania", "Gymboree Play & Music | Ripe Market",
+                     "Manoj tuition center", "Little fingerz playarea and kids care"]:
+            with self.subTest(name=name):
+                self.assertEqual(self.check(name, "Preschool")[1], "not a nursery (name)")
+
+    def test_schools_rejected(self):
+        self.assertEqual(self.check("Al Fanar School", "Preschool")[1], "school (name)")
+        self.assertEqual(self.check("Dubai British School Jumeirah Park Foundation", "Preschool")[1], "school (name)")
+        self.assertEqual(self.check("Al Salam Private School & Nursery", "Educational institution")[1],
+                         "part of a school (name)")
+        self.assertEqual(self.check("Victory Heights Foundation Stage", "Kindergarten")[1], "part of a school (name)")
+        self.assertEqual(self.check("British Orchard Nursery Entrance", "Educational institution")[1],
+                         "building entrance (name)")
+
+    def test_nurseries_kept(self):
+        for name in ["Stepping Stones Kids Arcade Nursery", "Kids Zone Nursery", "Little Hands Nursery School",
+                     "Shinning Star Nursery and Day care", "Al Rashidiya Nursery"]:
+            with self.subTest(name=name):
+                self.assertEqual(self.check(name, "Kindergarten")[1], "")
+
+    def test_placeholder_pins(self):
+        from search_plan import placeholder_pins
+        items = [{"latitude": 25.204849, "longitude": 55.270783}] * 5 + [{"latitude": 25.1, "longitude": 55.2}]
+        self.assertEqual(placeholder_pins(items), {(25.20485, 55.27078)})
+        self.assertEqual(placeholder_pins(items[1:]), set())
+
+    def test_warsan_is_international_city(self):
+        from area_match import AreaMatcher
+        m = AreaMatcher(load_plan(Path(__file__).parent / "queries" / "dubai.txt"))
+        r = m.match("shop 9&10 - Warsan Fourth - Warsan 4 - Dubai - United Arab Emirates")
+        self.assertEqual((r.area, r.sub_area), ("International City", "Warsan 4"))
+        r = m.match("Wasl Green Park (R1081-A1 - Ras Al Khor Ind. Third - Ras Al Khor Industrial Area 3 - "
+                    "Dubai - United Arab Emirates")
+        self.assertEqual(r.area, "Ras Al Khor")
+
+    def test_keep_list(self):
+        plan = load_plan(Path(__file__).parent / "queries" / "dubai.txt")
+        self.assertIn("0x3e5f5d326152a035:0x2dd3b34f1d7319f1", plan.keep)   # Dubai Infants School
+        self.assertEqual(classify("Dubai Infants School", ["Day care center"], DXB, "Dubai", keep=True),
+                         ("daycare", ""))
+        # The location still counts
+        self.assertEqual(classify("Dubai Infants School", ["Day care center"], "Al Nahda - Sharjah - "
+                                  "United Arab Emirates", "Dubai", keep=True)[1], "outside Dubai (Sharjah)")
+
+
 if __name__ == "__main__":
     unittest.main()

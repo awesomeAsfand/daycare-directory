@@ -640,6 +640,7 @@ async def scrape_listing(page: Page, url: str, query: str,
             dc.listing_type, reason = classify(
                 dc.name, dc.categories, dc.address, plan.city, dc.closed,
                 dc.latitude, dc.longitude, plan.boundary, plan.exclude,
+                keep=dc.place_id in plan.keep,
             )
             if reason:
                 return dc, reason
