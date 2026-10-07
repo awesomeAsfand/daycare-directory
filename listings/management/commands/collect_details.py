@@ -203,7 +203,13 @@ class Command(BaseCommand):
         return record
 
     async def read(self, page, url):
-        await page.goto(url, wait_until="domcontentloaded", timeout=PAGE_TIMEOUT_MS)
+        try:
+            await page.goto(url, wait_until="domcontentloaded", timeout=PAGE_TIMEOUT_MS)
+        except Exception as e:
+            # Sites that redirect themselves while loading (www, language)
+            if "interrupted by another navigation" not in str(e):
+                raise
+            await page.wait_for_load_state("domcontentloaded", timeout=PAGE_TIMEOUT_MS)
         await asyncio.sleep(2.5)   # let JavaScript-built pages render
         text = await page.inner_text("body")
         links = await page.eval_on_selector_all(
