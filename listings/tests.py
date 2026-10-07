@@ -520,3 +520,21 @@ class ApplyReviewTests(ImportTestBase):
         path = self.write([{"id": 1, "decision": "check", "name": "X"}])
         with self.assertRaises(CommandError):
             call_command("apply_review", "--file", str(path), stdout=StringIO())
+
+
+class RematchAreasTests(ImportTestBase):
+    def test_rematch_areas(self):
+        from listings.models import City
+        city = City.objects.create(name="Al Ain", slug="al-ain")
+        fouah = DaycareListing.objects.create(name="Sugar Bits Nursery", slug="sugar", city=city,
+                                              address="Al Fou'ah - Al Sajaa - Abu Dhabi - United Arab Emirates")
+        locked = DaycareListing.objects.create(name="Locked Nursery", slug="locked", city=city, locked_fields=["area"],
+                                               address="Villa 5 - Al Jimi - Al Ain - Abu Dhabi - United Arab Emirates")
+        out = StringIO()
+        call_command("rematch_areas", "--city", "Al Ain", "--dry-run", stdout=out)
+        self.assertIn("Changed: 1; locked, left alone: 1", out.getvalue())
+        self.assertIsNone(DaycareListing.objects.get(pk=fouah.pk).area)
+        call_command("rematch_areas", "--city", "Al Ain", stdout=StringIO())
+        fouah.refresh_from_db(); locked.refresh_from_db()
+        self.assertEqual(fouah.area.name, "Al Foah")
+        self.assertIsNone(locked.area)

@@ -47,6 +47,8 @@ Al Mushrif
 Al Karamah
 Al Muntazah
 Madinat Zayed
+Al Marina
+Al Mina
 
 # ── The other islands ────────────────────────────────────────
 Al Reem Island (Reem Island)
@@ -123,6 +125,14 @@ Madinat Al Riyad = Madinat Al Riyadh
 Al Shahamah = Al Shahama
 Al Bahyah = Al Bahia
 Al Samhah = Al Samha
+# Google's names in the full run (2026-10-07)
+Al Kasir = Al Marina
+Mina Zayed = Al Mina
+Zayed Port = Al Mina
+Mushrif = Al Mushrif
+West Yas = Yas Island
+Shamkah = Al Shamkha
+Saadiyat = Saadiyat Island
 
 [not_areas]
 # Contain an area name but aren't that area
@@ -130,7 +140,6 @@ Zayed Sports City
 Sheikh Zayed Grand Mosque
 Al Bateen Airport
 Al Khalidiyah Mall
-Mina Zayed
 
 [keep]
 # Places the category or name rules reject, kept by decision:
