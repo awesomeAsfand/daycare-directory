@@ -135,6 +135,17 @@ Mina Zayed
 [keep]
 # Places the category or name rules reject, kept by decision:
 # <Google place ID> = <name, as a note>
+0x3e5e67058adb3431:0x4b75685cf538460 = Kidz Care (2026-10-07, wrong Google category; review CSV decides)
+0x3e5e37cfecd19d79:0xf4949094cec20c2 = Kids Bay (2026-10-07, wrong Google category; review CSV decides)
+0x3e5e67ee880e6141:0x491b80e4b6038fc5 = Baby-sitting ou garderie (2026-10-07, wrong Google category; review CSV decides)
+0x3e5e65b9d2591ee3:0x7efeed1565c02765 = Play & Learn (2026-10-07, wrong Google category; review CSV decides)
+0x3e5e68be31effa01:0x904836fad16a6994 = Adam's nursery (2026-10-07, wrong Google category; review CSV decides)
+0x3e5e4708487f95ff:0x12adebc8e606f0e2 = LIVERPOOL NURSERRY (2026-10-07, wrong Google category; review CSV decides)
+0x3e5e39eaef318659:0xc0d65d44d3421f1b = Kidcomfy (2026-10-07, wrong Google category; review CSV decides)
+0x3e5e3915dc4ef77b:0x4f05d83c422b30d6 = TINY STAR SHABIYA 10 BRANCH (2026-10-07, wrong Google category; review CSV decides)
+0x3e5e37528f8bb45d:0x1b6c5c36858bad36 = Teddy bear Nursery - Al Shamkah (2026-10-07, wrong Google category; review CSV decides)
+0x3e5e37cd355cb68d:0x9542922510424660 = روضة الإيثار الشوامخ أبوظبي (2026-10-07, wrong Google category; review CSV decides)
+0x3e5e4e73497b6673:0xd9fc60f62bab79ce = Dar Alaman Nursery (2026-10-07, wrong Google category; review CSV decides)
 
 [boundary]
 # Abu Dhabi (capital) region, from OpenStreetMap: excludes Al Ain and Al

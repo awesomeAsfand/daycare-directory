@@ -674,6 +674,18 @@ class AbuDhabiAlAinTests(unittest.TestCase):
             with self.subTest(address=address):
                 self.assertEqual(m.match(address).area, area)
 
+    def test_skills_centres_left_out(self):
+        reason = "skills / talent centre (name)"
+        for name in ["Yuaanz Mind Abilities Development Center", "Papus Mind Abilites Development & Childcare",
+                     "Play House Daycare and Skill Development Center", "Cozy Cubs Talented Children Development Center",
+                     "lulys children talents center", "Dam skill devolopment center ME -10"]:
+            with self.subTest(name=name):
+                self.assertEqual(classify(name, ["Day care center"], "", "Abu Dhabi", False,
+                                          24.45, 54.38, self.ad.boundary)[1], reason)
+        # Other "development" names go to the review CSV instead
+        self.assertEqual(classify("Dino Kids Early Learning & Development Centre", ["Preschool"], "",
+                                  "Abu Dhabi", False, 24.45, 54.38, self.ad.boundary), ("preschool", ""))
+
     def test_search_lists(self):
         for plan in (self.ad, self.aa):
             tasks = build_tasks(plan)

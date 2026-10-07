@@ -321,6 +321,15 @@ NOT_NURSERY_NAME_RE = re.compile(
     r"|kid[sz]\s+(?:zone|club)|game\s+hall|gymboree|tuition",
     re.I,
 )
+# Abu Dhabi's "Mind Abilities / Talented Children / Skills Development"
+# centres: a commercial licence, not a nursery one, so left out even when
+# the name also says daycare (decided 2026-10-07)
+SKILLS_CENTRE_NAME_RE = re.compile(
+    r"mind\s+(?:abilit\w*|development)|abilit(?:y|ies)\s+(?:development|cent)"
+    r"|talent(?:ed|s)?\s+(?:children|development|cent)|children\s+talents?"
+    r"|skills?\s+(?:development|devolopment|cent)",
+    re.I,
+)
 # Google's separate entries for a building's entrance ("... Nursery Entrance")
 ENTRANCE_RE = re.compile(r"\bentrance\b", re.I)
 
@@ -424,6 +433,8 @@ def classify(name: str, categories: list, address: str, city: str, closed: bool 
         return "", "school (name)"
     elif NOT_NURSERY_NAME_RE.search(name) and not early_years_name:
         return "", "not a nursery (name)"
+    elif SKILLS_CENTRE_NAME_RE.search(name):
+        return "", "skills / talent centre (name)"
     elif ENTRANCE_RE.search(name):
         return "", "building entrance (name)"
 
