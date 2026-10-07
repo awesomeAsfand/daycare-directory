@@ -1,0 +1,192 @@
+# Sharjah search list for the scraper (DRAFT 2026-10-07: to be checked in the trial)
+#
+# Each keyword is combined with each area: "<keyword> in <area> Sharjah".
+# Lines starting with # are comments.
+#
+# Covers Sharjah city only (decided 2026-10-07): the boundary is OSM's
+# Sharjah city, so the inland towns (Al Dhaid, Mleiha, Al Madam) and the
+# east coast (Khor Fakkan, Kalba, Dibba Al Hisn) are left out, and so are
+# Dubai's Al Nahda / Al Qusais and Ajman across the borders.
+#
+# Areas are the names parents search for; other spellings are aliases.
+# Numbered parts (Al Majaz 1/2/3, Muwaileh Commercial) roll up into one
+# area page. Sources: the area filters of edarabia.com's Sharjah nursery
+# list (checked 2026-10-07) and Sharjah's residential districts.
+# Industrial areas are left out; the map grid catches the rest.
+
+[country]
+name = United Arab Emirates
+code = ae
+timezone = Asia/Dubai
+phone_code = 971
+
+[keywords]
+nursery
+early learning centre
+daycare
+
+[areas]
+# ── Corniche, Khalid Lagoon and the old centre ─────────────
+Al Majaz
+Al Khan
+Al Taawun
+Al Qasimia
+Abu Shagara
+Al Nabba
+Al Mahatta
+Rolla (Al Ghuwair)
+Al Musalla
+Al Mujarrah
+Al Layyeh
+Al Heerah
+Al Ramla
+Al Khalidiya
+Al Mansoura
+Al Ghubaiba
+Al Sharq
+Al Shuwaihean
+Al Fisht
+Halwan
+Al Jubail
+Maysaloon
+Al Qulayaa
+Al Yarmook
+Al Fayha
+Al Mareija
+# ── Along the Dubai border ──────────────────────────────────
+Al Nahda
+Al Nad
+Al Mamzar
+Al Qadisiya
+Al Nasserya
+Al Ghafia
+Al Manakh
+Al Falaj
+Al Ramtha
+Buteena
+Al Azra
+Al Riqa
+Al Jazzat
+Samnan
+Al Sabkha
+Al Darari
+Al Rifaah
+Al Ramaqiya
+Sharqan
+Al Mirgab
+# ── East: University City, Muwaileh and the new communities ─
+Muwaileh
+University City
+Al Shahba
+Al Juraina
+Al Badie
+Al Nouf
+Al Talae
+Al Mughaidir
+Al Khezamia
+Wasit
+Al Rahmaniya
+Al Suyoh
+Al Zahia
+Aljada
+Tilal City
+Al Tai
+Al Hazana
+
+[aliases]
+Old Al Khan = Al Khan
+Al Ta'awun = Al Taawun
+Al Taawon = Al Taawun
+Al Tawoon = Al Taawun
+Al Qasimiya = Al Qasimia
+Al Qasimiyah = Al Qasimia
+Abu Shaghara = Abu Shagara
+Al Nabba'a = Al Nabba
+Al Nabaa = Al Nabba
+Al Rolla = Rolla
+Al Ghuwair = Rolla
+Musallah = Al Musalla
+Al Mussalla = Al Musalla
+Al Majarrah = Al Mujarrah
+Al Majarah = Al Mujarrah
+Al Layya = Al Layyeh
+Al Heera = Al Heerah
+Al Khaledia = Al Khalidiya
+Al Khalidiyah = Al Khalidiya
+Al Ghubaibah = Al Ghubaiba
+Al Shuwaiheen = Al Shuwaihean
+Maisaloon = Maysaloon
+Maysalon = Maysaloon
+Al Qulayya = Al Qulayaa
+Al Qulaya'a = Al Qulayaa
+Al Yarmouk = Al Yarmook
+Al Fayhaa = Al Fayha
+Al Mareijah = Al Mareija
+Al Nud = Al Nad
+Al Qadisiyah = Al Qadisiya
+Al Qadesia = Al Qadisiya
+Al Nasseriya = Al Nasserya
+Al Nasiriya = Al Nasserya
+Al Ghafeyah = Al Ghafia
+Al Ghafiya = Al Ghafia
+Butina = Buteena
+Al Butina = Buteena
+Al Azraa = Al Azra
+Al Riqqa = Al Riqa
+Al Rigga = Al Riqa
+Al Jazat = Al Jazzat
+Al Rifa'ah = Al Rifaah
+Al Rifa = Al Rifaah
+Al Ramaqia = Al Ramaqiya
+Ramaqiya = Al Ramaqiya
+Al Mirqab = Al Mirgab
+Muwailih = Muwaileh
+Muweilah = Muwaileh
+Muwailah = Muwaileh
+Muwaileh Commercial = Muwaileh
+Muwailih Commercial = Muwaileh
+University City of Sharjah = University City
+Al Shahbaa = Al Shahba
+Al Jurainah = Al Juraina
+Al Badee = Al Badie
+Al Noaf = Al Nouf
+Al Tala'a = Al Talae
+Mughaidir = Al Mughaidir
+Al Khezamiah = Al Khezamia
+Al Rahmaniyah = Al Rahmaniya
+Rahmaniya = Al Rahmaniya
+Al Seyouh = Al Suyoh
+Al Suyouh = Al Suyoh
+Al Zahiya = Al Zahia
+Al Jada = Aljada
+
+[not_areas]
+# Contain an area name but aren't that area
+University City Road
+Al Taawun Street
+Al Taawun Road
+Al Khan Street
+Al Khan Road
+Al Nahda Street
+
+[keep]
+# Places the category or name rules reject, kept by decision:
+# <Google place ID> = <name, as a note>
+
+[boundary]
+# Sharjah city, from OpenStreetMap (relation 12905785): excludes the inland
+# towns and the east coast, which are other parts of the emirate
+file = sharjah_boundary.geojson
+
+[grid]
+# Only cells within near_areas_km of an area position: the outer city is
+# desert and industrial land
+step_km = 2.5
+zoom = 14
+near_areas_km = 3
+keywords = nursery
+
+[area_match]
+numbered = yes
+centres = sharjah_area_centres.csv
+max_km = 1.5

@@ -696,5 +696,37 @@ class AbuDhabiAlAinTests(unittest.TestCase):
             self.assertLess(len([t for t in tasks if t.is_grid]), 200)
 
 
+class SharjahTests(unittest.TestCase):
+    """The Sharjah queries file (2026-10-07): Sharjah city only."""
+
+    @classmethod
+    def setUpClass(cls):
+        from area_match import AreaMatcher
+        cls.plan = load_plan(Path(__file__).parent / "queries" / "sharjah.txt")
+        cls.m = AreaMatcher(cls.plan)
+
+    def test_boundary(self):
+        def reason(lat, lng):
+            return classify("Tiny Tots Nursery", ["Nursery school"], "", "Sharjah", False, lat, lng,
+                            self.plan.boundary)[1]
+        self.assertEqual(reason(25.3020, 55.3720), "")                          # Al Nahda, Sharjah
+        for lat, lng in [(25.2890, 55.3680), (25.4050, 55.4450), (25.3390, 56.3560)]:  # Dubai, Ajman, Khor Fakkan
+            self.assertEqual(reason(lat, lng), "outside Sharjah boundary")
+
+    def test_areas(self):
+        cases = [
+            ("Al Majaz 2 - Al Majaz - Sharjah - United Arab Emirates", "Al Majaz", "Al Majaz 2"),
+            ("University City Road - Al Shahba - Sharjah - United Arab Emirates", "Al Shahba", ""),
+            ("Muwailih Commercial - Sharjah - United Arab Emirates", "Muwaileh", ""),
+            ("Al Taawun Street - Al Khan - Sharjah - United Arab Emirates", "Al Khan", ""),
+        ]
+        for address, area, sub_area in cases:
+            with self.subTest(address=address):
+                m = self.m.match(address)
+                self.assertEqual(m.area, area)
+                if sub_area:
+                    self.assertEqual(m.sub_area, sub_area)
+
+
 if __name__ == "__main__":
     unittest.main()
