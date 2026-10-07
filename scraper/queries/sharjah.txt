@@ -111,6 +111,8 @@ Al Majarrah = Al Mujarrah
 Al Majarah = Al Mujarrah
 Al Layya = Al Layyeh
 Al Heera = Al Heerah
+Alheera = Al Heerah
+Al Nekhailat = Al Heerah
 Al Khaledia = Al Khalidiya
 Al Khalidiyah = Al Khalidiya
 Al Ghubaibah = Al Ghubaiba
@@ -166,6 +168,10 @@ Al Tawun = Al Taawun
 Muweilliah = Muwaileh
 Al Khalidiya District = Al Khalidiya
 Al Suyouh = Al Suyoh
+Siyouh = Al Suyoh
+Al Siyouh = Al Suyoh
+Al Siyuh = Al Suyoh
+Al Rahmania = Al Rahmaniya
 Al Zahiya = Al Zahia
 Al Jada = Aljada
 
@@ -208,4 +214,4 @@ centres = sharjah_area_centres.csv
 max_km = 1.5
 # Sectors Google names after the district ("Al Ramla - Halwan", "Al Jazzat -
 # Al Riqa Suburb"): the district, in the address or the listing's name, wins
-parents = Halwan, Al Qasimia, Al Khalidiya, Al Riqa, Al Sharq, Al Mughaidir, Al Yarmook, Muwaileh
+parents = Halwan, Al Qasimia, Al Khalidiya, Al Riqa, Al Sharq, Al Mughaidir, Al Yarmook, Muwaileh, Al Heerah, Wasit
