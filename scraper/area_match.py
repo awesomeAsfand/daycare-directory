@@ -85,6 +85,9 @@ class AreaMatcher:
                             key=lambda p: -len(p[0].pattern))
 
         self.not_areas = [_name_pattern(phrase) for phrase in plan.not_areas]
+        # Big sectors Google names after the district ("Al Ramla - Halwan"):
+        # a district in the same address, or in the listing's name, wins
+        self.parents = {p.strip() for p in plan.area_match.get("parents", "").split(",") if p.strip()}
 
         self.max_km = float(plan.area_match.get("max_km", 2.0))
         self.centres = load_area_centres(plan)
@@ -126,8 +129,10 @@ class AreaMatcher:
             return None
         if " - " in text:
             # UAE style: the last mention wins; of names ending at the same
-            # place ("Jumeirah Village Circle" / "Village Circle"), the longest
-            last = max(found)
+            # place ("Jumeirah Village Circle" / "Village Circle"), the longest.
+            # A parent sector loses to any other area named.
+            districts = [f for f in found if f[2] not in self.parents]
+            last = max(districts or found)
             area = last[2]
             # ...unless an earlier mention is a more specific spelling of it
             # that is another area: Google writes "Al Barsha South Third -
@@ -161,6 +166,12 @@ class AreaMatcher:
 
     def match(self, address: str, lat: float = 0, lng: float = 0, name: str = "") -> AreaMatch:
         found = self.match_text(address or "")
+        if found and found.area in self.parents:
+            # "Magic Kids Nursery, Al Taawun" at "... - Al Khalidiya District"
+            in_name = self.match_text(name or "")
+            if in_name and in_name.area and in_name.area not in self.parents:
+                in_name.method = f"listing name ({in_name.method})"
+                return in_name
         if found:
             return found
         found = self.match_text(name or "")

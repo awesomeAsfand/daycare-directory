@@ -719,6 +719,10 @@ class SharjahTests(unittest.TestCase):
             ("University City Road - Al Shahba - Sharjah - United Arab Emirates", "Al Shahba", ""),
             ("Muwailih Commercial - Sharjah - United Arab Emirates", "Muwaileh", ""),
             ("Al Taawun Street - Al Khan - Sharjah - United Arab Emirates", "Al Khan", ""),
+            # Parent sectors lose to the district named before them
+            ("Al Faiha - Halwan - Sharjah - United Arab Emirates", "Al Fayha", ""),
+            ("Al Jazzat - Al Riqa Suburb - Sharjah - United Arab Emirates", "Al Jazzat", ""),
+            ("89VF+HJV - Al Khalidiya District - Sharjah - United Arab Emirates", "Al Khalidiya", ""),
         ]
         for address, area, sub_area in cases:
             with self.subTest(address=address):
@@ -726,6 +730,14 @@ class SharjahTests(unittest.TestCase):
                 self.assertEqual(m.area, area)
                 if sub_area:
                     self.assertEqual(m.sub_area, sub_area)
+        # ...and to a district in the listing's name
+        self.assertEqual(self.m.match("Al Taawun St - Al Khalidiya District - Sharjah - United Arab Emirates",
+                                      name="Magic Kids Nursery, Al Taawun").area, "Al Taawun")
+        # Dubai addresses are rejected even with a pin just inside the boundary
+        self.assertEqual(classify("Winners World", ["Nursery school"],
+                                  "Al Nahda First - Dubai - United Arab Emirates", "Sharjah", False,
+                                  25.3020, 55.3720, self.plan.boundary, self.plan.exclude)[1],
+                         "excluded area (- Dubai - United Arab Emirates)")
 
 
 if __name__ == "__main__":

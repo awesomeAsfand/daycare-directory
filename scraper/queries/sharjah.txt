@@ -156,6 +156,15 @@ Al Khezamiah = Al Khezamia
 Al Rahmaniyah = Al Rahmaniya
 Rahmaniya = Al Rahmaniya
 Al Seyouh = Al Suyoh
+# Google's names in the trial (2026-10-07)
+Bu Shaghara = Abu Shagara
+Hay Al Qasimiah = Al Qasimia
+Al Qasimiah = Al Qasimia
+Al Faiha = Al Fayha
+Mughaider = Al Mughaidir
+Al Tawun = Al Taawun
+Muweilliah = Muwaileh
+Al Khalidiya District = Al Khalidiya
 Al Suyouh = Al Suyoh
 Al Zahiya = Al Zahia
 Al Jada = Aljada
@@ -163,11 +172,18 @@ Al Jada = Aljada
 [not_areas]
 # Contain an area name but aren't that area
 University City Road
+University City Rd
 Al Taawun Street
 Al Taawun Road
 Al Khan Street
 Al Khan Road
 Al Nahda Street
+
+[exclude]
+# Google's addresses in Dubai or Ajman, for places whose pin is just
+# inside the Sharjah boundary (e.g. "... - Al Nahda First - Dubai - United Arab Emirates")
+- Dubai - United Arab Emirates
+- Ajman - United Arab Emirates
 
 [keep]
 # Places the category or name rules reject, kept by decision:
@@ -183,10 +199,13 @@ file = sharjah_boundary.geojson
 # desert and industrial land
 step_km = 2.5
 zoom = 14
-near_areas_km = 3
+near_areas_km = 4
 keywords = nursery
 
 [area_match]
 numbered = yes
 centres = sharjah_area_centres.csv
 max_km = 1.5
+# Sectors Google names after the district ("Al Ramla - Halwan", "Al Jazzat -
+# Al Riqa Suburb"): the district, in the address or the listing's name, wins
+parents = Halwan, Al Qasimia, Al Khalidiya, Al Riqa, Al Sharq, Al Mughaidir, Al Yarmook, Muwaileh
