@@ -16,7 +16,7 @@ import json
 import re
 from collections import defaultdict
 from pathlib import Path
-from urllib.parse import urljoin, urlparse, urlunparse
+from urllib.parse import unquote, urljoin, urlparse, urlunparse
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -44,6 +44,45 @@ SNIPPET_RE = re.compile(
     r"|\baed\b|\bdhs\b|\bfees?\b|tuition|per term|per year|annual",
     re.I,
 )
+
+
+EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")
+# Image names ("logo@2x.png"), site builders' tracking and template addresses
+NOT_EMAIL_RE = re.compile(
+    r"\.(?:png|jpe?g|gif|webp|svg)$|@(?:sentry|wixpress|example)\.|@(?:domain|email|yourdomain)\.com$",
+    re.I,
+)
+CONTACT_WORDS = re.compile(r"contact|get in touch|reach us|enquir|inquir", re.I)
+
+
+def decode_cfemail(hex_text):
+    """Cloudflare hides addresses as hex, XORed with the first byte."""
+    key = int(hex_text[:2], 16)
+    return "".join(chr(int(hex_text[i:i + 2], 16) ^ key) for i in range(2, len(hex_text), 2))
+
+
+def find_emails(text, links, cf_codes=()):
+    """Email addresses from mailto: links, Cloudflare-protected addresses and
+    the page text, in that order, without repeats."""
+    found = []
+    for href, _ in links:
+        href = (href or "").strip()
+        if href.lower().startswith("mailto:"):
+            found += unquote(href[7:].split("?")[0]).split(",")
+        elif "/cdn-cgi/l/email-protection#" in href:
+            cf_codes = [*cf_codes, href.rpartition("#")[2]]
+    for code in cf_codes:
+        try:
+            found.append(decode_cfemail(code))
+        except ValueError:
+            pass
+    found += EMAIL_RE.findall(text)
+    out = []
+    for email in found:
+        email = email.strip().strip(".").lower()
+        if EMAIL_RE.fullmatch(email) and not NOT_EMAIL_RE.search(email) and email not in out:
+            out.append(email)
+    return out
 
 
 def clean_url(url):
@@ -117,10 +156,11 @@ class Command(BaseCommand):
 
     async def visit(self, page, url, listings):
         record = {"url": url, "listing_ids": [l.pk for l in listings],
-                  "names": sorted({l.name for l in listings}), "pages": [], "snippets": [], "error": ""}
+                  "names": sorted({l.name for l in listings}), "pages": [], "snippets": [],
+                  "emails": [], "error": ""}
         seen = set()
         try:
-            text, links = await self.read(page, url)
+            text, links, emails = await self.read(page, url)
         except Exception as e:
             record["error"] = str(e).splitlines()[0][:200]
             self.stdout.write(f"  [error] {record['error']}")
@@ -128,6 +168,7 @@ class Command(BaseCommand):
         home = page.url
         record["pages"].append(home)
         record["snippets"] += [{"page": home, "text": s} for s in snippets(text, seen)]
+        record["emails"] += [e for e in emails if e not in record["emails"]]
 
         # Same-site pages whose link looks useful, fees and admissions first
         domain = urlparse(home).netloc.removeprefix("www.")
@@ -140,17 +181,25 @@ class Command(BaseCommand):
                     and LINK_WORDS.search(f"{href} {label}")):
                 ranked.append(target)
         ranked.sort(key=lambda u: 0 if re.search(r"fee|tuition|price|admission|enrol", u, re.I) else 1)
-        for target in ranked[:MAX_EXTRA_PAGES]:
+        # No email on those pages: try the contact page
+        contact = [] if record["emails"] else [
+            clean_url(urljoin(home, href)) for href, label in links
+            if CONTACT_WORDS.search(f"{href} {label}")
+            and urlparse(clean_url(urljoin(home, href))).netloc.removeprefix("www.") == domain]
+        contact = [u for u in contact if u not in ranked[:MAX_EXTRA_PAGES]][:1]
+        for target in ranked[:MAX_EXTRA_PAGES] + contact:
             await asyncio.sleep(DELAY_S)
             try:
-                text, _ = await self.read(page, target)
+                text, _, emails = await self.read(page, target)
             except Exception as e:
                 self.stdout.write(f"  [page error] {target}: {str(e).splitlines()[0][:100]}")
                 continue
             record["pages"].append(target)
             record["snippets"] += [{"page": target, "text": s} for s in snippets(text, seen)]
+            record["emails"] += [e for e in emails if e not in record["emails"]]
         record["snippets"] = record["snippets"][:MAX_SNIPPETS]
-        self.stdout.write(f"  {len(record['pages'])} pages, {len(record['snippets'])} passages")
+        self.stdout.write(f"  {len(record['pages'])} pages, {len(record['snippets'])} passages, "
+                          f"emails: {', '.join(record['emails']) or 'none'}")
         return record
 
     async def read(self, page, url):
@@ -159,4 +208,6 @@ class Command(BaseCommand):
         text = await page.inner_text("body")
         links = await page.eval_on_selector_all(
             "a[href]", "els => els.map(e => [e.getAttribute('href'), (e.innerText || '').trim()])")
-        return text, links
+        cf_codes = await page.eval_on_selector_all(
+            "[data-cfemail]", "els => els.map(e => e.getAttribute('data-cfemail'))")
+        return text, links, find_emails(text, links, cf_codes)

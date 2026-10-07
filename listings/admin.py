@@ -80,7 +80,7 @@ class DaycareAdmin(admin.ModelAdmin):
     list_filter = ["listing_type", "city", "area", "is_featured", "is_verified", "is_active",
                    "details_confirmed", DetailsFilter]
     actions = ["confirm_details"]
-    search_fields = ["name", "address", "phone"]
+    search_fields = ["name", "address", "phone", "email"]
     list_editable = ["is_featured", "is_verified", "is_active"]
     prepopulated_fields = {"slug": ["name"]}
     readonly_fields = ["created_at", "updated_at", "last_seen_at", "maps_url", "place_id"]
@@ -88,7 +88,7 @@ class DaycareAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Core", {
             "fields": ("name", "slug", "listing_type", "city", "area", "sub_area", "address", "phone",
-                       "website", "description")
+                       "email", "website", "description")
         }),
         ("Ratings", {
             "fields": ("rating", "review_count")

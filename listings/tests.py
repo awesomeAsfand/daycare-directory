@@ -459,3 +459,64 @@ class NurseryDetailsTests(ImportTestBase):
         fixes.write_text(cols + f"{b.pk},Branch B,,ages_to,9 years,5 years,,,\n", encoding="utf-8-sig")
         with self.assertRaises(CommandError):
             call_command("correct_details", "--details", str(details), "--corrections", str(fixes), stdout=StringIO())
+
+
+class CollectEmailTests(TestCase):
+    def test_find_emails(self):
+        from listings.management.commands.collect_details import decode_cfemail, find_emails
+
+        # Cloudflare encoding of "hi@nursery.ae" with key 0x42
+        code = "42" + "".join(f"{ord(c) ^ 0x42:02x}" for c in "hi@nursery.ae")
+        self.assertEqual(decode_cfemail(code), "hi@nursery.ae")
+        links = [("mailto:Admissions@Nursery.ae?subject=Hello", "Email us"),
+                 (f"/cdn-cgi/l/email-protection#{code}", "[email protected]"), ("/about", "About")]
+        text = "Call us or write to info@nursery.ae. Logo: logo@2x.png, admissions@nursery.ae"
+        self.assertEqual(find_emails(text, links),
+                         ["admissions@nursery.ae", "hi@nursery.ae", "info@nursery.ae"])
+
+
+class ApplyReviewTests(ImportTestBase):
+    FIELDS = ["id", "decision", "name", "email", "ages_from", "ages_to", "curriculum", "licensed_by", "details_source"]
+
+    def write(self, rows):
+        path = self.tmp / "review.csv"
+        with path.open("w", encoding="utf-8-sig", newline="") as f:
+            w = csv.DictWriter(f, self.FIELDS)
+            w.writeheader()
+            w.writerows([{k: r.get(k, "") for k in self.FIELDS} for r in rows])
+        return path
+
+    def test_apply_review(self):
+        keep = DaycareListing.objects.create(name="Keep", slug="keep", city=self.city)
+        junk = DaycareListing.objects.create(name="Junk", slug="junk", city=self.city)
+        done = DaycareListing.objects.create(name="Done", slug="done", city=self.city, curriculum=["eyfs"],
+                                             details_confirmed=True)
+        path = self.write([
+            {"id": keep.pk, "decision": "keep", "name": "Keep", "email": "Info@Keep.ae", "ages_from": "45 days",
+             "ages_to": "4 years", "curriculum": "British (EYFS); Reggio Emilia", "licensed_by": "ADEK",
+             "details_source": "https://keep.ae/"},
+            {"id": junk.pk, "decision": "remove", "name": "Junk", "email": "x@junk.ae"},
+            {"id": done.pk, "decision": "keep", "name": "Done", "email": "hi@done.ae", "curriculum": "Montessori"},
+        ])
+        out = StringIO()
+        call_command("apply_review", "--file", str(path), "--dry-run", stdout=out)
+        self.assertIn("(dry run", out.getvalue())
+        self.assertTrue(DaycareListing.objects.get(pk=junk.pk).is_active)
+
+        out = StringIO()
+        call_command("apply_review", "--file", str(path), stdout=out)
+        self.assertIn("Switched off: 1; emails set: 2; details loaded (confirmed): 1; "
+                      "details already confirmed, left as they were: 1", out.getvalue())
+        keep.refresh_from_db(); junk.refresh_from_db(); done.refresh_from_db()
+        self.assertEqual((keep.email, keep.age_range_label, keep.curriculum, keep.licensed_by, keep.details_confirmed),
+                         ("info@keep.ae", "45 days – 4 years", ["eyfs", "reggio"], "ADEK", True))
+        self.assertFalse(junk.is_active)
+        self.assertEqual(junk.email, "")
+        self.assertEqual((done.email, done.curriculum), ("hi@done.ae", ["eyfs"]))
+        self.assertContains(self.client.get(keep.get_absolute_url()), "mailto:info@keep.ae")
+
+    def test_undecided_row_stops(self):
+        from django.core.management.base import CommandError
+        path = self.write([{"id": 1, "decision": "check", "name": "X"}])
+        with self.assertRaises(CommandError):
+            call_command("apply_review", "--file", str(path), stdout=StringIO())

@@ -124,6 +124,8 @@ class DaycareListing(models.Model):
     address = models.TextField(blank=True)
     phone = models.CharField(max_length=50, blank=True)
     website = models.URLField(max_length=500, blank=True)
+    # From the nursery's website (collect_details), checked in the review CSV
+    email = models.EmailField(blank=True)
     description = models.TextField(blank=True)
 
     # Ratings from Google Maps

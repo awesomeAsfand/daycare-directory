@@ -1,0 +1,2260 @@
+{
+ "sites": [
+  {
+   "s": 1,
+   "from": "",
+   "to": "4 years",
+   "curr": "",
+   "lic": "",
+   "email": "admin@tinydreams.ae",
+   "ev_age": "Ages: 0-12 months / 1-2 years / 2-3 years / 3-4 years",
+   "ev_curr": "play-based curriculum; Responsive Classroom (no named framework)",
+   "ev_lic": "",
+   "note": "start age not stated (youngest class '0-12 months')",
+   "url": "http://www.tinydreams.ae/",
+   "listing_ids": [
+    473
+   ]
+  },
+  {
+   "s": 2,
+   "from": "1 years",
+   "to": "4 years",
+   "curr": "British (EYFS); Montessori",
+   "lic": "",
+   "email": "info@lady-bird-nursery.com",
+   "ev_age": "Ladybird provides an early years experience for children aged 1-4 years.",
+   "ev_curr": "a personalised Montessori approach blended with the EYFS framework",
+   "ev_lic": "",
+   "note": "part of Kids First Group",
+   "url": "http://www.lady-bird-nursery.com/",
+   "listing_ids": [
+    474
+   ]
+  },
+  {
+   "s": 3,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "info@kidsfantasynursery.com",
+   "ev_age": "babies and children from 45 days to 4 years",
+   "ev_curr": "follows a curriculum based on the British National Curriculum EYFS enhanced with Arabic, Islamic and French",
+   "ev_lic": "Kids Fantasy Nursery is outstanding nursery rated by ADEK",
+   "note": "",
+   "url": "https://kidsfantasynursery.com/",
+   "listing_ids": [
+    476,
+    702,
+    706,
+    787
+   ]
+  },
+  {
+   "s": 4,
+   "from": "45 days",
+   "to": "5 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "info@britishorchardnursery.com",
+   "ev_age": "We accept children from 45 days to 5 years old",
+   "ev_curr": "BON follows the EYFS (British) curriculum",
+   "ev_lic": "'ADEK' listed on the site (logo/accreditation line only)",
+   "note": "chain site lists 16 branch emails; no Abu Dhabi branch address found, so info@",
+   "url": "http://www.britishorchardnursery.com/",
+   "listing_ids": [
+    477,
+    565
+   ]
+  },
+  {
+   "s": 5,
+   "decision": "remove",
+   "reason": "same business as 'Jump For Joy Abilities Development Center' (left out by the skills-centre rule); abacus, tuition, KG1/KG2/Grade 1 classes",
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@jumpforjoyuae.com",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "names advertise 'Abacus, Tutions, afterschool support, KG1/KG2/Grade1'",
+   "url": "https://jumpforjoyuae.com/",
+   "listing_ids": [
+    479,
+    600,
+    724,
+    740
+   ]
+  },
+  {
+   "s": 6,
+   "from": "4 months",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia; Arabic / English bilingual",
+   "lic": "",
+   "email": "info@my-nursery.ae",
+   "ev_age": "4 to 12 months ... 3 to 4 years",
+   "ev_curr": "My Nursery offers EYFS British Curriculum with pedagogy and practice inspired by the Reggio Emilia Approach; Arabic Immersion (2-4yrs): delivered in both English and Arabic",
+   "ev_lic": "",
+   "note": "other emails: manager@, reception@ (skipped a hosting placeholder address)",
+   "url": "http://www.my-nursery.ae/",
+   "listing_ids": [
+    481
+   ]
+  },
+  {
+   "s": 7,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "ADEK",
+   "email": "info@discoverynursery.ae",
+   "ev_age": "caring for children from 45 days to 4 years old",
+   "ev_curr": "We follow the British EYFS framework and enrich it with the Reggio Emilia approach",
+   "ev_lic": "several successful nurseries across the UAE, recognised by ADEK",
+   "note": "formerly Step By Step Nursery Abu Dhabi",
+   "url": "http://www.discoverynursery.ae/",
+   "listing_ids": [
+    482
+   ]
+  },
+  {
+   "s": 8,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS); Montessori; Arabic / English bilingual",
+   "lic": "",
+   "email": "contact@mybabiesnursery.com",
+   "ev_age": "",
+   "ev_curr": "We implement the British Early Years Foundation Stage (EYFS) framework; Montessori-inspired methods; Children are immersed in both English and Arabic languages",
+   "ev_lic": "",
+   "note": "ages not stated",
+   "url": "https://mybabiesnursery.com/",
+   "listing_ids": [
+    483
+   ]
+  },
+  {
+   "s": 9,
+   "from": "4 months",
+   "to": "6 years",
+   "curr": "British (EYFS); Montessori",
+   "lic": "",
+   "email": "",
+   "ev_age": "We Welcome Children Aged 4 Months To 6 Years Across The Following Programs: Junior Toddler, Toddler, Pre-School, And FS1.",
+   "ev_curr": "a Montessori-inspired, British curriculum nursery",
+   "ev_lic": "",
+   "note": "site also says '6 months to 6 years'; Al Manhal branch was 'opening soon' on the site",
+   "url": "https://orangeseedsnursery.com/",
+   "listing_ids": [
+    484
+   ]
+  },
+  {
+   "s": 10,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "",
+   "email": "",
+   "ev_age": "Ages: 45 days to 4 years (FS1)",
+   "ev_curr": "We combine the British EYFS framework with the Reggio Emilia philosophy",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.theblossomnursery.com/nurseries/blossom-bateen",
+   "listing_ids": [
+    485
+   ]
+  },
+  {
+   "s": 11,
+   "from": "2 months",
+   "to": "4 years",
+   "curr": "",
+   "lic": "",
+   "email": "info@uae.kipinakids.com",
+   "ev_age": "Ages: 2 months to 4 years",
+   "ev_curr": "Kipina (Finnish) curriculum - not one of our curriculum options",
+   "ev_lic": "",
+   "note": "consider adding 'Finnish' as a curriculum option",
+   "url": "https://kipinakids.com/kipina-nursery-school-al-bateen-abu-dhabi/",
+   "listing_ids": [
+    486
+   ]
+  },
+  {
+   "s": 12,
+   "decision": "remove",
+   "reason": "tuition and skills institute ('Excellence Skill Development Institute', tuition KG to Grade 10), same licence type as the skills centres",
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "admissions@excellenceskill.com",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "",
+   "url": "http://www.excellenceskill.com/",
+   "listing_ids": [
+    490
+   ]
+  },
+  {
+   "s": 13,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS); Montessori; Reggio Emilia",
+   "lic": "ADEK",
+   "email": "admin@littlehavennursery.ae",
+   "ev_age": "",
+   "ev_curr": "we follow the EYFS (Early Years Foundation Stage) framework, enriched with the best of Montessori and Reggio Emilia philosophies",
+   "ev_lic": "At Little Haven Nursery, we follow ADEK guidelines.",
+   "note": "ages not stated (has a Baby Room and Pre-KG)",
+   "url": "http://www.littlehavennursery.ae/",
+   "listing_ids": [
+    492
+   ]
+  },
+  {
+   "s": 14,
+   "from": "2 years",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "admission@visionnursery.com",
+   "ev_age": "specialized in efficacious early-education of children aged between 2 to 4 years",
+   "ev_curr": "the Early Years Foundation Stage (EYFS) Framework being adopted as the soul of its curriculum",
+   "ev_lic": "",
+   "note": "",
+   "url": "http://www.visionnursery.com/",
+   "listing_ids": [
+    493,
+    643
+   ]
+  },
+  {
+   "s": 15,
+   "from": "28 days",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "",
+   "email_by_id": {
+    "494": "mehairba@brightbeginnings.ae",
+    "587": "mushrif@brightbeginnings.ae",
+    "654": "saadiyat@brightbeginnings.ae"
+   },
+   "ev_age": "We care for children from 4 weeks to 4 years of age.",
+   "ev_curr": "Two frameworks shape the Bright Beginnings curriculum: the Early Years Foundation Stage in the UK and the Early Years Learning Framework for Australia.",
+   "ev_lic": "Our experienced, ADEK-approved teaching staff",
+   "note": "4 weeks entered as 28 days",
+   "url": "https://www.brightbeginnings.ae/",
+   "listing_ids": [
+    494,
+    587,
+    654
+   ]
+  },
+  {
+   "s": 16,
+   "decision": "remove",
+   "reason": "same business as 'Jump For Joy Abilities Development Center' (left out by the skills-centre rule); abacus, tuition, KG1/KG2/Grade 1 classes",
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@jumpforjoyuae.com",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.jumpforjoyuae.com/",
+   "listing_ids": [
+    495
+   ]
+  },
+  {
+   "s": 17,
+   "from": "1 years",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "",
+   "email": "",
+   "ev_age": "Ages: 12 months to 4 years (FS1)",
+   "ev_curr": "We combine the British EYFS framework with the Reggio Emilia philosophy",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.theblossomnursery.com/nurseries/blossom-al-najda",
+   "listing_ids": [
+    496
+   ]
+  },
+  {
+   "s": 18,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "srknurseryllc@gmail.com",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "little on the site; part of SRK Education Group (also runs SRK Training Centre)",
+   "url": "https://srkeducationgroupinternational.com/srk-nursery",
+   "listing_ids": [
+    500
+   ]
+  },
+  {
+   "s": 19,
+   "from": "3 months",
+   "to": "6 years",
+   "curr": "Montessori",
+   "lic": "",
+   "email": "register@theredwoodnursery.com",
+   "ev_age": "Age Groups (3 months to 6 years)",
+   "ev_curr": "Redwood nurseries follow the authentic Montessori method",
+   "ev_lic": "",
+   "note": "chain site: branch emails info.<branch>@theredwoodnursery.com; 'KHDA approved advanced Montessori' is the Dubai programme",
+   "url": "http://www.theredwoodnursery.com/",
+   "listing_ids": [
+    501,
+    570,
+    630,
+    645,
+    691
+   ]
+  },
+  {
+   "s": 20,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "contact@chubbycheeksnursery.com",
+   "ev_age": "",
+   "ev_curr": "Chubby Cheeks Nursery follows the British Early Years Foundation Stage",
+   "ev_lic": "",
+   "note": "ages on the site are for Dubai branches only (45 days to 5 years)",
+   "url": "http://www.ccn.ae/",
+   "listing_ids": [
+    503
+   ]
+  },
+  {
+   "s": 21,
+   "from": "1 years",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "administration@springfieldspreschools.com",
+   "ev_age": "We provide full day care from 7.30 am to 5.30 pm for children aged 12 months to 4 years",
+   "ev_curr": "Aligned with the British Early Years Foundation Stage, our play-based curriculum",
+   "ev_lic": "",
+   "note": "another page says 'from 2 months up to 4 years'; the newest page lists Toddler 1-2, Nursery 2-3, F-S1 3-4",
+   "url": "https://www.springfieldspreschools.com/",
+   "listing_ids": [
+    505
+   ]
+  },
+  {
+   "s": 22,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@stanfordnursery.com",
+   "ev_age": "",
+   "ev_curr": "منهج EYFS البريطاني المعتمد (accredited British EYFS curriculum)",
+   "ev_lic": "",
+   "note": "'Al Dana nursery Baniyas' uses the Stanford Nursery website",
+   "url": "https://stanfordnursery.com/",
+   "listing_ids": [
+    507,
+    747,
+    756
+   ]
+  },
+  {
+   "s": 23,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "",
+   "email": "",
+   "ev_age": "Ages: 45 days to 4 years (FS1)",
+   "ev_curr": "We combine the British EYFS framework with the Reggio Emilia philosophy",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.theblossomnursery.com/nurseries/blossom-muroor",
+   "listing_ids": [
+    508
+   ]
+  },
+  {
+   "s": 24,
+   "from": "",
+   "to": "4 years",
+   "curr": "",
+   "lic": "",
+   "email": "admin@tinydreams.ae",
+   "ev_age": "Ages: 0-12 months / 1-2 years / 2-3 years / 3-4 years",
+   "ev_curr": "play-based curriculum (no named framework)",
+   "ev_lic": "",
+   "note": "same site as Tiny Dreams Al-Khalidiya",
+   "url": "https://www.tinydreams.ae/",
+   "listing_ids": [
+    509
+   ]
+  },
+  {
+   "s": 25,
+   "from": "2 months",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "info@simbanursery.ae",
+   "ev_age": "We provide different classes from the age of 2-months up to 4-years of age",
+   "ev_curr": "Simba Nursery follows the Early Years Foundation Stage (EYFS)",
+   "ev_lic": "All our above Fees are approved by ADEK",
+   "note": "publishes fees (2026-27: AED 25,000-36,250 a year for 5 days)",
+   "url": "https://www.simbanursery.ae/",
+   "listing_ids": [
+    512
+   ]
+  },
+  {
+   "s": 26,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Arabic / English bilingual",
+   "lic": "",
+   "email": "info@kidsfirstnursery.com",
+   "ev_age": "We welcome children from 45 days old through 4 years",
+   "ev_curr": "follows the British Early Years Foundation Stage (EYFS) framework combined with Play-Based Learning, with bilingual development in English and Arabic",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://kidsfirstnursery.com/",
+   "listing_ids": [
+    514
+   ]
+  },
+  {
+   "s": 27,
+   "from": "3 months",
+   "to": "6 years",
+   "curr": "Montessori",
+   "lic": "",
+   "email": "register@theredwoodnursery.com",
+   "ev_age": "Age Groups (3 months to 6 years)",
+   "ev_curr": "Redwood nurseries follow the authentic Montessori method",
+   "ev_lic": "",
+   "note": "same chain site as S19",
+   "url": "https://www.theredwoodnursery.com/",
+   "listing_ids": [
+    516,
+    540,
+    543,
+    676,
+    709,
+    768
+   ]
+  },
+  {
+   "s": 28,
+   "from": "1 years",
+   "to": "5 years",
+   "curr": "Montessori",
+   "lic": "ADEK",
+   "email": "inquiry@kingandqueenursery.com",
+   "ev_age": "four classes with nine to twenty children each aged twelve month to five years of age",
+   "ev_curr": "King and Queen Nursery teachers follow the Montessori Method",
+   "ev_lic": "licensed by Department of Education and Knowledge",
+   "note": "site also mentions '6 months - Walking Age' and 'four to six years'",
+   "url": "http://www.kingandqueenursery.com/",
+   "listing_ids": [
+    519
+   ]
+  },
+  {
+   "s": 29,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "WEBSITE PROBABLY WRONG: littlegardennursery.com reads like a UK nursery (childcare vouchers, lgnnorthfields.com); emails not used",
+   "flag": "website looks like a UK nursery, not this Abu Dhabi one",
+   "url": "https://littlegardennursery.com/",
+   "listing_ids": [
+    521
+   ]
+  },
+  {
+   "s": 30,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "admin@barefootuae.com",
+   "ev_age": "45 days–4 years",
+   "ev_curr": "Barefoot Nursery combines the EYFS framework with creative, play-based learning",
+   "ev_lic": "",
+   "note": "",
+   "url": "http://www.barefootuae.com/",
+   "listing_ids": [
+    524,
+    542
+   ]
+  },
+  {
+   "s": 31,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "nurseryabc1979@gmail.com",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "site has almost no text",
+   "url": "https://abc-nursery.ae/",
+   "listing_ids": [
+    525
+   ]
+  },
+  {
+   "s": 32,
+   "from": "3 months",
+   "to": "4 years",
+   "curr": "Reggio Emilia",
+   "lic": "",
+   "email": "info@odysseynursery.com",
+   "ev_age": "Age Groups (3 months to 6 years) ... Foundation 2 (4-6 Years): This age group is applicable to Dubai branches only.",
+   "ev_curr": "At Odyssey, we follow the Reggio Emilia approach",
+   "ev_lic": "",
+   "note": "chain: branch emails info-<branch>@odysseynursery.com",
+   "url": "http://www.odysseynursery.com/",
+   "listing_ids": [
+    527
+   ]
+  },
+  {
+   "s": 33,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@happyheartsnursery.com",
+   "ev_age": "",
+   "ev_curr": "Early Years British Curriculum (EYFS)",
+   "ev_lic": "",
+   "note": "also mentions an 'Early Years Asian International Curriculum'",
+   "url": "http://www.happyheartsnursery.com/",
+   "listing_ids": [
+    528
+   ]
+  },
+  {
+   "s": 34,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "contact@chubbycheeksnursery.com",
+   "ev_age": "",
+   "ev_curr": "Chubby Cheeks Nursery follows the British Early Years Foundation Stage",
+   "ev_lic": "",
+   "note": "ages on the site are for Dubai branches only",
+   "url": "https://www.chubbycheeksnursery.com/",
+   "listing_ids": [
+    531
+   ]
+  },
+  {
+   "s": 35,
+   "decision": "remove",
+   "reason": "babysitting / nanny agency, not a nursery",
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@sitters.ae",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "'professional babysitter ... overnight care'",
+   "url": "https://sitters.ae/",
+   "listing_ids": [
+    534
+   ]
+  },
+  {
+   "s": 36,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Arabic / English bilingual",
+   "lic": "ADEK",
+   "email": "ekcnnursery@gmail.com",
+   "ev_age": "Age Group: 45 days – 24 months ... Age Group: 3 years – 4 years",
+   "ev_curr": "we base our learning curriculum on the British EYFS; the EYFS curriculum in both languages, English and Arabic",
+   "ev_lic": "Admin Email: 4079.nr@adek.gov.ae (ADEK nursery address)",
+   "note": "admin address 4079.nr@adek.gov.ae also on site",
+   "url": "http://www.emirateskindercarenursery.com/",
+   "listing_ids": [
+    535,
+    655
+   ]
+  },
+  {
+   "s": 37,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "admin.reem@primrosebritishnursery.com",
+   "ev_age": "",
+   "ev_curr": "our unique approach rooted in the Early Years Foundation Stage (EYFS) curriculum",
+   "ev_lic": "All tuition fees at Primrose British Nursery adhere to the fee structure established by ADEK",
+   "note": "other branch: Khalifa (admin.khalifa@)",
+   "url": "https://primrosebritishnursery.com/",
+   "listing_ids": [
+    536
+   ]
+  },
+  {
+   "s": 38,
+   "from": "3 months",
+   "to": "6 years",
+   "curr": "British (EYFS); Montessori",
+   "lic": "",
+   "email": "info@baynounahnursery.ae",
+   "ev_age": "Supporting children from 3 months to 6 years",
+   "ev_curr": "through the British EYFS framework, Montessori approach",
+   "ev_lic": "",
+   "note": "licensed special-needs classrooms",
+   "url": "https://baynounahnursery.ae/",
+   "listing_ids": [
+    538
+   ]
+  },
+  {
+   "s": 39,
+   "from": "",
+   "to": "",
+   "curr": "American",
+   "lic": "",
+   "email": "info@applefieldnursery.com",
+   "ev_age": "",
+   "ev_curr": "American Creative Curriculum",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://applefieldnursery.com/",
+   "listing_ids": [
+    539
+   ]
+  },
+  {
+   "s": 40,
+   "from": "1 years",
+   "to": "6 years",
+   "curr": "",
+   "lic": "",
+   "email": "info@casadeamigos.ae",
+   "ev_age": "We welcome children from 1 to 6 years",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "also runs programmes for ages 3-12 and 4-12 ('Mind Builders', 'Cognitive Explorers')",
+   "flag": "may be an activity / skills centre rather than a nursery",
+   "url": "https://casadeamigos.ae/",
+   "listing_ids": [
+    553
+   ]
+  },
+  {
+   "s": 41,
+   "from": "4 months",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@bhn.ae",
+   "email_by_id": {
+    "555": "albahia@bhn.ae",
+    "738": "a.shamkha@bhn.ae"
+   },
+   "ev_age": "providing educational services to children from 4 months to 4 years of age",
+   "ev_curr": "British Home Nursery follows the EYFS curriculum",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.bhn.ae/",
+   "listing_ids": [
+    555,
+    738,
+    789
+   ]
+  },
+  {
+   "s": 42,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "ADEK",
+   "email": "info@lsn.ae",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "LSN has been identified by ADEK as nursery with a high level of compliance",
+   "note": "also lsnmoj@gmail.com",
+   "url": "https://littlesmartiesnursery.com/",
+   "listing_ids": [
+    558
+   ]
+  },
+  {
+   "s": 43,
+   "from": "45 days",
+   "to": "6 years",
+   "curr": "",
+   "lic": "",
+   "email": "enquire@angelsgarden.org",
+   "ev_age": "We welcome children from 45 days to 6 years old",
+   "ev_curr": "a play-based early-years curriculum (no named framework)",
+   "ev_lic": "",
+   "note": "also tuition and after-school care; open 7 days",
+   "url": "https://www.angelsgarden.org/",
+   "listing_ids": [
+    563
+   ]
+  },
+  {
+   "s": 44,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "brightpearl.auh@gmail.com",
+   "ev_age": "",
+   "ev_curr": "Our EYFS-based program combines play and guidance",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://brightpearls.ae/",
+   "listing_ids": [
+    571
+   ]
+  },
+  {
+   "s": 45,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@inayachildcare.com",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "site has almost no text",
+   "url": "http://inayachildcare.com/",
+   "listing_ids": [
+    572
+   ]
+  },
+  {
+   "s": 46,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "American",
+   "lic": "ADEK",
+   "email": "enquiries@teddybearnurseries.com",
+   "ev_age": "we provide children from 45 days to four years old",
+   "ev_curr": "The Creative Curriculum© (American early-years curriculum)",
+   "ev_lic": "We are routinely assessed by ADEK inspectors and Civil Defense.",
+   "note": "part of Liwa Education",
+   "url": "https://teddybearnurseries.com/",
+   "listing_ids": [
+    574,
+    736,
+    806
+   ]
+  },
+  {
+   "s": 47,
+   "decision": "remove",
+   "reason": "play centre in Marina Mall (activities for 6 months to 12 years), not a nursery",
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@lemonadeplay.ae",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://lemonadeplay.ae/",
+   "listing_ids": [
+    575
+   ]
+  },
+  {
+   "s": 48,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "website is dead (404); domain says 'preschool-tuition-center'",
+   "flag": "may be a tuition centre",
+   "url": "https://www.abu-dhabi-happy-kids-preschool-tuition-center.com/",
+   "listing_ids": [
+    576
+   ]
+  },
+  {
+   "s": 49,
+   "from": "45 days",
+   "to": "59 months",
+   "curr": "Montessori; British (EYFS); Arabic / English bilingual",
+   "lic": "",
+   "email": "tmcg.uae@gmail.com",
+   "ev_age": "We welcome children from 45 days to 4 years 11 months",
+   "ev_curr": "Montessori + EYFS alignment; Arabic + English",
+   "ev_lic": "",
+   "note": "'Licensed MNC' = licence for the Montessori Australia curriculum, not a regulator",
+   "url": "http://www.themontessoricg.com/",
+   "listing_ids": [
+    584
+   ]
+  },
+  {
+   "s": 50,
+   "from": "45 days",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@hummingbird.ae",
+   "ev_age": "We are accepting children from 45 days to 3 years old. / We are accepting children from 45 days to 5 years old, with a dedicated Baby Care team and FS classes available.",
+   "ev_curr": "We follow the UK's Early Years Foundation Stage (EYFS) curriculum",
+   "ev_lic": "",
+   "note": "two branches with different top ages (3 or 5 years); not clear which is Reem Island",
+   "url": "https://hummingbird.ae/",
+   "listing_ids": [
+    589
+   ]
+  },
+  {
+   "s": 51,
+   "from": "1 years",
+   "to": "6 years",
+   "curr": "Montessori; British (EYFS)",
+   "lic": "ADEK",
+   "email": "admissions@britishoakmontessori.ae",
+   "ev_age": "ABU DHABI · AGES 1 TO 6 YEARS",
+   "ev_curr": "Montessori in Approach. British EYFS in Foundation.",
+   "ev_lic": "ADEK licensed · Abu Dhabi, United Arab Emirates",
+   "note": "ages 4-6 are in their separate kindergarten",
+   "url": "http://britishoakmontessori.com/",
+   "listing_ids": [
+    590
+   ]
+  },
+  {
+   "s": 52,
+   "from": "1 years",
+   "to": "6 years",
+   "curr": "",
+   "lic": "",
+   "email": "info@tiny-star.ae",
+   "ev_age": "1 to 3 years / 3 to 4 years / KG1: 4-5 years / KG2: 5-6 years",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "one of the two Google entries is named 'Tiny Star Training And Development Center'",
+   "flag": "may hold a training / development centre licence rather than a nursery one",
+   "url": "https://tiny-star.ae/",
+   "listing_ids": [
+    593,
+    805
+   ]
+  },
+  {
+   "s": 53,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "",
+   "email": "",
+   "ev_age": "Ages: 45 days to 4 years (FS1)",
+   "ev_curr": "We combine the British EYFS framework with the Reggio Emilia philosophy",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.theblossomnursery.com/nurseries/blossom-al-reem-island",
+   "listing_ids": [
+    595
+   ]
+  },
+  {
+   "s": 54,
+   "from": "8 months",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@kidsasiapreschool.com",
+   "ev_age": "AGE: 8 months - 1.5 yrs ... AGE: 2.5 - 3.5 yrs",
+   "ev_curr": "developmentally appropriate curriculum (no named framework)",
+   "ev_lic": "",
+   "note": "top age unclear",
+   "url": "https://www.kidsasiapreschool.com/",
+   "listing_ids": [
+    596
+   ]
+  },
+  {
+   "s": 55,
+   "from": "6 months",
+   "to": "6 years",
+   "curr": "Montessori; British (EYFS)",
+   "lic": "",
+   "email": "info@kiddiworld.co",
+   "ev_age": "we welcome children from 6 months to 6 years",
+   "ev_curr": "We follow a balanced blend of Montessori and EYFS",
+   "ev_lic": "",
+   "note": "another page shows a '3 Months - 2 Years' group; also tuition and activity club",
+   "url": "http://www.kiddiworld.co/",
+   "listing_ids": [
+    599
+   ]
+  },
+  {
+   "s": 56,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "",
+   "email": "info@learningspacesnurseries.com",
+   "ev_age": "for babies and children up to the age of 4 years ... Nido Room ... aged between 45 days to 12 Months",
+   "ev_curr": "The Nursery follows the British Early Years Foundation Stage (EYFS) framework; The Nursery follows the Reggio Emilia Approach",
+   "ev_lic": "",
+   "note": "",
+   "url": "http://www.learningspacesnurseries.com/",
+   "listing_ids": [
+    601
+   ]
+  },
+  {
+   "s": 57,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@iqkidsnursery.org",
+   "ev_age": "",
+   "ev_curr": "a unique curriculum following aspects of the theory of Haward Gardner merged with the EYFS Framework",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.iqkidsnursery.org/",
+   "listing_ids": [
+    604,
+    720,
+    757
+   ]
+  },
+  {
+   "s": 58,
+   "from": "1 years",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@treehousenursery.me",
+   "ev_age": "We accept children from one to four years of age.",
+   "ev_curr": "our curriculum combines the UK's acclaimed Early Years Foundation Stage (EYFS) Framework with a unique creative learning model",
+   "ev_lic": "",
+   "note": "also uses Montessori and Reggio elements",
+   "url": "https://www.treehousenursery.ae/",
+   "listing_ids": [
+    606
+   ]
+  },
+  {
+   "s": 59,
+   "from": "40 days",
+   "to": "5 years",
+   "curr": "",
+   "lic": "",
+   "email": "whizzywonders1@gmail.com",
+   "ev_age": "We accept children from 40 days onwards ... (4 - 5 years)",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "also after-school tuition",
+   "url": "https://whizzywonderuae.com/",
+   "listing_ids": [
+    609
+   ]
+  },
+  {
+   "s": 60,
+   "decision": "remove",
+   "reason": "enrichment centre for ages 3-11 (Google name 'Personal Development Centre'), not a nursery - same kind as the skills centres",
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@ilmora.ae",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "'Premium enrichment programs for ages 3-11'",
+   "url": "https://ilmora.ae/",
+   "listing_ids": [
+    615
+   ]
+  },
+  {
+   "s": 61,
+   "decision": "remove",
+   "reason": "weekly baby and toddler classes (0-3 years), not a nursery",
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "'Raha Baby Term (0-13 months) ... Saturdays 10-11AM'",
+   "url": "https://www.boomboombaby.ae/",
+   "listing_ids": [
+    622
+   ]
+  },
+  {
+   "s": 62,
+   "from": "45 days",
+   "to": "6 years",
+   "curr": "Canadian",
+   "lic": "",
+   "email": "admissions@maplebeargulfschools.com",
+   "ev_age": "Supporting holistic growth from ages 45 days to 6 years",
+   "ev_curr": "Globally recognized Canadian curriculum",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.maplebeargulfschools.com/our-location/abu-dhabi/nursery-reem-island/",
+   "listing_ids": [
+    626
+   ]
+  },
+  {
+   "s": 63,
+   "from": "",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "admissions@bloomnurseries.ae",
+   "ev_age": "welcoming children from the age of 0-4 years",
+   "ev_curr": "Bloom Nurseries follow the Early Years Foundation Stage Curriculum (British Curriculum)",
+   "ev_lic": "has been always rated outstanding by ADEK",
+   "note": "formerly Mindchamps; publishes fees",
+   "url": "https://bloomnurseries.ae/",
+   "listing_ids": [
+    629
+   ]
+  },
+  {
+   "s": 64,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@falconbritishnursery.com",
+   "ev_age": "",
+   "ev_curr": "'Trilingual - English, French and Arabic' (curriculum not named in the passages)",
+   "ev_lic": "",
+   "note": "publishes fees (term fees AED 7,900-12,664)",
+   "url": "http://www.falconbritishnursery.com/",
+   "listing_ids": [
+    631
+   ]
+  },
+  {
+   "s": 65,
+   "from": "1 years",
+   "to": "4 years",
+   "curr": "Montessori; British (EYFS)",
+   "lic": "ADEK",
+   "email": "gmn.admin@gmnad.com",
+   "ev_age": "children from 12 months to 4 years of age",
+   "ev_curr": "Combining authentic Montessori education with the EYFS framework",
+   "ev_lic": "site has an 'ADEK Reports' page",
+   "note": "",
+   "url": "https://www.globalmontessorinursery.ae/",
+   "listing_ids": [
+    632
+   ]
+  },
+  {
+   "s": 66,
+   "from": "45 days",
+   "to": "6 years",
+   "curr": "Canadian",
+   "lic": "",
+   "email": "admissions@maplebeargulfschools.com",
+   "ev_age": "Supporting holistic growth from ages 45 days to 6 years",
+   "ev_curr": "Globally recognized Canadian curriculum",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.maplebeargulfschools.com/our-location/abu-dhabi/nursery-itc/",
+   "listing_ids": [
+    641
+   ]
+  },
+  {
+   "s": 67,
+   "from": "3 months",
+   "to": "4 years",
+   "curr": "Reggio Emilia",
+   "lic": "",
+   "email": "info@odysseynursery.com",
+   "ev_age": "Age Groups (3 months to 6 years) ... Foundation 2 (4-6 Years): This age group is applicable to Dubai branches only.",
+   "ev_curr": "At Odyssey, we follow the Reggio Emilia approach",
+   "ev_lic": "",
+   "note": "chain: branch emails info-<branch>@odysseynursery.com",
+   "url": "http://odysseynursery.com/",
+   "listing_ids": [
+    647
+   ]
+  },
+  {
+   "s": 68,
+   "from": "3 months",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@oxford-nursery.ae",
+   "ev_age": "for all our children from 3 months to 4 years old",
+   "ev_curr": "We follow The Early Years Foundation Stage (EYFS).",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://oxford-nursery.ae/",
+   "listing_ids": [
+    657
+   ]
+  },
+  {
+   "s": 69,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "",
+   "email": "",
+   "ev_age": "Ages: 45 days to 4 years (FS1)",
+   "ev_curr": "We combine the British EYFS framework with the Reggio Emilia philosophy",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.theblossomnursery.com/nurseries/blossom-rabdan",
+   "listing_ids": [
+    658
+   ]
+  },
+  {
+   "s": 70,
+   "from": "",
+   "to": "",
+   "curr": "Montessori",
+   "lic": "",
+   "email": "info@imnuae.ae",
+   "ev_age": "",
+   "ev_curr": "Our carefully designed Montessori curriculum",
+   "ev_lic": "",
+   "note": "",
+   "url": "http://www.imnuae.ae/",
+   "listing_ids": [
+    659
+   ]
+  },
+  {
+   "s": 71,
+   "from": "45 days",
+   "to": "6 years",
+   "curr": "Canadian",
+   "lic": "",
+   "email": "admissions@maplebeargulfschools.com",
+   "ev_age": "Supporting holistic growth from ages 45 days to 6 years",
+   "ev_curr": "Globally recognized Canadian curriculum",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.maplebeargulfschools.com/our-location/abu-dhabi/nursery-pixel-plaza/",
+   "listing_ids": [
+    660
+   ]
+  },
+  {
+   "s": 72,
+   "from": "45 days",
+   "to": "6 years",
+   "curr": "IB; British (EYFS)",
+   "lic": "",
+   "email": "info@redwoodcoe.com",
+   "ev_age": "45 Days - 12 months ... 4-6 Years",
+   "ev_curr": "the first independent pre-school in the U.A.E. to offer the ... IB Primary Years Programme; Through our unique Emergent and EYFS foundation based framework",
+   "ev_lic": "",
+   "note": "the website link is a news post about the Jubail Island opening",
+   "url": "https://www.redwoodcoe.com/redwood-center-of-excellence-to-open-in-jubail-island-abu-dhabi/",
+   "listing_ids": [
+    661
+   ]
+  },
+  {
+   "s": 73,
+   "from": "6 months",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "info@brighthorizon.ae",
+   "ev_age": "Bright Horizon Nursery welcomes children from 6 months to 4 years of age.",
+   "ev_curr": "we are proud to follow the Early Years Foundation Stage (EYFS) curriculum",
+   "ev_lic": "Children will be registered with ADEK upon enrollment",
+   "note": "also Arabic, Islamic and Quran lessons",
+   "url": "https://brighthorizon.ae/",
+   "listing_ids": [
+    663
+   ]
+  },
+  {
+   "s": 74,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "",
+   "email": "",
+   "ev_age": "Ages: 45 days to 4 years (FS1)",
+   "ev_curr": "We combine the British EYFS framework with the Reggio Emilia philosophy",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.theblossomnursery.com/nurseries/blossom-zayed-city-ae-01-011",
+   "listing_ids": [
+    669
+   ]
+  },
+  {
+   "s": 75,
+   "from": "6 months",
+   "to": "4 years",
+   "curr": "Canadian",
+   "lic": "",
+   "email": "",
+   "ev_age": "6 months - 4 years",
+   "ev_curr": "Canadian Curriculum",
+   "ev_lic": "",
+   "note": "publishes fees (2026-27)",
+   "url": "https://mymaplewoodnursery.com/",
+   "listing_ids": [
+    670
+   ]
+  },
+  {
+   "s": 76,
+   "from": "3 months",
+   "to": "4 years",
+   "curr": "Reggio Emilia",
+   "lic": "",
+   "email": "info@odysseynursery.com",
+   "email_by_id": {
+    "774": "info-alsaadiyat@odysseynursery.com"
+   },
+   "ev_age": "Age Groups (3 months to 6 years) ... Foundation 2 (4-6 Years): This age group is applicable to Dubai branches only.",
+   "ev_curr": "At Odyssey, we follow the Reggio Emilia approach",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.odysseynursery.com/",
+   "listing_ids": [
+    671,
+    774
+   ]
+  },
+  {
+   "s": 77,
+   "from": "",
+   "to": "",
+   "curr": "Reggio Emilia",
+   "lic": "",
+   "email": "robyn@earthchildplaygroup.com",
+   "ev_age": "",
+   "ev_curr": "Deeply Inspired By The Reggio Emilia Philosophy",
+   "ev_lic": "",
+   "note": "morning playgroup (8am-12pm); publishes monthly fees",
+   "url": "https://earthchildplaygroup.com/",
+   "listing_ids": [
+    672
+   ]
+  },
+  {
+   "s": 78,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "",
+   "email": "",
+   "ev_age": "Ages: 45 days to 4 years (FS1)",
+   "ev_curr": "We combine the British EYFS framework with the Reggio Emilia philosophy",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.theblossomnursery.com/nurseries/blossom-waters-edge",
+   "listing_ids": [
+    673
+   ]
+  },
+  {
+   "s": 79,
+   "from": "45 days",
+   "to": "6 years",
+   "curr": "Canadian",
+   "lic": "",
+   "email": "admissions@maplebeargulfschools.com",
+   "ev_age": "Supporting holistic growth from ages 45 days to 6 years",
+   "ev_curr": "Globally recognized Canadian curriculum",
+   "ev_lic": "",
+   "note": "",
+   "url": "http://maplebeargulfschools.com/our-location/abu-dhabi/nursery-yas-island/",
+   "listing_ids": [
+    674
+   ]
+  },
+  {
+   "s": 80,
+   "from": "3 months",
+   "to": "4 years",
+   "curr": "Reggio Emilia",
+   "lic": "",
+   "email": "info@odysseynursery.com",
+   "ev_age": "3 - 12 months ... 3 - 4 years (4-6 years is for Dubai branches only)",
+   "ev_curr": "Our Reggio Emilia based approach",
+   "ev_lic": "",
+   "note": "formerly Yellow Submarine Nursery",
+   "url": "https://www.odysseynursery.com/contact-us/",
+   "listing_ids": [
+    678
+   ]
+  },
+  {
+   "s": 81,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "",
+   "email": "",
+   "ev_age": "Ages: 45 days to 4 years (FS1)",
+   "ev_curr": "We combine the British EYFS framework with the Reggio Emilia philosophy",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.theblossomnursery.com/nurseries/blossom-al-zeina",
+   "listing_ids": [
+    679
+   ]
+  },
+  {
+   "s": 82,
+   "from": "",
+   "to": "5 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "info@jackandjill.ae",
+   "ev_age": "We are committed to the education of children from 0-5 years.",
+   "ev_curr": "Jack & Jill Nursery follows the British EYFS curriculum",
+   "ev_lic": "with ADEK accredited & qualified staff",
+   "note": "",
+   "url": "https://www.jackandjill.ae/",
+   "listing_ids": [
+    681
+   ]
+  },
+  {
+   "s": 83,
+   "from": "45 days",
+   "to": "5 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "info@britishorchardnursery.com",
+   "ev_age": "We accept children from 45 days to 5 years old",
+   "ev_curr": "BON follows the EYFS (British) curriculum",
+   "ev_lic": "'ADEK' listed on the site (logo/accreditation line only)",
+   "note": "same chain site as S4",
+   "url": "https://britishorchardnursery.com/",
+   "listing_ids": [
+    682
+   ]
+  },
+  {
+   "s": 84,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "",
+   "email": "",
+   "ev_age": "Ages: 45 days to 4 years (FS1)",
+   "ev_curr": "We combine the British EYFS framework with the Reggio Emilia philosophy",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.theblossomnursery.com/nurseries/blossom-khalifa-city",
+   "listing_ids": [
+    683
+   ]
+  },
+  {
+   "s": 85,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "admin.khalifa@primrosebritishnursery.com",
+   "ev_age": "",
+   "ev_curr": "our unique approach rooted in the Early Years Foundation Stage (EYFS) curriculum",
+   "ev_lic": "All tuition fees at Primrose British Nursery adhere to the fee structure established by ADEK",
+   "note": "",
+   "url": "http://www.primrosebritishnursery.com/",
+   "listing_ids": [
+    684
+   ]
+  },
+  {
+   "s": 86,
+   "from": "6 months",
+   "to": "4 years",
+   "curr": "American",
+   "lic": "",
+   "email": "info@ichibanuae.com",
+   "ev_age": "Ages 6 - 12 months ... Ages 3 - 4 Years",
+   "ev_curr": "Our teachers use the Teaching Strategies curriculum (The Creative Curriculum, American)",
+   "ev_lic": "",
+   "note": "other branch emails on site: shakhbout@, rak@",
+   "url": "http://www.ichibanuae.com/",
+   "listing_ids": [
+    686
+   ]
+  },
+  {
+   "s": 87,
+   "from": "45 days",
+   "to": "5 years",
+   "curr": "Montessori",
+   "lic": "",
+   "email": "",
+   "ev_age": "aged between 45 days and 15 months ... the children aged from 2.6 years to 5 years",
+   "ev_curr": "Our nursery has a strong Montessori foundation and follows the Montessori philosophy.",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.thechildrenshousemontessori.com/",
+   "listing_ids": [
+    687
+   ]
+  },
+  {
+   "s": 88,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@stanfordnursery.com",
+   "ev_age": "",
+   "ev_curr": "منهج EYFS البريطاني المعتمد (accredited British EYFS curriculum)",
+   "ev_lic": "",
+   "note": "same chain site as S22",
+   "url": "http://www.stanfordnursery.com/",
+   "listing_ids": [
+    688
+   ]
+  },
+  {
+   "s": 89,
+   "from": "1 years",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "info@thewindsornursery.com",
+   "ev_age": "Midi Explorers Class (1 to 2 years) ... Pre-school - Inventors Class (3 to 4 years)",
+   "ev_curr": "The Windsor Early Years Nursery is a British EYFS Curriculum based setting",
+   "ev_lic": "The Windsor Early Years Nursery achieved 'High Value' ADEK Nursery status",
+   "note": "",
+   "url": "https://www.windsor-nursery.com/",
+   "listing_ids": [
+    689
+   ]
+  },
+  {
+   "s": 90,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@littlehelpersnursery.ae",
+   "email_by_id": {
+    "692": "khalifabranch@littlehelpersnursery.ae"
+   },
+   "ev_age": "children, from the age of 45 days to 4 years",
+   "ev_curr": "based on the Early Years Foundation Stage (EYFS)",
+   "ev_lic": "",
+   "note": "",
+   "url": "http://www.littlehelpersnursery.ae/",
+   "listing_ids": [
+    692,
+    694
+   ]
+  },
+  {
+   "s": 91,
+   "from": "2 years",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "bbn.principal@belvederebritishschool.com",
+   "ev_age": "Our Nursery welcomes children aged 2-3, and FS1 (Foundation Stage 1) is for children aged 3-4.",
+   "ev_curr": "The British EYFS approach",
+   "ev_lic": "",
+   "note": "nursery of Belvedere British School (the school is 'rated Very Good by ADEK')",
+   "flag": "nursery attached to a K-12 school (Belvedere British School) - in scope?",
+   "url": "https://belvederebritishnursery.ae/",
+   "listing_ids": [
+    693
+   ]
+  },
+  {
+   "s": 92,
+   "from": "",
+   "to": "4 years",
+   "curr": "",
+   "lic": "",
+   "email": "info@disneynursery.ae",
+   "ev_age": "Baby: 0-1 Years ... Preschoolers (FS1) 3-4 Years",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://disneynursery.ae/",
+   "listing_ids": [
+    697
+   ]
+  },
+  {
+   "s": 93,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "piccadilly.mbz@gmail.com",
+   "ev_age": "",
+   "ev_curr": "The Early Year Foundation Stage (EYFS) has set standards ... EYFS learning and development requirements",
+   "ev_lic": "",
+   "note": "publishes fees (AED 26,250 a year, 5 days)",
+   "url": "http://www.piccadillynursery.com/",
+   "listing_ids": [
+    700
+   ]
+  },
+  {
+   "s": 94,
+   "from": "2 months",
+   "to": "54 months",
+   "curr": "Montessori; Arabic / English bilingual",
+   "lic": "",
+   "email": "info@sunny-meadows.com",
+   "ev_age": "exceptional care for children aged 2 months - 4 and a half years",
+   "ev_curr": "it is a classic Montessori nursery; Arabic and English in dual language classrooms",
+   "ev_lic": "",
+   "note": "publishes fees (AED 6,000-11,500 a term)",
+   "url": "http://www.sunny-meadows.com/",
+   "listing_ids": [
+    701
+   ]
+  },
+  {
+   "s": 95,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@mybabynursery.ae",
+   "ev_age": "",
+   "ev_curr": "There are 7 areas of learning and development that shape the educational program in Early Years Foundation Stage settings.",
+   "ev_lic": "",
+   "note": "EYFS evidence is indirect",
+   "url": "https://mybabynursery.ae/",
+   "listing_ids": [
+    711
+   ]
+  },
+  {
+   "s": 96,
+   "from": "45 days",
+   "to": "6 years",
+   "curr": "Canadian",
+   "lic": "",
+   "email": "admissions@maplebeargulfschools.com",
+   "ev_age": "Supporting holistic growth from ages 45 days to 6 years",
+   "ev_curr": "Globally recognized Canadian curriculum",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.maplebeargulfschools.com/our-location/abu-dhabi/nursery-al-reef/",
+   "listing_ids": [
+    718
+   ]
+  },
+  {
+   "s": 97,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@iqkidsnursery.org",
+   "ev_age": "",
+   "ev_curr": "a unique curriculum following aspects of the theory of Haward Gardner merged with the EYFS Framework",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://iqkidsnursery.org/app/",
+   "listing_ids": [
+    719
+   ]
+  },
+  {
+   "s": 98,
+   "from": "4 months",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "a.baniyas@bhn.ae",
+   "ev_age": "providing educational services to children from 4 months to 4 years of age",
+   "ev_curr": "British Home Nursery follows the EYFS curriculum",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://bhn.ae/",
+   "listing_ids": [
+    721
+   ]
+  },
+  {
+   "s": 99,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@stanfordnursery.com",
+   "ev_age": "",
+   "ev_curr": "نقدم تعليمًا بريطانيًا عالمي المستوى (EYFS) (we offer world-class British education, EYFS)",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://stanfordnursery.com/ar/visit/",
+   "listing_ids": [
+    723
+   ]
+  },
+  {
+   "s": 100,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@littlehelpersnursery.ae",
+   "ev_age": "children, from the age of 45 days to 4 years",
+   "ev_curr": "based on the Early Years Foundation Stage (EYFS)",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.littlehelpersnursery.ae/",
+   "listing_ids": [
+    730
+   ]
+  },
+  {
+   "s": 101,
+   "from": "45 days",
+   "to": "5 years",
+   "curr": "Montessori",
+   "lic": "",
+   "email": "",
+   "ev_age": "aged between 45 days and 15 months ... the children aged from 2.6 years to 5 years",
+   "ev_curr": "follows the Montessori philosophy",
+   "ev_lic": "",
+   "note": "site text describes the Khalifa City branch",
+   "url": "https://thechildrenshousemontessori.com/",
+   "listing_ids": [
+    731
+   ]
+  },
+  {
+   "s": 102,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Reggio Emilia",
+   "lic": "",
+   "email": "",
+   "ev_age": "Ages: 45 days to 4 years (FS1)",
+   "ev_curr": "We combine the British EYFS framework with the Reggio Emilia philosophy",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.theblossomnursery.com/nurseries/blossom-masdar",
+   "listing_ids": [
+    732
+   ]
+  },
+  {
+   "s": 103,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@stanfordnursery.com",
+   "ev_age": "",
+   "ev_curr": "منهج EYFS البريطاني المعتمد (accredited British EYFS curriculum)",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.stanfordnursery.com/",
+   "listing_ids": [
+    734
+   ]
+  },
+  {
+   "s": 104,
+   "from": "45 days",
+   "to": "5 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "info@britishorchardnursery.com",
+   "ev_age": "We accept children from 45 days to 5 years old",
+   "ev_curr": "BON follows the EYFS (British) curriculum",
+   "ev_lic": "'ADEK' listed on the site (logo/accreditation line only)",
+   "note": "same chain site as S4",
+   "url": "https://www.britishorchardnursery.com/",
+   "listing_ids": [
+    742
+   ]
+  },
+  {
+   "s": 105,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@thinkersplanet.ae",
+   "ev_age": "",
+   "ev_curr": "With the EYFS curriculum, every moment from birth to five shapes their journey",
+   "ev_lic": "",
+   "note": "",
+   "url": "http://www.thinkersplanet.ae/",
+   "listing_ids": [
+    744
+   ]
+  },
+  {
+   "s": 106,
+   "decision": "remove",
+   "reason": "tuition institute (Pre KG to Grade 12, CBSE), not a nursery",
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "Google name 'TANDEM TRAINING INSTITUTE'",
+   "url": "https://www.tandemsacademy.com/",
+   "listing_ids": [
+    745
+   ]
+  },
+  {
+   "s": 107,
+   "from": "",
+   "to": "",
+   "curr": "Montessori",
+   "lic": "",
+   "email": "littlesparksuae@gmail.com",
+   "ev_age": "",
+   "ev_curr": "Montessori based Curriculum",
+   "ev_lic": "",
+   "note": "also tuition classes",
+   "url": "http://www.littlesparksuae.net/",
+   "listing_ids": [
+    746
+   ]
+  },
+  {
+   "s": 108,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@stanfordnursery.com",
+   "ev_age": "",
+   "ev_curr": "نقدم تعليمًا بريطانيًا عالمي المستوى (EYFS) (we offer world-class British education, EYFS)",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.stanfordnursery.com/ar/visit/",
+   "listing_ids": [
+    761
+   ]
+  },
+  {
+   "s": 109,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS); Arabic / English bilingual",
+   "lic": "ADEK",
+   "email": "info@learningtreeuae.com",
+   "ev_age": "We accept children from 45 days old to 4 years old.",
+   "ev_curr": "Learning Tree Nursery is following the EYFS curriculum; Arabic and English are the languages utilized by the nursery",
+   "ev_lic": "We can accept children older than 4 years old under specific circumstances and ADEK approval.",
+   "note": "",
+   "url": "http://www.learningtreeuae.com/",
+   "listing_ids": [
+    772
+   ]
+  },
+  {
+   "s": 110,
+   "from": "3 months",
+   "to": "4 years",
+   "curr": "",
+   "lic": "ADEK",
+   "email": "",
+   "ev_age": "Children between the ages 3 months to 4 years (ADEK page on Al Ghad Nurseries)",
+   "ev_curr": "",
+   "ev_lic": "Al Ghad Nurseries are ADEK's public nurseries",
+   "note": "website is the ADEK home page; the TAMM contact address is not used",
+   "flag": "public nursery run by ADEK (Al Ghad Nurseries) - include?",
+   "url": "https://adek.gov.ae/",
+   "listing_ids": [
+    781
+   ]
+  },
+  {
+   "s": 111,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "headoffice@icschools.ae",
+   "ev_age": "",
+   "ev_curr": "the ICS group runs British, American and IB schools; the nursery's own curriculum isn't stated",
+   "ev_lic": "",
+   "note": "website is the ICS schools group",
+   "flag": "nursery of a K-12 school group (International Community Schools) - in scope?",
+   "url": "https://nursery.icschools.ae/",
+   "listing_ids": [
+    782
+   ]
+  },
+  {
+   "s": 112,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "website is the ADEK home page",
+   "flag": "public kindergarten (KG, ages 4-6) - same question as the Al Ain kindergartens",
+   "url": "http://adek.gov.ae/",
+   "listing_ids": [
+    793
+   ]
+  },
+  {
+   "s": 113,
+   "from": "",
+   "to": "",
+   "curr": "Montessori; British (EYFS)",
+   "lic": "ADEK",
+   "email": "kindergarten@britishoakmontessori.ae",
+   "ev_age": "",
+   "ev_curr": "Montessori in Approach. British EYFS in Foundation.",
+   "ev_lic": "ADEK licensed · Abu Dhabi, United Arab Emirates",
+   "note": "the kindergarten continues the nursery 'through the Foundation Stage years' (probably ages 4-6)",
+   "url": "https://britishoakmontessori.com/",
+   "listing_ids": [
+    794
+   ]
+  }
+ ],
+ "listings": {
+  "580": {
+   "decision": "remove",
+   "reason": "YouTube channel, not a nursery"
+  },
+  "646": {
+   "decision": "remove",
+   "reason": "'boxing coach' - not a nursery"
+  },
+  "713": {
+   "decision": "remove",
+   "reason": "auto workshop - not a nursery"
+  },
+  "754": {
+   "decision": "remove",
+   "reason": "'License department' - not a nursery"
+  },
+  "785": {
+   "decision": "remove",
+   "reason": "'dehen oud pure' (perfume) - not a nursery"
+  },
+  "712": {
+   "decision": "remove",
+   "reason": "'KG2 for ENS' - a class of Emirates National School, part of a school"
+  },
+  "624": {
+   "decision": "remove",
+   "reason": "same business as 'Knowledge Room Talented Children Development Center' (left out by the skills-centre rule)"
+  },
+  "665": {
+   "decision": "check",
+   "flag": "'Gameawn' - no reviews, no website; name doesn't sound like a nursery"
+  },
+  "677": {
+   "decision": "check",
+   "flag": "'Nizameddin house' - looks like a private home; no website"
+  },
+  "610": {
+   "decision": "check",
+   "flag": "home daycare, no reviews, no website - may be unlicensed"
+  },
+  "752": {
+   "decision": "check",
+   "flag": "'Day care, baby sitting' - no reviews, no website; probably a home babysitter"
+  },
+  "623": {
+   "decision": "check",
+   "flag": "'Day Care Services' - no reviews, no website"
+  },
+  "616": {
+   "decision": "check",
+   "flag": "no reviews, no website - check it exists"
+  },
+  "620": {
+   "decision": "check",
+   "flag": "no reviews, no website - check it exists"
+  },
+  "627": {
+   "decision": "check",
+   "flag": "no reviews, no website - check it exists"
+  },
+  "653": {
+   "decision": "check",
+   "flag": "no reviews, no website - check it exists"
+  },
+  "664": {
+   "decision": "check",
+   "flag": "no reviews, no website - check it exists"
+  },
+  "796": {
+   "decision": "check",
+   "flag": "no reviews, no website - check it exists"
+  },
+  "598": {
+   "decision": "check",
+   "flag": "'Personal Development Training' in the name - may be a skills / training centre (like Ilmora)"
+  },
+  "568": {
+   "decision": "check",
+   "flag": "'Blitz Education' - may be a tuition centre; website is only WhatsApp"
+  },
+  "569": {
+   "decision": "check",
+   "flag": "'Stay & Play' - may be a play centre rather than a nursery"
+  },
+  "497": {
+   "decision": "check",
+   "flag": "'Children Development Center' - possibly the skills-centre licence (not caught by the rule)"
+  },
+  "518": {
+   "decision": "check",
+   "flag": "'Children Development Center' - possibly the skills-centre licence (not caught by the rule)"
+  },
+  "552": {
+   "decision": "check",
+   "flag": "'Children Development Center' - possibly the skills-centre licence (not caught by the rule)"
+  },
+  "591": {
+   "decision": "check",
+   "flag": "'Children Development Center' - possibly the skills-centre licence (not caught by the rule)"
+  },
+  "592": {
+   "decision": "check",
+   "flag": "'Child Development Center' - possibly the skills-centre licence (not caught by the rule)"
+  },
+  "597": {
+   "decision": "check",
+   "flag": "'Early Learning & Development Centre' - possibly the skills-centre licence"
+  },
+  "753": {
+   "decision": "check",
+   "flag": "'Kids Development Centre' - possibly the skills-centre licence"
+  },
+  "504": {
+   "decision": "check",
+   "flag": "'Nursery & Kids Development Center' - name says nursery, but may hold the skills-centre licence"
+  },
+  "652": {
+   "decision": "check",
+   "flag": "'Nursery & Kids Development Center' - name says nursery, but may hold the skills-centre licence"
+  },
+  "715": {
+   "decision": "check",
+   "flag": "website brixcel.com looks like a company site (sales@, training@), not the nursery's"
+  },
+  "625": {
+   "decision": "check",
+   "flag": "Brixcel - same company as 715; Google category 'Education center'"
+  },
+  "807": {
+   "decision": "check",
+   "flag": "probably the same kindergarten as 769 'Al Eethaar Kindergarten' (both Al Shawamekh) - and a public kindergarten"
+  },
+  "649": {
+   "decision": "check",
+   "flag": "charter kindergarten (ADEK Charter Schools)"
+  },
+  "775": {
+   "decision": "check",
+   "flag": "charter kindergarten (ADEK Charter Schools)"
+  },
+  "735": {
+   "decision": "check",
+   "flag": "charter kindergarten (ADEK Charter Schools)"
+  },
+  "780": {
+   "decision": "check",
+   "flag": "charter kindergarten"
+  },
+  "733": {
+   "decision": "check",
+   "flag": "public kindergarten (website is moe.gov.ae)"
+  },
+  "716": {
+   "decision": "check",
+   "flag": "public school kindergarten ('مدرسة عامة - روضة' = public school - kindergarten)"
+  },
+  "778": {
+   "decision": "check",
+   "flag": "public school (kindergarten and Cycle 1) - a school"
+  },
+  "656": {
+   "decision": "check",
+   "flag": "kindergarten - public or private?"
+  },
+  "704": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "710": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "759": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "763": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "764": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "767": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "769": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "770": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "777": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "779": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "786": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "790": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "791": {
+   "decision": "check",
+   "flag": "kindergarten - probably public"
+  },
+  "792": {
+   "decision": "check",
+   "flag": "kindergarten - probably public (website is a Telegram channel)"
+  },
+  "618": {
+   "decision": "check",
+   "flag": "'Indian Community Kindergarten' - private kindergarten / school?"
+  },
+  "728": {
+   "decision": "check",
+   "flag": "public nursery run by ADEK (Al Ghad Nurseries) - include?",
+   "from": "3 months",
+   "to": "4 years",
+   "lic": "ADEK",
+   "ev_age": "Children between the ages 3 months to 4 years (ADEK page on Al Ghad Nurseries)",
+   "ev_lic": "Al Ghad Nurseries are ADEK's public nurseries",
+   "source": "https://adek.gov.ae/"
+  },
+  "758": {
+   "decision": "check",
+   "flag": "public nursery run by ADEK (Al Ghad Nurseries) - include?",
+   "from": "3 months",
+   "to": "4 years",
+   "lic": "ADEK",
+   "ev_age": "Children between the ages 3 months to 4 years (ADEK page on Al Ghad Nurseries)",
+   "ev_lic": "Al Ghad Nurseries are ADEK's public nurseries",
+   "source": "https://adek.gov.ae/"
+  },
+  "765": {
+   "decision": "check",
+   "flag": "public nursery run by ADEK (Al Ghad Nurseries) - include? (may duplicate 766)",
+   "from": "3 months",
+   "to": "4 years",
+   "lic": "ADEK",
+   "ev_age": "Children between the ages 3 months to 4 years (ADEK page on Al Ghad Nurseries)",
+   "ev_lic": "Al Ghad Nurseries are ADEK's public nurseries",
+   "source": "https://adek.gov.ae/"
+  },
+  "766": {
+   "decision": "check",
+   "flag": "public nursery run by ADEK (Al Ghad Nurseries) - include?",
+   "from": "3 months",
+   "to": "4 years",
+   "lic": "ADEK",
+   "ev_age": "Children between the ages 3 months to 4 years (ADEK page on Al Ghad Nurseries)",
+   "ev_lic": "Al Ghad Nurseries are ADEK's public nurseries",
+   "source": "https://adek.gov.ae/"
+  },
+  "783": {
+   "decision": "check",
+   "flag": "public nursery run by ADEK (Al Ghad Nurseries) - include?",
+   "from": "3 months",
+   "to": "4 years",
+   "lic": "ADEK",
+   "ev_age": "Children between the ages 3 months to 4 years (ADEK page on Al Ghad Nurseries)",
+   "ev_lic": "Al Ghad Nurseries are ADEK's public nurseries",
+   "source": "https://adek.gov.ae/"
+  },
+  "633": {
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "info@kidsfantasynursery.com",
+   "ev_age": "babies and children from 45 days to 4 years (kidsfantasynursery.com)",
+   "ev_curr": "follows a curriculum based on the British National Curriculum EYFS",
+   "ev_lic": "Kids Fantasy Nursery is outstanding nursery rated by ADEK",
+   "source": "https://kidsfantasynursery.com/",
+   "note": "listing's own website link is misspelt (kidsfatasynursery.com, dead); details from the chain site"
+  },
+  "795": {
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "ADEK",
+   "email": "info@kidsfantasynursery.com",
+   "ev_age": "babies and children from 45 days to 4 years (kidsfantasynursery.com)",
+   "ev_curr": "follows a curriculum based on the British National Curriculum EYFS",
+   "ev_lic": "Kids Fantasy Nursery is outstanding nursery rated by ADEK",
+   "source": "https://kidsfantasynursery.com/",
+   "note": "no website on Google; details from the chain site"
+  },
+  "638": {
+   "from": "4 months",
+   "to": "6 years",
+   "curr": "British (EYFS); Montessori",
+   "email": "",
+   "ev_age": "We Welcome Children Aged 4 Months To 6 Years (orangeseedsnursery.com)",
+   "ev_curr": "a Montessori-inspired, British curriculum nursery",
+   "source": "https://orangeseedsnursery.com/",
+   "note": "details from the chain site (same as Al Manhal)"
+  },
+  "675": {
+   "from": "3 months",
+   "to": "4 years",
+   "curr": "Reggio Emilia",
+   "email": "info-westyas@odysseynursery.com",
+   "ev_age": "Age Groups (3 months to 6 years); 4-6 is for Dubai branches only (odysseynursery.com)",
+   "ev_curr": "At Odyssey, we follow the Reggio Emilia approach",
+   "source": "https://www.odysseynursery.com/",
+   "note": "Google's website link (yellowsubmarine.ae) is dead; details from the Odyssey site"
+  },
+  "680": {
+   "from": "3 months",
+   "to": "4 years",
+   "curr": "Reggio Emilia",
+   "email": "info-alzeina@odysseynursery.com",
+   "ev_age": "Age Groups (3 months to 6 years); 4-6 is for Dubai branches only (odysseynursery.com)",
+   "ev_curr": "At Odyssey, we follow the Reggio Emilia approach",
+   "source": "https://www.odysseynursery.com/",
+   "note": "Google's website link (yellowsubmarine.ae) is dead; details from the Odyssey site"
+  },
+  "650": {
+   "lic": "ADEK",
+   "email": "lsnmoj@gmail.com",
+   "ev_lic": "LSN has been identified by ADEK as nursery with a high level of compliance (lsn site)",
+   "source": "https://littlesmartiesnursery.com/",
+   "note": "branch of Little Smarties (MOJ branch email from the chain site)"
+  },
+  "695": {
+   "lic": "ADEK",
+   "email": "info@lsn.ae",
+   "ev_lic": "LSN has been identified by ADEK as nursery with a high level of compliance (lsn site)",
+   "source": "https://littlesmartiesnursery.com/",
+   "note": "branch of Little Smarties"
+  },
+  "642": {
+   "from": "45 days",
+   "to": "5 years",
+   "curr": "Montessori",
+   "ev_age": "aged between 45 days and 15 months ... from 2.6 years to 5 years (thechildrenshousemontessori.com)",
+   "ev_curr": "follows the Montessori philosophy",
+   "source": "https://www.thechildrenshousemontessori.com/",
+   "note": "no reviews on Google; details from the chain site"
+  },
+  "491": {
+   "email": "info@kidszoneauh.com"
+  },
+  "511": {
+   "email": "info@kidszoneauh.com"
+  },
+  "602": {
+   "email": "mylittlepeanutuae@gmail.com"
+  },
+  "605": {
+   "email": "mylittlepeanutuae@gmail.com"
+  },
+  "614": {
+   "email": "universalblooming@gmail.com"
+  },
+  "662": {
+   "email": "info@tinytreasuresuae.com"
+  },
+  "788": {
+   "email": "info@sweetbabynursery.ae"
+  },
+  "586": {
+   "note": "website link is a business directory page (bizonline.ae), not the nursery's own"
+  }
+ }
+}
