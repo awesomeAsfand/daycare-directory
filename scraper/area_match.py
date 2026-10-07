@@ -56,12 +56,14 @@ class AreaMatch:
 
 
 def _name_pattern(name: str) -> re.Pattern:
-    """Match a name ignoring case, spaces and hyphens, on word boundaries.
+    """Match a name ignoring case, spaces, hyphens and apostrophes, on word
+    boundaries ("Al Fou'ah" = "Al Fouah").
 
     One stray comma between words is allowed too ("Diplomatic, Enclave").
     """
     tokens = re.findall(r"[a-z0-9]+", name.lower())
-    return re.compile(r"(?<![a-z0-9])" + r"[\s\-]*,?[\s\-]*".join(map(re.escape, tokens)) + r"(?![a-z0-9])")
+    sep = r"[\s\-'’‘`]*,?[\s\-'’‘`]*"
+    return re.compile(r"(?<![a-z0-9])" + sep.join(map(re.escape, tokens)) + r"(?![a-z0-9])")
 
 
 class AreaMatcher:

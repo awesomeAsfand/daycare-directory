@@ -669,6 +669,8 @@ class AbuDhabiAlAinTests(unittest.TestCase):
             (self.mad, "Zayed Sports City - Abu Dhabi - United Arab Emirates", ""),
             (self.maa, "Villa 5 - Al Jimi - Al Ain - Abu Dhabi - United Arab Emirates", "Al Jimi"),
             (self.maa, "Shop 3, Hili Mall - Al Ain - Abu Dhabi - United Arab Emirates", ""),
+            (self.maa, "Al Fou'ah - Al Sajaa - Abu Dhabi - United Arab Emirates", "Al Foah"),
+            (self.maa, "23rd St - Al Aamerah - Al Rifaa - Abu Dhabi - United Arab Emirates", "Al Yahar"),
         ]
         for m, address, area in cases:
             with self.subTest(address=address):

@@ -68,6 +68,12 @@ Al Dahir = Al Dhahir
 Al Agabiya = Al Agabiyya
 Al Markhaniyah = Al Markhaniya
 Al Markhaniyyah = Al Markhaniya
+# Google's names in the full run (2026-10-07). Al Aamerah is the district
+# Al Yahar lies in (OSM); its nurseries call themselves Al Yahar
+Al Aamerah = Al Yahar
+Al Amerah = Al Yahar
+Al Fou'ah = Al Foah
+Al Fouah = Al Foah
 
 [not_areas]
 # Contain an area name but aren't that area
