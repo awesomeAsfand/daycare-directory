@@ -6,6 +6,8 @@ Apply a city's reviewed review CSV (one row per listing, by id):
   decision "remove"  -> listing switched off (is_active=False)
   decision "keep"    -> email, and the nursery details (ages, curriculum,
                         licence) loaded as confirmed, so they show on the site
+  new_name (optional column) -> the listing is renamed, the name locked so a
+                        re-import keeps it, and its old address redirects
 Any other decision (e.g. "check") stops the command: decide every row first.
 Ages are text ("45 days", "6 months", "4 years"), curriculum names are
 separated by ";". Empty cells are left as they are. Listings whose details
@@ -15,10 +17,13 @@ import csv
 from datetime import date
 from pathlib import Path
 
+from django.conf import settings
+from django.contrib.redirects.models import Redirect
 from django.core.management.base import BaseCommand, CommandError
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.utils.text import slugify
 
 from listings.models import REGULATOR_CHOICES, DaycareListing
 
@@ -49,6 +54,7 @@ def read_rows(path):
             except (ValueError, ValidationError) as e:
                 raise CommandError(f"{path.name} line {n}: {e}")
             rows.append({"id": int(row["id"]), "name": row["name"], "decision": decision, "email": email,
+                         "new_name": (row.get("new_name") or "").strip(),
                          "source": row["details_source"].strip(),
                          "details": {k: v for k, v in details.items() if v not in (None, "", [])}})
     return rows
@@ -71,7 +77,7 @@ class Command(BaseCommand):
         for r in missing:
             self.stdout.write(f"  [missing] {r['id']} {r['name']} (deleted?)")
 
-        switched_off = emails = details = kept_confirmed = 0
+        switched_off = emails = details = kept_confirmed = renamed = 0
         with transaction.atomic():
             for r in rows:
                 listing = listings.get(r["id"])
@@ -86,6 +92,14 @@ class Command(BaseCommand):
                         changed.append("is_active")
                         switched_off += 1
                 else:
+                    if r["new_name"] and r["new_name"] != listing.name:
+                        old_path = listing.get_absolute_url()
+                        listing.name = r["new_name"]
+                        listing.slug = self.unique_slug(listing, r["new_name"])
+                        listing.locked_fields = sorted(set(listing.locked_fields or []) | {"name"})
+                        changed += ["name", "slug", "locked_fields"]
+                        renamed += 1
+                        self.stdout.write(f"  [renamed] {r['id']}: {r['name']!r} -> {r['new_name']!r}")
                     if r["email"] and listing.email != r["email"]:
                         listing.email = r["email"]
                         changed.append("email")
@@ -102,10 +116,22 @@ class Command(BaseCommand):
                         details += 1
                 if changed:
                     listing.save(update_fields=changed + ["updated_at"])
+                if "slug" in changed and old_path != listing.get_absolute_url():
+                    Redirect.objects.update_or_create(site_id=settings.SITE_ID, old_path=old_path,
+                                                      defaults={"new_path": listing.get_absolute_url()})
             if options["dry_run"]:
                 transaction.set_rollback(True)
 
         self.stdout.write(
-            f"Switched off: {switched_off}; emails set: {emails}; details loaded (confirmed): {details}; "
+            f"Switched off: {switched_off}; renamed: {renamed}; emails set: {emails}; details loaded (confirmed): {details}; "
             f"details already confirmed, left as they were: {kept_confirmed}; missing: {len(missing)}"
             + (" (dry run, nothing saved)" if options["dry_run"] else ""))
+
+    @staticmethod
+    def unique_slug(listing, name):
+        base = slugify(name)[:290] or listing.slug
+        slug, n = base, 1
+        while DaycareListing.objects.filter(city=listing.city, slug=slug).exclude(pk=listing.pk).exists():
+            slug = f"{base}-{n}"
+            n += 1
+        return slug

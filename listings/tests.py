@@ -505,7 +505,7 @@ class ApplyReviewTests(ImportTestBase):
 
         out = StringIO()
         call_command("apply_review", "--file", str(path), stdout=out)
-        self.assertIn("Switched off: 1; emails set: 2; details loaded (confirmed): 1; "
+        self.assertIn("Switched off: 1; renamed: 0; emails set: 2; details loaded (confirmed): 1; "
                       "details already confirmed, left as they were: 1", out.getvalue())
         keep.refresh_from_db(); junk.refresh_from_db(); done.refresh_from_db()
         self.assertEqual((keep.email, keep.age_range_label, keep.curriculum, keep.licensed_by, keep.details_confirmed),
@@ -514,6 +514,19 @@ class ApplyReviewTests(ImportTestBase):
         self.assertEqual(junk.email, "")
         self.assertEqual((done.email, done.curriculum), ("hi@done.ae", ["eyfs"]))
         self.assertContains(self.client.get(keep.get_absolute_url()), "mailto:info@keep.ae")
+
+    def test_rename(self):
+        from django.contrib.redirects.models import Redirect
+        self.FIELDS = self.FIELDS + ["new_name"]
+        house = DaycareListing.objects.create(name="Centre house", slug="centre-house", city=self.city)
+        old_url = house.get_absolute_url()
+        call_command("apply_review", "--file", str(self.write([
+            {"id": house.pk, "decision": "keep", "name": "Centre house", "new_name": "Alma's Day Care"}])),
+            stdout=StringIO())
+        house.refresh_from_db()
+        self.assertEqual((house.name, house.slug), ("Alma's Day Care", "almas-day-care"))
+        self.assertIn("name", house.locked_fields)
+        self.assertEqual(Redirect.objects.get(old_path=old_url).new_path, house.get_absolute_url())
 
     def test_undecided_row_stops(self):
         from django.core.management.base import CommandError
