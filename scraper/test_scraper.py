@@ -740,5 +740,30 @@ class SharjahTests(unittest.TestCase):
                          "excluded area (- Dubai - United Arab Emirates)")
 
 
+class AjmanTests(unittest.TestCase):
+    """The Ajman queries file (2026-10-08): Ajman city only."""
+
+    @classmethod
+    def setUpClass(cls):
+        from area_match import AreaMatcher
+        cls.plan = load_plan(Path(__file__).parent / "queries" / "ajman.txt")
+        cls.m = AreaMatcher(cls.plan)
+
+    def test_boundary(self):
+        def reason(lat, lng, address=""):
+            return classify("Tiny Tots Nursery", ["Nursery school"], address, "Ajman", False, lat, lng,
+                            self.plan.boundary, self.plan.exclude)[1]
+        self.assertEqual(reason(25.392, 55.455), "")                                   # Al Nuaimiya
+        for lat, lng in [(25.329, 55.383), (25.564, 55.555), (24.818, 56.105)]:    # Sharjah, UAQ, Masfout
+            self.assertEqual(reason(lat, lng), "outside Ajman boundary")
+        self.assertEqual(reason(25.392, 55.455, "Al Khan - Sharjah - United Arab Emirates"),
+                         "excluded area (- Sharjah - United Arab Emirates)")
+
+    def test_areas(self):
+        m = self.m.match("Al Nuaimiya 2 - Al Nuaimiya - Ajman - United Arab Emirates")
+        self.assertEqual((m.area, m.sub_area), ("Al Nuaimiya", "Al Nuaimiya 2"))
+        self.assertEqual(self.m.match("Al Jerf 1 - Ajman - United Arab Emirates").area, "Al Jurf")
+
+
 if __name__ == "__main__":
     unittest.main()

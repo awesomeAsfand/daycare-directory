@@ -1,0 +1,110 @@
+# Ajman search list for the scraper (2026-10-08)
+#
+# Each keyword is combined with each area: "<keyword> in <area> Ajman".
+# Lines starting with # are comments.
+#
+# Covers Ajman city only (as decided for Sharjah): the boundary is the main
+# part of Ajman emirate, so the inland exclaves Masfout and Manama are out.
+# Numbered parts (Al Nuaimiya 1/2/3, Al Rashidiya 1/2/3...) roll up into one
+# area page. Industrial areas are left out; the map grid catches the rest.
+
+[country]
+name = United Arab Emirates
+code = ae
+timezone = Asia/Dubai
+phone_code = 971
+
+[keywords]
+nursery
+early learning centre
+daycare
+
+[areas]
+# ── Coast and the old town ──────────────────────────────────
+Al Nuaimiya
+Al Rashidiya
+Al Rumailah
+Al Bustan
+Al Nakhil
+Al Sawan
+# ── Middle ──────────────────────────────────────────────────
+Al Mowaihat
+Al Rawda
+Al Hamidiya
+Mushairef
+Al Jurf
+Al Zahra
+Al Owan
+# ── North and the new communities ───────────────────────────
+Al Zorah
+Al Alia
+Al Yasmeen
+Al Bahia
+Al Raqaib
+Al Tallah
+Al Helio
+Al Amerah
+Al Zahya
+Emirates City
+
+[aliases]
+Nuaimiya = Al Nuaimiya
+Al Nuaimia = Al Nuaimiya
+Al Nuaimiyah = Al Nuaimiya
+Al Naemiyah = Al Nuaimiya
+Rashidiya = Al Rashidiya
+Al Rashidiyah = Al Rashidiya
+Al Rumaila = Al Rumailah
+Rumaila = Al Rumailah
+Al Nakheel = Al Nakhil
+Al Mwaihat = Al Mowaihat
+Al Muwaihat = Al Mowaihat
+Mowaihat = Al Mowaihat
+Al Rawdha = Al Rawda
+Al Rawdah = Al Rawda
+Al Hamidiyah = Al Hamidiya
+Meshairef = Mushairef
+Musherief = Mushairef
+Al Mushairef = Mushairef
+Al Jerf = Al Jurf
+Al Zahraa = Al Zahra
+Al Yasmin = Al Yasmeen
+Al Aliah = Al Alia
+Al Bahya = Al Bahia
+Al Raqayeb = Al Raqaib
+Al Tala = Al Tallah
+Al Helyo = Al Helio
+Al Amera = Al Amerah
+Al Ameera = Al Amerah
+Al Zahia = Al Zahya
+
+[not_areas]
+# Contain an area name but aren't that area
+Al Jurf Industrial
+Al Nuaimiya Street
+
+[exclude]
+# Google's addresses in the neighbouring emirates, for places whose pin is
+# just inside the Ajman boundary
+- Sharjah - United Arab Emirates
+- Umm Al Quwain - United Arab Emirates
+- Dubai - United Arab Emirates
+
+[keep]
+# Places the category or name rules reject, kept by decision:
+# <Google place ID> = <name, as a note>
+
+[boundary]
+# Main part of Ajman emirate, from OpenStreetMap (relation 3766482)
+file = ajman_boundary.geojson
+
+[grid]
+step_km = 2.5
+zoom = 14
+near_areas_km = 4
+keywords = nursery
+
+[area_match]
+numbered = yes
+centres = ajman_area_centres.csv
+max_km = 1.5
