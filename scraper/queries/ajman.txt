@@ -32,6 +32,7 @@ Al Mowaihat
 Al Rawda
 Al Hamidiya
 Mushairef
+Al Safia
 Al Jurf
 Al Zahra
 Al Owan
@@ -77,6 +78,12 @@ Al Helyo = Al Helio
 Al Amera = Al Amerah
 Al Ameera = Al Amerah
 Al Zahia = Al Zahya
+# Google's names in the full run (2026-10-08)
+Safia = Al Safia
+Al Muaihat = Al Mowaihat
+Aamra = Al Amerah
+Al Aamrah = Al Amerah
+Hamidiya = Al Hamidiya
 
 [not_areas]
 # Contain an area name but aren't that area
