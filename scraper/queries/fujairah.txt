@@ -30,6 +30,7 @@ Al Sharqiyah
 Al Ittihad
 Al Hilal
 Al Rughaylat
+Mohamed Bin Zayed City
 
 [aliases]
 Faseel = Al Faseel
@@ -45,6 +46,13 @@ Owaid = Al Owaid
 Sharqiyah = Al Sharqiyah
 Al Sharqiya = Al Sharqiyah
 Al Rughailat = Al Rughaylat
+Mohammed Bin Zayed City = Mohamed Bin Zayed City
+MBZ City = Mohamed Bin Zayed City
+# Google's names in the full run (2026-10-08)
+Mraisheed = Merashid
+Al Uwaid = Al Owaid
+Al Righailat = Al Rughaylat
+Al Mahattah = Al Mahatta
 
 [not_areas]
 # Contain an area name but aren't that area

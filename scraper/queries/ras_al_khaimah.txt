@@ -45,6 +45,9 @@ Al Turfa
 Al Riffa
 Digdaga
 Shaam
+Sheikh Saqr City
+Sheikh Khalifa City
+Dahan
 
 [aliases]
 Nakheel = Al Nakheel
@@ -77,6 +80,13 @@ Al Rifa = Al Riffa
 Al Rifaa = Al Riffa
 Diqdaqah = Digdaga
 Sha'am = Shaam
+# Google's names in the full run (2026-10-08)
+Al Qussaidat = Al Qusaidat
+Al Maireed = Al Mairid
+New Al Maireed = Al Mairid
+Seih Al Araibi = Seih Al Uraibi
+Al Burairat = Seih Al Uraibi
+Seih Al Hudaiba = Al Hudaibah
 
 [not_areas]
 # Contain an area name but aren't that area

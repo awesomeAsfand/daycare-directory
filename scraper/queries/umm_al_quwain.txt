@@ -32,6 +32,7 @@ Al Raudah
 Al Surra
 Al Aahad
 Old Town
+Oud Al Tayer
 
 [aliases]
 Salamah = Al Salamah
@@ -48,6 +49,8 @@ Dar Al Baida = Al Dar Al Baida
 Al Rawdah = Al Raudah
 Al Rawda = Al Raudah
 Al Ahad = Al Aahad
+# Google's names in the full run (2026-10-08)
+Al Medan = Al Maidan
 
 [not_areas]
 # Contain an area name but aren't that area
