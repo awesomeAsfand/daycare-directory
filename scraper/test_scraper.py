@@ -765,5 +765,28 @@ class AjmanTests(unittest.TestCase):
         self.assertEqual(self.m.match("Al Jerf 1 - Ajman - United Arab Emirates").area, "Al Jurf")
 
 
+class NorthernEmiratesTests(unittest.TestCase):
+    """RAK, Fujairah and UAQ queries files (2026-10-08): city parts only."""
+
+    def check(self, city_file, city, inside, outside):
+        plan = load_plan(Path(__file__).parent / "queries" / f"{city_file}.txt")
+        self.assertEqual(plan.city, city)
+
+        def reason(lat, lng):
+            return classify("Tiny Tots Nursery", ["Nursery school"], "", city, False, lat, lng,
+                            plan.boundary, plan.exclude)[1]
+        self.assertEqual(reason(*inside), "")
+        for point in outside:
+            self.assertEqual(reason(*point), f"outside {city} boundary")
+        self.assertTrue(classify("Tiny Tots Nursery", ["Nursery school"],
+                                 "Al Khan - Sharjah - United Arab Emirates", city, False, *inside,
+                                 plan.boundary, plan.exclude)[1].startswith("excluded area"))
+
+    def test_boundaries(self):
+        self.check("ras_al_khaimah", "Ras Al Khaimah", (25.790, 55.950), [(25.564, 55.555), (25.000, 56.200)])
+        self.check("fujairah", "Fujairah", (25.125, 56.330), [(25.080, 56.355), (25.620, 56.270)])  # Kalba, Dibba
+        self.check("umm_al_quwain", "Umm Al Quwain", (25.565, 55.555), [(25.405, 55.445), (25.790, 55.950)])  # Ajman, RAK
+
+
 if __name__ == "__main__":
     unittest.main()

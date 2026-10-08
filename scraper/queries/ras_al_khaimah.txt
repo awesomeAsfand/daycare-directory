@@ -1,0 +1,109 @@
+# Ras Al Khaimah search list for the scraper (2026-10-08)
+#
+# Each keyword is combined with each area: "<keyword> in <area> Ras Al Khaimah".
+# Lines starting with # are comments.
+#
+# Covers Ras Al Khaimah city and the coast around it (main part of the emirate; the southern part near Hatta is out).
+# Areas from the city's districts; the map grid catches the rest. Aliases
+# and centres get fixed from Google's own names after the full run.
+
+[country]
+name = United Arab Emirates
+code = ae
+timezone = Asia/Dubai
+phone_code = 971
+
+[keywords]
+nursery
+early learning centre
+daycare
+
+[areas]
+Al Nakheel
+Al Dhait
+Al Qusaidat
+Julphar
+Al Mamourah
+Khuzam
+Al Seer
+Al Uraibi
+Seih Al Uraibi
+Al Hamra Village
+Mina Al Arab
+Al Marjan Island
+Al Jazirah Al Hamra
+Al Rams
+Khor Khwair
+Al Juwais
+Al Kharran
+Dafan Al Nakheel
+Al Hudaibah
+Al Mairid
+Sidroh
+Al Darbijaniyah
+Al Turfa
+Al Riffa
+Digdaga
+Shaam
+
+[aliases]
+Nakheel = Al Nakheel
+Al Nakhil = Al Nakheel
+Dhait = Al Dhait
+Al Dhaith = Al Dhait
+Al Dhait North = Al Dhait
+Al Dhait South = Al Dhait
+Qusaidat = Al Qusaidat
+Julfar = Julphar
+Al Mamoura = Al Mamourah
+Mamourah = Al Mamourah
+Khozam = Khuzam
+Seer = Al Seer
+Uraibi = Al Uraibi
+Al Hamra = Al Hamra Village
+Marjan Island = Al Marjan Island
+Al Jazeera Al Hamra = Al Jazirah Al Hamra
+Rams = Al Rams
+Ar Rams = Al Rams
+Khor Khuwair = Khor Khwair
+Al Kharan = Al Kharran
+Dafan = Dafan Al Nakheel
+Al Hudaiba = Al Hudaibah
+Mairid = Al Mairid
+Sidrah = Sidroh
+Sedroh = Sidroh
+Turfa = Al Turfa
+Al Rifa = Al Riffa
+Al Rifaa = Al Riffa
+Diqdaqah = Digdaga
+Sha'am = Shaam
+
+[not_areas]
+# Contain an area name but aren't that area
+
+[exclude]
+# Google's addresses in the neighbouring emirates, for places whose pin is
+# just inside the boundary
+- Umm Al Quwain - United Arab Emirates
+- Fujairah - United Arab Emirates
+- Sharjah - United Arab Emirates
+- Ajman - United Arab Emirates
+
+[keep]
+# Places the category or name rules reject, kept by decision:
+# <Google place ID> = <name, as a note>
+
+[boundary]
+# Main part of Ras al-Khaimah emirate, from OpenStreetMap (relation 3766485); the southern part is left out
+file = ras_al_khaimah_boundary.geojson
+
+[grid]
+step_km = 2.5
+zoom = 14
+near_areas_km = 4
+keywords = nursery
+
+[area_match]
+numbered = yes
+centres = ras_al_khaimah_area_centres.csv
+max_km = 1.5

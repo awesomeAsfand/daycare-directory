@@ -1,0 +1,75 @@
+# Fujairah search list for the scraper (2026-10-08)
+#
+# Each keyword is combined with each area: "<keyword> in <area> Fujairah".
+# Lines starting with # are comments.
+#
+# Covers Fujairah city only (Dibba, Masafi, Qidfa, Murbah and Sharjah's Kalba / Khor Fakkan are out).
+# Areas from the city's districts; the map grid catches the rest. Aliases
+# and centres get fixed from Google's own names after the full run.
+
+[country]
+name = United Arab Emirates
+code = ae
+timezone = Asia/Dubai
+phone_code = 971
+
+[keywords]
+nursery
+early learning centre
+daycare
+
+[areas]
+Al Faseel
+Al Gurfa
+Madhab
+Sakamkam
+Merashid
+Al Mahatta
+Al Owaid
+Al Sharqiyah
+Al Ittihad
+Al Hilal
+Al Rughaylat
+
+[aliases]
+Faseel = Al Faseel
+Al Fasil = Al Faseel
+Al Gurfah = Al Gurfa
+Gurfa = Al Gurfa
+Madab = Madhab
+Al Madhab = Madhab
+Mereshid = Merashid
+Al Merashid = Merashid
+Mahatta = Al Mahatta
+Owaid = Al Owaid
+Sharqiyah = Al Sharqiyah
+Al Sharqiya = Al Sharqiyah
+Al Rughailat = Al Rughaylat
+
+[not_areas]
+# Contain an area name but aren't that area
+
+[exclude]
+# Google's addresses in the neighbouring emirates, for places whose pin is
+# just inside the boundary
+- Sharjah - United Arab Emirates
+- Ras Al Khaimah - United Arab Emirates
+
+[keep]
+# Places the category or name rules reject, kept by decision:
+# <Google place ID> = <name, as a note>
+
+[boundary]
+# Fujairah City, from OpenStreetMap (way 872858707)
+file = fujairah_boundary.geojson
+
+[grid]
+step_km = 2.5
+zoom = 14
+near_areas_km = 4
+keywords = nursery
+
+[area_match]
+numbered = yes
+centres = fujairah_area_centres.csv
+max_km = 1.5

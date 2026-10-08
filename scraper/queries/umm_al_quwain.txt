@@ -1,0 +1,79 @@
+# Umm Al Quwain search list for the scraper (2026-10-08)
+#
+# Each keyword is combined with each area: "<keyword> in <area> Umm Al Quwain".
+# Lines starting with # are comments.
+#
+# Covers Umm Al Quwain city and the coast (main part of the emirate).
+# Areas from the city's districts; the map grid catches the rest. Aliases
+# and centres get fixed from Google's own names after the full run.
+
+[country]
+name = United Arab Emirates
+code = ae
+timezone = Asia/Dubai
+phone_code = 971
+
+[keywords]
+nursery
+early learning centre
+daycare
+
+[areas]
+Al Salamah
+Al Raas
+Al Ramlah
+Al Maidan
+Al Haditha
+Al Khor
+Al Riqqah
+Al Humrah
+Al Dar Al Baida
+Al Raudah
+Al Surra
+Al Aahad
+Old Town
+
+[aliases]
+Salamah = Al Salamah
+Al Salama = Al Salamah
+Al Ras = Al Raas
+Ramlah = Al Ramlah
+Al Ramla = Al Ramlah
+Maidan = Al Maidan
+Al Hadeetha = Al Haditha
+Al Riqa = Al Riqqah
+Humrah = Al Humrah
+Al Humra = Al Humrah
+Dar Al Baida = Al Dar Al Baida
+Al Rawdah = Al Raudah
+Al Rawda = Al Raudah
+Al Ahad = Al Aahad
+
+[not_areas]
+# Contain an area name but aren't that area
+
+[exclude]
+# Google's addresses in the neighbouring emirates, for places whose pin is
+# just inside the boundary
+- Ajman - United Arab Emirates
+- Ras Al Khaimah - United Arab Emirates
+- Sharjah - United Arab Emirates
+
+[keep]
+# Places the category or name rules reject, kept by decision:
+# <Google place ID> = <name, as a note>
+
+[boundary]
+# Umm al-Quwain emirate, from OpenStreetMap (relation 3766487)
+file = umm_al_quwain_boundary.geojson
+
+[grid]
+step_km = 2.5
+zoom = 14
+near_areas_km = 4
+keywords = nursery
+
+[area_match]
+numbered = yes
+centres = umm_al_quwain_area_centres.csv
+max_km = 1.5
