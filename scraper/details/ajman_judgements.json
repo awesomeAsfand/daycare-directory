@@ -1,0 +1,409 @@
+{
+ "sites": [
+  {
+   "s": 1,
+   "from": "45 days",
+   "to": "5 years",
+   "curr": "British (EYFS)",
+   "lic": "MOE",
+   "email": "manager@littlewondersecc.com",
+   "ev_age": "Accepting Children from 45 days to 5 years",
+   "ev_curr": "Little Wonders is a KHDA and MOE Approved EYFS curriculum nursery",
+   "ev_lic": "Little Wonders Early Childhood Centres are licensed and approved by KHDA, DHA, Civil Defense, MOHAP, DED, and MOE.",
+   "note": "chain (Dubai branches KHDA)",
+   "url": "https://littlewondersecc.com/",
+   "listing_ids": [
+    1093
+   ]
+  },
+  {
+   "s": 2,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS); Montessori",
+   "lic": "",
+   "email": "info@aldananursery.com",
+   "ev_age": "",
+   "ev_curr": "يعتمد المنهج على المنهج البريطاني (EYFS) إلى جانب فلسفة مونتيسوري (the British EYFS alongside the Montessori philosophy)",
+   "ev_lic": "",
+   "note": "",
+   "url": "http://www.aldananursery.com/",
+   "listing_ids": [
+    1094
+   ]
+  },
+  {
+   "s": 3,
+   "from": "3 months",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@kidsjoyplanet.com",
+   "ev_age": "for children aged 3 months to 10 y[ears]",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "calls itself a kindergarten; ages up to 10 (after-school too)",
+   "url": "https://kidsjoygreenplanet.com/",
+   "listing_ids": [
+    1095
+   ]
+  },
+  {
+   "s": 4,
+   "from": "18 months",
+   "to": "4 years",
+   "curr": "Montessori",
+   "lic": "",
+   "email": "bluebellsajm@bluebellsnursery.com",
+   "ev_age": "Play Group I (1½ to 2 years) ... Play Group III (3 to 4 years)",
+   "ev_curr": "We follow British Montessori curriculum",
+   "ev_lic": "",
+   "note": "Ajman branch address",
+   "url": "http://bluebellsnursery.com/",
+   "listing_ids": [
+    1097
+   ]
+  },
+  {
+   "s": 5,
+   "from": "2 months",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "info@gemstonesnursery.com",
+   "ev_age": "(2 to 12 months) ... (Older than 3 years)",
+   "ev_curr": "Our curriculum, guided by the Early Years Foundation Stage (EYFS) framework",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.gemstonesnursery.com/en",
+   "listing_ids": [
+    1098
+   ]
+  },
+  {
+   "s": 6,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS); Arabic / English bilingual",
+   "lic": "",
+   "email": "info@kiddieclouduae.com",
+   "ev_age": "",
+   "ev_curr": "grounded in the Early Years Foundation Stage (EYFS) framework; we cultivate proficiency in both English and Arabic",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.kiddieclouduae.com/",
+   "listing_ids": [
+    1099
+   ]
+  },
+  {
+   "s": 7,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@arfaeducationservices.com",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "'education center' for children aged 1 to 8 years",
+   "url": "https://arfaeducationservices.com/",
+   "listing_ids": [
+    1111
+   ]
+  },
+  {
+   "s": 8,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@blossombritish.com",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://blossombritish.com/",
+   "listing_ids": [
+    1120
+   ]
+  },
+  {
+   "s": 9,
+   "from": "45 days",
+   "to": "5 years",
+   "curr": "British (EYFS)",
+   "lic": "MOE",
+   "email": "info@humptydumptynursery.com",
+   "ev_age": "45 days to 1 year ... (3 - 5 Years)",
+   "ev_curr": "Humpty Dumpty Nursery adheres to the British Early Years Foundation Stage (EYFS) curriculum",
+   "ev_lic": "Humpty Dumpty Nursery Ajman Branch Offer FS1, Fully Licensed By MOE",
+   "note": "",
+   "url": "https://humptydumptynursery.ae/",
+   "listing_ids": [
+    1122,
+    1143
+   ]
+  },
+  {
+   "s": 10,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "elinagardennursery@gmail.com",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://elinagardennursery.my.canva.site/",
+   "listing_ids": [
+    1142
+   ]
+  },
+  {
+   "s": 11,
+   "from": "4 months",
+   "to": "5 years",
+   "curr": "British (EYFS)",
+   "lic": "MOE",
+   "email": "info@earlysch.com",
+   "ev_age": "A warm, MoE-licensed nursery for children from 4 months to FS2",
+   "ev_curr": "Our programs follow the UK Early Years Foundation Stage (EYFS)",
+   "ev_lic": "Early Scholars Nursery is fully licensed and regulated by the UAE Ministry of Education.",
+   "note": "publishes fees: AED 8,000-10,500 a year",
+   "url": "https://www.earlysch.com/",
+   "listing_ids": [
+    1148
+   ]
+  },
+  {
+   "s": 12,
+   "from": "45 days",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "lloydsnursery2025@gmail.com",
+   "ev_age": "nurturing children from 45 days to 4 years",
+   "ev_curr": "We follow the Early Years Foundation Stage (EYFS) framework",
+   "ev_lic": "",
+   "note": "site also shows info@lloyds.com (looks like the wrong domain)",
+   "url": "https://www.lloydsnursery.com/",
+   "listing_ids": [
+    1149
+   ]
+  },
+  {
+   "s": 13,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS)",
+   "lic": "",
+   "email": "",
+   "ev_age": "",
+   "ev_curr": "المنهج البريطاني للطفولة المبكرة EYFS (the British early years curriculum, EYFS)",
+   "ev_lic": "",
+   "note": "fees on the site: AED 1,000-1,500 a month",
+   "url": "https://monumental-semolina-883514.netlify.app/",
+   "listing_ids": [
+    1150
+   ]
+  },
+  {
+   "s": 14,
+   "from": "3 months",
+   "to": "4 years",
+   "curr": "",
+   "lic": "",
+   "email": "info@kidstownnursery.com",
+   "ev_age": "catering for children from the ages of 3 months to 4 years",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "English & Arabic",
+   "url": "http://www.kidstownnursery.com/",
+   "listing_ids": [
+    1151
+   ]
+  },
+  {
+   "s": 15,
+   "from": "",
+   "to": "",
+   "curr": "British (EYFS); Arabic / English bilingual",
+   "lic": "",
+   "email": "kidsarekidsajman@gmail.com",
+   "ev_age": "",
+   "ev_curr": "We follow the British EYFS framework in English and Arabic",
+   "ev_lic": "",
+   "note": "",
+   "url": "http://kidsarekids.ae/",
+   "listing_ids": [
+    1152
+   ]
+  },
+  {
+   "s": 16,
+   "from": "18 months",
+   "to": "5 years",
+   "curr": "American",
+   "lic": "",
+   "email": "contact@bandgnursery.ae",
+   "ev_age": "Ages 18 months - 2.5 years ... Ages 3.5 - 5 years",
+   "ev_curr": "Creative Curriculum (American)",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.bandgnursery.ae/",
+   "listing_ids": [
+    1153
+   ]
+  },
+  {
+   "s": 17,
+   "from": "",
+   "to": "",
+   "curr": "",
+   "lic": "",
+   "email": "info@shagafmontessori.com",
+   "ev_age": "",
+   "ev_curr": "",
+   "ev_lic": "",
+   "note": "",
+   "url": "https://www.shaghafmontessorikids.com/ar",
+   "listing_ids": [
+    1183
+   ]
+  }
+ ],
+ "listings": {
+  "_abu_dhabi_rule": "no reviews and no website: remove (your Abu Dhabi rule) - flip to keep if you know them",
+  "1139": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule)"
+  },
+  "1140": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule)"
+  },
+  "1164": {
+   "decision": "remove",
+   "reason": "'Rainbow' - no reviews, no website (Abu Dhabi rule)"
+  },
+  "1165": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule)"
+  },
+  "1167": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule)"
+  },
+  "1184": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule); also a second entry of 1100 Just Like Home Nursery"
+  },
+  "1185": {
+   "decision": "remove",
+   "reason": "babysitting with studies - no reviews, no website (Abu Dhabi rule)"
+  },
+  "1180": {
+   "decision": "remove",
+   "reason": "no reviews, only Instagram (Abu Dhabi rule)"
+  },
+  "_check": "your call",
+  "1121": {
+   "decision": "check",
+   "flag": "'Daily care (Day care & Babysitting)', 1 review - home babysitting?"
+  },
+  "1158": {
+   "decision": "check",
+   "flag": "'Tiny Tots Babysitting', 32 reviews - babysitting service"
+  },
+  "1163": {
+   "decision": "check",
+   "flag": "'BABY SITTING-Kerala Home- Above 3y Old' - home babysitting"
+  },
+  "1115": {
+   "decision": "check",
+   "flag": "'DAYCARE & TUITION', 1 review, in Ajman Industrial 2"
+  },
+  "1161": {
+   "decision": "check",
+   "flag": "'عالم المرح لتسلية الاطفال' = Fun World for children's entertainment - an entertainment-centre licence"
+  },
+  "1156": {
+   "decision": "check",
+   "flag": "'KIDS ENTERTAINMENT & NURSERY' - entertainment-centre licence (لتسلية الاطفال)?"
+  },
+  "1183": {
+   "decision": "check",
+   "flag": "'شغف المنتسوري لتسلية الأطفال' - Montessori, but the Arabic name is an entertainment-centre licence"
+  },
+  "1111": {
+   "decision": "check",
+   "flag": "'Arfa Education Services' - education / tuition centre?"
+  },
+  "1130": {
+   "decision": "check",
+   "flag": "'Silver Tulips institute' - institute / tuition centre?"
+  },
+  "1131": {
+   "decision": "check",
+   "flag": "'Al Kamal Education Technology' - education / tuition centre?"
+  },
+  "1138": {
+   "decision": "check",
+   "flag": "'Bright Beginners Education Service' - education / tuition centre?"
+  },
+  "1177": {
+   "decision": "check",
+   "flag": "'UMF SMART ZONE' - play / activity zone?"
+  },
+  "1187": {
+   "decision": "check",
+   "flag": "'Salsabeel.center', 1 review - unclear what it is"
+  },
+  "1118": {
+   "decision": "check",
+   "flag": "KG section of Al Hikma Private School - part of a school"
+  },
+  "1107": {
+   "decision": "check",
+   "flag": "probably the same kindergarten as 1117 'روضة الحياة' (= Al Hayat Kindergarten, both Al Nuaimiya)"
+  },
+  "1170": {
+   "decision": "check",
+   "flag": "probably the same nursery as 1101 Little Leaders Nursery (القادة الصغار = Little Leaders, both Al Hamidiya)"
+  },
+  "_kept_notes": "kept, with a note",
+  "1117": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1169": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1173": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1175": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1179": {
+   "note": "kindergarten (probably public) - kept like the other emirates'"
+  },
+  "1100": {
+   "note": "there was a second, empty entry (1184), removed"
+  },
+  "1108": {
+   "email": "kidsclubnurseries@gmail.com"
+  },
+  "1123": {
+   "email": "info@penguinsnursery.com"
+  },
+  "1141": {
+   "curr": "British (EYFS)",
+   "email": "info@magickidsnursery.com",
+   "ev_curr": "We follow the SPEA approved British EYFS Curriculum (magickidsnursery.com, Sharjah)",
+   "source": "https://magickidsnursery.com/",
+   "note": "Google's website link (magiccastlenursery.com) is dead; details from the Magic Kids chain site"
+  }
+ }
+}
