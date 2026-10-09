@@ -1,0 +1,69 @@
+{
+ "sites": [
+  {
+   "url": "http://www.fujairahmontessori.com/",
+   "listing_ids": [
+    1248
+   ],
+   "from": "",
+   "to": "5 years",
+   "curr": "Montessori",
+   "email": "info@fujairahmontessori.com",
+   "ev_age": "exceptional care and education for children aged 0 to 5 years",
+   "ev_curr": "We follow the Montessori curriculum based on the theory of Dr. Maria Montessori."
+  },
+  {
+   "url": "http://www.aljalilanursery.com/",
+   "listing_ids": [
+    1249
+   ],
+   "from": "",
+   "to": "4 years",
+   "curr": "Montessori",
+   "email": "aljalilanursery@gmail.com",
+   "ev_age": "Best Montessori Nursery in Fujairah & Masafi for Ages 0-4",
+   "ev_curr": "a warm, stimulating Montessori environment"
+  },
+  {
+   "url": "https://www.tappytoesnursery.com/nursery-in-merashid-fujairah/",
+   "listing_ids": [
+    1253
+   ],
+   "from": "45 days",
+   "to": "5 years",
+   "curr": "British (EYFS)",
+   "email": "info.fjm@tappytoesnursery.com",
+   "ev_age": "We offer nursery and extended hours care for children aged 45 days to FS2 class.",
+   "ev_curr": "a nursery following the British curriculum and adhering to the EYFS framework",
+   "note": "info.fjm@ = the Fujairah (Merashid) branch"
+  }
+ ],
+ "listings": {
+  "1263": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule)"
+  },
+  "1256": {
+   "decision": "check",
+   "flag": "'Zessam', 1 review, no website - unclear what it is"
+  },
+  "1260": {
+   "decision": "check",
+   "flag": "named 'Happy Jump Ajman' (حضانة هبي جمب عجمان) but placed in Fujairah, 2 reviews - a real branch?"
+  },
+  "1259": {
+   "decision": "check",
+   "flag": "probably the same kindergarten as 1261 Al Sharq Kindergarten (روضة الشرق = Al Sharq KG)"
+  },
+  "1264": {
+   "decision": "check",
+   "flag": "probably the same nursery as 1251 Kinderland nursery (كيندر لاند = Kinderland, both Al Faseel)"
+  },
+  "1261": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1262": {
+   "note": "kindergarten; Google's website link is a map site (wego.here.com)"
+  }
+ }
+}

@@ -1,0 +1,164 @@
+{
+ "sites": [
+  {
+   "url": "http://www.kinderwoodrak.com/",
+   "listing_ids": [
+    1189
+   ],
+   "email": "kinderwoodrak@gmail.com",
+   "note": "English-led, with Arabic daily"
+  },
+  {
+   "url": "http://www.littletreasuresnurseryrak.com/",
+   "listing_ids": [
+    1198,
+    1225
+   ],
+   "from": "3 months",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "lic": "MOE",
+   "email": "littletreasuresnurseryrak@gmail.com",
+   "ev_age": "Baby Class caters for ages 3 months - walking ... Foundation Stage class caters for 3-4 years",
+   "ev_curr": "Little Treasures Nursery follows the British Curriculum by delivering the EYFS",
+   "ev_lic": "We are approved and licensed by the Ministry Of Education."
+  },
+  {
+   "url": "https://milesofsmiles.ae/",
+   "listing_ids": [
+    1199
+   ],
+   "from": "45 days",
+   "to": "5 years",
+   "curr": "British (EYFS)",
+   "email": "info@milesofsmiles.ae",
+   "ev_age": "From 45 Days To 5 Years",
+   "ev_curr": "we follow the EYFS framework",
+   "note": "English, with French and Arabic"
+  },
+  {
+   "url": "https://www.maplebeargulfschools.com/our-location/rak/nursery-rak-mina-al-arab/",
+   "listing_ids": [
+    1200
+   ],
+   "from": "45 days",
+   "to": "6 years",
+   "curr": "Canadian",
+   "email": "admissions@maplebeargulfschools.com",
+   "ev_age": "Supporting holistic growth from ages 45 days to 6 years",
+   "ev_curr": "Globally recognized Canadian curriculum"
+  },
+  {
+   "url": "http://www.redbusnurseryrak.com/",
+   "listing_ids": [
+    1201
+   ],
+   "from": "2 months",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "email": "information@redbusnurseryrak.com",
+   "ev_age": "8 WEEKS - WALKING BABY CLASS ... the UAE Ministry of Education only allows children in licensed nurseries until age 4",
+   "ev_curr": "We follow the British Early Years Foundation Stage Curriculum",
+   "note": "8 weeks entered as 2 months"
+  },
+  {
+   "url": "https://www.ichibanuae.com/",
+   "listing_ids": [
+    1205
+   ],
+   "from": "6 months",
+   "to": "4 years",
+   "curr": "American",
+   "email": "rak@ichibanuae.com",
+   "ev_age": "Ages 6 - 12 months ... Ages 3 - 4 Years",
+   "ev_curr": "Our teachers use the Teaching Strategies curriculum (The Creative Curriculum, American)",
+   "note": "also Japanese / Finnish / Montessori practices; RAK branch email"
+  }
+ ],
+ "listings": {
+  "1217": {
+   "decision": "remove",
+   "reason": "'ABU EIDA'S PALACE' - not a nursery"
+  },
+  "1236": {
+   "decision": "remove",
+   "reason": "'اسطبل السيف' = Al Saif stable - not a nursery"
+  },
+  "1237": {
+   "decision": "remove",
+   "reason": "name is an address ('Al Dhait South block 11'), no reviews"
+  },
+  "1245": {
+   "decision": "remove",
+   "reason": "cricket ground - not a nursery"
+  },
+  "1214": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule)"
+  },
+  "1221": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule)"
+  },
+  "1222": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule)"
+  },
+  "1226": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule)"
+  },
+  "1238": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule)"
+  },
+  "1246": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule); kindergarten"
+  },
+  "1247": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule); kindergarten"
+  },
+  "1207": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1213": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1216": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1218": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1219": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1223": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1241": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1243": {
+   "note": "kindergarten - kept like the other emirates'"
+  },
+  "1242": {
+   "note": "public kindergarten (website is moe.gov.ae) - kept like the other emirates'"
+  },
+  "1244": {
+   "note": "public kindergarten - kept like the other emirates'"
+  },
+  "1203": {
+   "from": "2 months",
+   "to": "4 years",
+   "curr": "British (EYFS)",
+   "email": "information@redbusnurseryrak.com",
+   "ev_age": "8 WEEKS - WALKING BABY CLASS (redbusnurseryrak.com)",
+   "ev_curr": "We follow the British Early Years Foundation Stage Curriculum (redbusnurseryrak.com)",
+   "source": "http://www.redbusnurseryrak.com/",
+   "note": "Red Bus branch; details from the chain site"
+  }
+ }
+}

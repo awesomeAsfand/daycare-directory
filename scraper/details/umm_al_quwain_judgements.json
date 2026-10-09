@@ -1,0 +1,16 @@
+{
+ "sites": [],
+ "listings": {
+  "1273": {
+   "decision": "remove",
+   "reason": "no reviews, no website (Abu Dhabi rule)"
+  },
+  "1271": {
+   "decision": "check",
+   "flag": "'baby sitting in umm al quwain keralites', 11 reviews - home babysitting"
+  },
+  "1272": {
+   "note": "kindergarten - kept like the other emirates'"
+  }
+ }
+}
