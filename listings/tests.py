@@ -13,10 +13,10 @@ from PIL import Image
 
 from listings.models import Area, City, Country, DaycareListing, ListingImage, Review
 
-FID = "0x38dfe900449fe295:0x52f0dd4fa59ab339"
+FID = "0x3e5f6b2a1c0d4e5f:0x52f0dd4fa59ab339"
 MAPS_URL = (
     "https://www.google.com/maps/place/Little+Kingdom+Childcare/data=!4m7!3m6"
-    f"!1s{FID}!8m2!3d33.6917577!4d73.2199699!16s%2Fg%2F11vy6ny7bl"
+    f"!1s{FID}!8m2!3d25.1176234!4d55.2003421!16s%2Fg%2F11vy6ny7bl"
 )
 
 
@@ -33,18 +33,18 @@ class ImportTestBase(TestCase):
         media = override_settings(MEDIA_ROOT=self.tmp / "media")
         media.enable()
         self.addCleanup(media.disable)
-        self.city = City.objects.create(name="Islamabad", slug="islamabad", country=Country.for_code("PK"))
+        self.city = City.objects.create(name="Dubai", slug="dubai", country=Country.for_code("AE"))
 
     def item(self, **overrides):
         data = {
             "name": "Little Kingdom Childcare",
-            "address": "Street 5, F-7/4, Islamabad",
-            "area": "F-7",
-            "phone": "0300 1234567",
+            "address": "Villa 5, 12B St - Al Barsha 1 - Dubai - United Arab Emirates",
+            "area": "Al Barsha",
+            "phone": "050 123 4567",
             "rating": 4.5,
             "review_count": 12,
-            "latitude": 33.6917577,
-            "longitude": 73.2199699,
+            "latitude": 25.1176234,
+            "longitude": 55.2003421,
             "place_id": FID,
             "google_maps_url": MAPS_URL,
             "reviews": [{"author": "Sara", "rating": 5, "text": "Great", "date": "1 month ago"}],
@@ -53,11 +53,11 @@ class ImportTestBase(TestCase):
         data.update(overrides)
         return data
 
-    def run_import(self, items, *extra):
+    def run_import(self, items, *extra, city="Dubai"):
         path = self.tmp / "listings.json"
         path.write_text(json.dumps(items), encoding="utf-8")
         out = StringIO()
-        call_command("import_listings", "--file", str(path), "--city", "Islamabad", *extra,
+        call_command("import_listings", "--file", str(path), "--city", city, *extra,
                      stdout=out, stderr=out)
         return out.getvalue()
 
@@ -65,7 +65,7 @@ class ImportTestBase(TestCase):
         """A row as the April import left it: name as place_id, no coordinates."""
         fields = dict(
             name="Little Kingdom Childcare", slug="little-kingdom-childcare", city=self.city,
-            place_id="Little+Kingdom+Childcare", maps_url=MAPS_URL, phone="051 111222",
+            place_id="Little+Kingdom+Childcare", maps_url=MAPS_URL, phone="04 111 2222",
         )
         fields.update(kw)
         return DaycareListing.objects.create(**fields)
@@ -81,7 +81,7 @@ class ImportMatchingTests(ImportTestBase):
         self.assertEqual(old.place_id, FID)
         self.assertEqual(old.slug, "little-kingdom-childcare")
         self.assertTrue(old.is_featured)
-        self.assertEqual(old.latitude, 33.6917577)
+        self.assertEqual(old.latitude, 25.1176234)
         self.assertIsNotNone(old.last_seen_at)
 
     def test_reimport_is_idempotent(self):
@@ -91,57 +91,56 @@ class ImportMatchingTests(ImportTestBase):
         self.assertEqual(Review.objects.count(), 1)
 
     def test_same_name_far_away_is_a_new_branch(self):
-        self.legacy_listing(place_id="x", maps_url="", latitude=33.52, longitude=73.09)
+        self.legacy_listing(place_id="x", maps_url="", latitude=25.25, longitude=55.35)
         self.run_import([self.item(place_id="", google_maps_url="")])
         slugs = sorted(DaycareListing.objects.values_list("slug", flat=True))
         self.assertEqual(slugs, ["little-kingdom-childcare", "little-kingdom-childcare-1"])
 
     def test_same_name_nearby_without_id_matches(self):
-        self.legacy_listing(place_id="x", maps_url="", latitude=33.6918, longitude=73.2200)
+        self.legacy_listing(place_id="x", maps_url="", latitude=25.1177, longitude=55.2004)
         self.run_import([self.item(place_id="", google_maps_url="")])
         self.assertEqual(DaycareListing.objects.count(), 1)
 
     def test_listing_type_imported_and_shown(self):
         self.run_import([self.item(listing_type="preschool"),
                          self.item(name="Other", place_id="0x5:0x6", google_maps_url="",
-                                   latitude=33.6, longitude=73.0)])
+                                   latitude=25.2, longitude=55.27)])
         pre, other = DaycareListing.objects.order_by("pk")
         self.assertEqual(pre.listing_type, "preschool")
         self.assertEqual(other.listing_type, "daycare")   # no type in the scrape: default
-        with site_settings("pk"):
-            self.assertContains(self.client.get(pre.get_absolute_url()), "Preschool / Montessori")
         with site_settings("gcc"):
             self.assertContains(self.client.get(pre.get_absolute_url()), "<span>Nursery</span>", html=True)
 
     def test_areas_from_areas_file(self):
         out = self.run_import([
-            self.item(),                                           # "F-7/4" in the address
-            self.item(name="Bani", place_id="0x7:0x8", google_maps_url="",
-                      address="Plot 58, Bani Gala Greens, Bani Gala, 44000, Pakistan",
-                      latitude=33.71, longitude=73.15),
+            self.item(),                                           # "Al Barsha 1" in the address
+            self.item(name="Lakeside", place_id="0x7:0x8", google_maps_url="",
+                      address="Cluster K - Jumeirah Lake Towers - Dubai - United Arab Emirates",
+                      latitude=25.0760, longitude=55.1515),
             self.item(name="Nowhere", place_id="0x9:0xa", google_maps_url="",
-                      address="Trail 5, Pakistan", latitude=33.76, longitude=73.03),
+                      address="Desert Rd - Dubai - United Arab Emirates", latitude=24.80, longitude=55.70),
         ])
-        f7, bani, nowhere = DaycareListing.objects.order_by("pk")
-        self.assertEqual((f7.area.name, f7.sub_area), ("F-7", "F-7/4"))
-        self.assertEqual((bani.area.name, bani.sub_area), ("Bani Gala", ""))
+        barsha, jlt, nowhere = DaycareListing.objects.order_by("pk")
+        self.assertEqual((barsha.area.name, barsha.sub_area), ("Al Barsha", "Al Barsha 1"))
+        self.assertEqual((jlt.area.name, jlt.sub_area), ("Jumeirah Lake Towers", ""))
         self.assertIsNone(nowhere.area)
-        # Only official areas are created, never "F-7/4"
-        self.assertEqual(sorted(Area.objects.values_list("name", flat=True)), ["Bani Gala", "F-7"])
-        self.assertIn("F-7 1, Bani Gala 1", out)
+        # Only official areas are created, never "Al Barsha 1"
+        self.assertEqual(sorted(Area.objects.values_list("name", flat=True)), ["Al Barsha", "Jumeirah Lake Towers"])
+        self.assertIn("Al Barsha 1, Jumeirah Lake Towers 1", out)
         self.assertIn("No area (1)", out)
         self.assertIn("Nowhere", out)
 
-        resp = self.client.get(f7.get_absolute_url())
-        self.assertContains(resp, "F-7/4, F-7")
+        resp = self.client.get(barsha.get_absolute_url())
+        self.assertContains(resp, "Al Barsha 1, Al Barsha")
         # A listing with no area still shows on the city page
         self.assertContains(self.client.get(self.city.get_absolute_url()), "Nowhere")
 
     def test_excluded_area_skipped_at_import(self):
-        out = self.run_import([self.item(name="Rawat Kids", place_id="0xb:0xc", google_maps_url="",
-                                         address="F5WV+F6G, Jawa Rd, Rawat, Rawalpindi, 45900, Pakistan")])
+        City.objects.create(name="Sharjah", slug="sharjah", country=Country.for_code("AE"))
+        out = self.run_import([self.item(name="Border Kids", place_id="0xb:0xc", google_maps_url="",
+                                         address="Al Nahda - Dubai - United Arab Emirates")], city="Sharjah")
         self.assertEqual(DaycareListing.objects.count(), 0)
-        self.assertIn("skipped (excluded area: Rawat): 1", out)
+        self.assertIn("skipped (excluded area: - Dubai - United Arab Emirates): 1", out)
 
     def test_dry_run_writes_nothing(self):
         self.legacy_listing()
@@ -158,14 +157,14 @@ class ImportProtectionTests(ImportTestBase):
         old = self.legacy_listing()
         self.run_import([self.item(phone="")])
         old.refresh_from_db()
-        self.assertEqual(old.phone, "051 111222")
+        self.assertEqual(old.phone, "04 111 2222")
 
     def test_locked_fields_are_kept(self):
         old = self.legacy_listing(description="Written by hand", locked_fields=["description", "phone"])
         self.run_import([self.item(description="Scraped text")])
         old.refresh_from_db()
         self.assertEqual(old.description, "Written by hand")
-        self.assertEqual(old.phone, "051 111222")
+        self.assertEqual(old.phone, "04 111 2222")
         self.assertEqual(old.rating, 4.5)   # unlocked field still updates
 
     def test_reviews_kept_when_scrape_found_none(self):
@@ -222,7 +221,7 @@ class DedupeTests(ImportTestBase):
         dup = DaycareListing.objects.create(
             name="Little Kingdom Childcare", slug="little-kingdom-childcare-1", city=self.city,
             place_id="ChIJleKfRADp3zgRObOapU_d8FI", maps_url=MAPS_URL,
-            latitude=33.69, longitude=73.21, is_verified=True,
+            latitude=25.11, longitude=55.20, is_verified=True,
         )
         Review.objects.create(listing=dup, author="Sara", rating=5, text="Great")
         dup_url = dup.get_absolute_url()
@@ -234,7 +233,7 @@ class DedupeTests(ImportTestBase):
         self.assertEqual(list(DaycareListing.objects.values_list("pk", flat=True)), [keeper.pk])
         keeper.refresh_from_db()
         self.assertEqual(keeper.place_id, FID)
-        self.assertEqual(keeper.latitude, 33.69)
+        self.assertEqual(keeper.latitude, 25.11)
         self.assertTrue(keeper.is_verified)
         self.assertEqual(keeper.reviews.count(), 1)
         self.assertTrue(Redirect.objects.filter(old_path=dup_url).exists())
@@ -290,12 +289,12 @@ class SitePagesTests(TestCase):
 
     def test_sitemap_uses_site_domain(self):
         call_command("sync_site", stdout=StringIO())
-        city = City.objects.create(name="Islamabad", slug="islamabad", country=Country.for_code("PK"))
+        city = City.objects.create(name="Dubai", slug="dubai", country=Country.for_code("AE"))
         DaycareListing.objects.create(name="Little Kingdom", city=city)
         resp = self.client.get("/sitemap.xml")
-        self.assertContains(resp, "<loc>http://daycares.example/pakistan/</loc>")
-        self.assertContains(resp, "<loc>http://daycares.example/pakistan/islamabad/</loc>")
-        self.assertContains(resp, "<loc>http://daycares.example/pakistan/islamabad/little-kingdom/</loc>")
+        self.assertContains(resp, "<loc>http://daycares.example/uae/</loc>")
+        self.assertContains(resp, "<loc>http://daycares.example/uae/dubai/</loc>")
+        self.assertContains(resp, "<loc>http://daycares.example/uae/dubai/little-kingdom/</loc>")
         self.assertContains(resp, "<loc>http://daycares.example/privacy-policy/</loc>")
         self.assertNotContains(resp, "example.com")
 
@@ -325,7 +324,6 @@ class SiteConfigTests(TestCase):
             home = self.client.get("/")
             self.assertContains(home, "<title>Nurseries in the UAE — Find the Best Nurseries</title>", html=True)
             self.assertContains(home, "GulfNurseries")
-            self.assertNotContains(home, "Pakistan")
             self.assertContains(self.client.get("/uae/dubai/"), "Nurseries in Dubai")
             self.assertContains(self.client.get("/uae/dubai/umm-suqeim/"), "Nurseries in Umm Suqeim, Dubai")
             detail = self.client.get(self.listing.get_absolute_url())
@@ -334,15 +332,6 @@ class SiteConfigTests(TestCase):
             self.assertContains(detail, "Tiny Tots Nursery — Nursery in Umm Suqeim")
             about = self.client.get("/about/")
             self.assertContains(about, "FS1, FS2 or KG")
-            self.assertNotContains(about, "Islamabad")
-
-    def test_pakistan_site(self):
-        with site_settings("pk"):
-            self.assertContains(self.client.get("/uae/dubai/"), "Daycare Centers in Dubai")
-            city = City.objects.create(name="Islamabad", slug="islamabad", country=Country.for_code("PK"))
-            listing = DaycareListing.objects.create(name="Little Kingdom", city=city)
-            self.assertContains(self.client.get(listing.get_absolute_url()), '"addressCountry": "PK"')
-            self.assertContains(self.client.get("/about/"), "Islamabad")
 
     def test_site_name_override(self):
         from config.sites import SITES
@@ -359,12 +348,12 @@ class ArabicNameImportTests(ImportTestBase):
     def test_arabic_only_name_gets_readable_slug(self):
         with site_settings("gcc"):
             self.run_import([self.item(name="حضانة الأطفال", place_id="0xd:0xe", google_maps_url="")])
-        self.assertEqual(DaycareListing.objects.get().slug, "nursery-f-7")
+        self.assertEqual(DaycareListing.objects.get().slug, "nursery-al-barsha")
 
 
 class ImportRulesTests(ImportTestBase):
     def test_placeholder_pin_and_rules_skipped(self):
-        pin = dict(latitude=33.70, longitude=73.05, address="Islamabad", categories=["Nursery school"])
+        pin = dict(latitude=25.20, longitude=55.27, address="Dubai", categories=["Nursery school"])
         items = [self.item(name=f"Ghost {i}", place_id=f"0x{i}:0x1", google_maps_url="", **pin) for i in range(5)]
         items.append(self.item(name="Fun Kids Amusement Arcade", place_id="0x9:0x9", google_maps_url="",
                                categories=["Preschool"]))
@@ -405,68 +394,12 @@ class NurseryDetailsTests(ImportTestBase):
                      "KHDA (Dubai)", "AED 40,755 – 52,800 a year", "https://tinytots.example/fees"):
             self.assertContains(resp, text)
 
-    def test_apply_details_keeps_confirmed(self):
-        new = DaycareListing.objects.create(name="New", slug="new", city=self.city)
-        done = self.listing(details_confirmed=True)
-        path = self.tmp / "details.json"
-        path.write_text(json.dumps([{"url": "https://x.example/", "listing_ids": [new.pk, done.pk],
-                                     "source": "https://x.example/about", "age_from_months": 3,
-                                     "age_to_months": 48, "curriculum": ["reggio"], "licensed_by": "KHDA",
-                                     "fees_from_aed": None}]), encoding="utf-8")
-        out = StringIO()
-        call_command("apply_details", "--file", str(path), stdout=out)
-        self.assertIn("Listings updated: 1; skipped (details already confirmed): 1", out.getvalue())
-        new.refresh_from_db()
-        done.refresh_from_db()
-        self.assertEqual((new.age_range_label, new.curriculum, new.details_confirmed), ("3 months – 4 years", ["reggio"], False))
-        self.assertEqual(new.details_source, "https://x.example/about")
-        self.assertEqual(done.curriculum, ["eyfs", "montessori"])   # untouched
-
-    def test_apply_details_rejects_unknown_curriculum(self):
-        from django.core.management.base import CommandError
-        path = self.tmp / "details.json"
-        path.write_text(json.dumps([{"url": "u", "listing_ids": [], "curriculum": ["astrology"]}]), encoding="utf-8")
-        with self.assertRaises(CommandError):
-            call_command("apply_details", "--file", str(path), stdout=StringIO())
-
-    def test_apply_details_from_csv(self):
-        l = DaycareListing.objects.create(name="Csv", slug="csv", city=self.city)
-        path = self.tmp / "details.csv"
-        path.write_text(
-            "listing_ids,names,areas,website,ages_from,ages_to,curriculum,licensed_by,fees_from_aed,"
-            "fees_to_aed,fees_note,source,check,evidence_ages,evidence_curriculum,evidence_licence\n"
-            f"{l.pk},Csv,,https://csv.example/,45 days,5 years,British (EYFS); montessori,KHDA,27200,54000,"
-            "\"3-5 days a week, 2026-27\",https://csv.example/fees,,,,\n", encoding="utf-8-sig")
-        call_command("apply_details", "--file", str(path), "--confirm", stdout=StringIO())
-        l.refresh_from_db()
-        self.assertEqual((l.age_range_label, l.curriculum, l.licensed_by, l.fees_label, l.fees_note, l.details_confirmed),
-                         ("45 days – 5 years", ["eyfs", "montessori"], "KHDA", "AED 27,200 – 54,000 a year",
-                          "3-5 days a week, 2026-27", True))
-
-    def test_correct_details(self):
-        from django.core.management.base import CommandError
-        a = DaycareListing.objects.create(name="Branch A", slug="a", city=self.city)
-        b = DaycareListing.objects.create(name="Branch B", slug="b", city=self.city)
-        header = ("listing_ids,names,areas,website,ages_from,ages_to,curriculum,licensed_by,fees_from_aed,"
-                  "fees_to_aed,fees_note,source,check,evidence_ages,evidence_curriculum,evidence_licence\n")
-        details = self.tmp / "details.csv"
-        details.write_text(header + f'"{a.pk} {b.pk}",A | B,,https://chain.example/,18 months,2 years,'
-                           "British (EYFS); Waldorf / Steiner,,,,,,,,,\n", encoding="utf-8-sig")
-        fixes = self.tmp / "fixes.csv"
-        cols = "listing_ids,name,areas,field,current_value,correct_value,what_the_site_says,page_checked,note\n"
-        fixes.write_text(cols + f"{a.pk},Branch A,,ages_from,18 months,birth (0),,https://chain.example/a,\n"
-                         f"{a.pk},Branch A,,curriculum,British (EYFS); Waldorf / Steiner,British (EYFS),,,\n",
-                         encoding="utf-8-sig")
-        call_command("correct_details", "--details", str(details), "--corrections", str(fixes), stdout=StringIO())
-        rows = list(csv.DictReader(details.open(encoding="utf-8-sig")))
-        by_id = {r["listing_ids"]: r for r in rows}
-        self.assertEqual(len(rows), 2)   # the chain row was split per branch
-        self.assertEqual((by_id[str(a.pk)]["ages_from"], by_id[str(a.pk)]["curriculum"]), ("45 days", "British (EYFS)"))
-        self.assertEqual(by_id[str(b.pk)]["ages_from"], "18 months")   # the other branch untouched
-        # A correction that doesn't match the CSV stops the run
-        fixes.write_text(cols + f"{b.pk},Branch B,,ages_to,9 years,5 years,,,\n", encoding="utf-8-sig")
-        with self.assertRaises(CommandError):
-            call_command("correct_details", "--details", str(details), "--corrections", str(fixes), stdout=StringIO())
+    def test_parse_age_and_curriculum(self):
+        from listings.details import parse_age, parse_curriculum
+        self.assertEqual([parse_age(t) for t in ("45 days", "6 months", "2.5 years", "")], [1.5, 6, 30, None])
+        self.assertEqual(parse_curriculum("British (EYFS); montessori"), ["eyfs", "montessori"])
+        with self.assertRaises(ValueError):
+            parse_curriculum("Astrology")
 
 
 class CollectEmailTests(TestCase):
@@ -637,14 +570,14 @@ class ImportCountryTests(ImportTestBase):
         self.city.delete()
         Country.objects.all().delete()
         self.run_import([self.item()])
-        city = City.objects.get(slug="islamabad")
-        self.assertEqual((city.country.code, city.country.slug), ("PK", "pakistan"))
+        city = City.objects.get(slug="dubai")
+        self.assertEqual((city.country.code, city.country.slug), ("AE", "uae"))
         self.assertEqual(DaycareListing.objects.get().get_absolute_url(),
-                         "/pakistan/islamabad/little-kingdom-childcare/")
+                         "/uae/dubai/little-kingdom-childcare/")
 
     def test_city_in_another_country_stops(self):
         from django.core.management.base import CommandError
-        self.city.country = Country.for_code("AE")
+        self.city.country = Country.for_code("SA")
         self.city.save()
         with self.assertRaises(CommandError):
             self.run_import([self.item()])

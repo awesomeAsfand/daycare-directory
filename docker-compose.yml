@@ -54,26 +54,6 @@ services:
       redis:
         condition: service_healthy
 
-  # ── Celery worker (async scrape jobs) ────────────────────────
-  celery:
-    build:
-      context: .
-      target: dev
-    restart: unless-stopped
-    command: celery -A config worker -l info
-    volumes:
-      - .:/app
-    env_file:
-      - .env
-    environment:
-      - DB_HOST=db
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
   # ── pgAdmin (DB GUI) ─────────────────────────────────────────
   pgadmin:
     image: dpage/pgadmin4

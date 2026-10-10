@@ -17,7 +17,7 @@ A queries file (e.g. queries/dubai.txt) has these sections:
         keywords = daycare, montessori
         near_areas_km = 4                   (only cells this close to an [area_match] centre)
     [boundary]
-        file = islamabad_boundary.geojson   (relative to the queries file)
+        file = dubai_boundary.geojson       (relative to the queries file)
     [exclude]           areas left out even where they cross the boundary;
                         a place whose address mentions one is rejected
     [aliases]           other spellings: <spelling> = <area as in [areas]>
@@ -26,9 +26,10 @@ A queries file (e.g. queries/dubai.txt) has these sections:
     [keep]              places the category and name rules would reject but
                         that belong: <Google place ID> = <name, as a note>
     [area_match]        how import_listings places listings in areas
-        centres = islamabad_area_centres.csv
+        centres = dubai_area_centres.csv
         max_km = 2.0
-        sectors = cda   (Islamabad only: read CDA sectors such as F-7/4)
+        numbered = yes  ("Al Barsha 1" -> area Al Barsha, sub-area Al Barsha 1)
+        parents = ...   (big sectors that lose to a district named with them)
                         (see area_match.py)
 
 Area searches are "<keyword> in <area> <city>". Grid searches run each grid
@@ -38,9 +39,9 @@ city boundary, which catches places the area names miss.
 classify() decides whether a scraped place belongs in the directory:
 daycares and standalone preschools / montessori centres inside the city
 boundary, but no schools, tuition centres, unrelated businesses or closed
-places. Google's addresses are unreliable for this (many Islamabad addresses
-never say "Islamabad", some in Bani Gala say "Rawalpindi"), so the boundary
-check uses the place's map coordinates.
+places. Google's addresses are unreliable for this (Al Ain addresses say
+"Abu Dhabi", places just over the Sharjah border say "Dubai"), so the
+boundary check uses the place's map coordinates.
 """
 import csv
 import json
@@ -131,12 +132,12 @@ def boundary_bbox(boundary: list) -> tuple:
 
 
 def area_label(line: str) -> str:
-    """'E-18 (Gulshan-e-Sehat)' -> 'E-18'."""
+    """'Al Barsha (Barsha 1-3)' -> 'Al Barsha'."""
     return re.sub(r"\s*\(.*?\)", "", line).strip()
 
 
 def load_plan(path: Path, city: str | None = None) -> QueryPlan:
-    """Parse a queries file. The city defaults to the file name (islamabad.txt -> Islamabad)."""
+    """Parse a queries file. The city defaults to the file name (abu_dhabi.txt -> Abu Dhabi)."""
     plan = QueryPlan(city=city or path.stem.replace("_", " ").title(), path=path)
     section = None
     pending_aliases = []
@@ -349,25 +350,24 @@ def placeholder_pins(items: list, min_places: int = 5) -> set:
 
 
 # Last part of a Google address, dropped before reading the city
-COUNTRY_NAMES = {"pakistan", "united arab emirates", "uae"}
+COUNTRY_NAMES = {"united arab emirates", "uae"}
 
 
 def address_parts(address: str) -> list[str]:
-    """Google separates address parts with commas in Pakistan and with " - "
-    in the UAE ("Al Wasl Rd - Umm Suqeim 2 - Dubai - United Arab Emirates")."""
+    """Google separates address parts with " - " in the UAE ("Al Wasl Rd -
+    Umm Suqeim 2 - Dubai - United Arab Emirates"), sometimes with commas."""
     return [p.strip() for p in re.split(r",| - ", address) if p.strip()]
 
 
 def address_city(address: str) -> str:
-    """City from a Google address: '..., F-7/4, Islamabad, 44000, Pakistan' -> 'Islamabad',
-    'Al Barsha 1 - Dubai - United Arab Emirates' -> 'Dubai'."""
+    """City from a Google address: 'Al Barsha 1 - Dubai - United Arab Emirates' -> 'Dubai'."""
     parts = address_parts(address)
     while parts and (parts[-1].lower() in COUNTRY_NAMES or re.fullmatch(r"\d{4,6}", parts[-1])):
         parts.pop()
     if not parts:
         return ""
-    # "Islamabad 44000" or "Islamabad Capital Territory"
-    return re.sub(r"\s*\d{4,6}$", "", parts[-1]).removesuffix(" Capital Territory").strip()
+    # "Dubai 12345": drop a postcode
+    return re.sub(r"\s*\d{4,6}$", "", parts[-1]).strip()
 
 
 def location_problem(address: str, city: str, lat: float = 0, lng: float = 0,
@@ -385,10 +385,9 @@ def location_problem(address: str, city: str, lat: float = 0, lng: float = 0,
         if address_city(address).lower() == city.lower():
             return ""
         return f"outside {city} ({address_city(address) or 'unknown city'})"
-    # Pakistan style: the city must end one of the comma-separated parts
-    # ("G-13/2 Islamabad", "Islamabad 44000"), so that a road like
-    # "Islamabad Highway, Rawalpindi" doesn't count
-    city_part = re.compile(rf"(?:^|\s){re.escape(city)}(?:\s+Capital Territory)?(?:\s+\d{{4,6}})?$", re.I)
+    # Comma style: the city must end one of the parts ("Al Barsha, Dubai"),
+    # so that a road like "Dubai Al Ain Road, Al Ain" doesn't count
+    city_part = re.compile(rf"(?:^|\s){re.escape(city)}(?:\s+\d{{4,6}})?$", re.I)
     if any(city_part.search(part.strip()) for part in address.split(",")):
         return ""
     return f"outside {city} ({address_city(address) or 'unknown city'})"

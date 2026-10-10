@@ -9,7 +9,6 @@ importer from each queries file's `[country]` section with the defaults in
 | `SITE` | Site | Status |
 |--------|------|--------|
 | `gcc`  | GulfNurseries: nurseries in the GCC, starting with the UAE (`uae` still accepted) | In progress |
-| `pk`   | DaycaresPK: daycares and preschools in Islamabad, its own database and domain | Parked 2026-10-05 (git tag `pakistan-parked`) |
 
 `SITE` in `.env` picks the site's name, wording and time zone
 (`config/sites.py`; `SITE_NAME` overrides the brand name). Templates in
@@ -18,7 +17,7 @@ importer from each queries file's `[country]` section with the defaults in
 ## Tech stack
 
 - **Backend** — Django 5, PostgreSQL
-- **Frontend** — Django templates, one hand-written stylesheet (`static/css/site.css`, from the Claude Design mockup in `design/`) and a small `static/js/site.js`; no build step. Maps: Leaflet + OpenStreetMap on neighbourhood pages, Google Maps embed on nursery pages
+- **Frontend** — Django templates, one hand-written stylesheet (`static/css/site.css`, from the Claude Design mockup) and a small `static/js/site.js`; no build step. Maps: Leaflet + OpenStreetMap on neighbourhood pages, Google Maps embed on nursery pages
 - **Scraper** — Playwright + BeautifulSoup4
 - **Server** — Gunicorn + Nginx, DigitalOcean $6/mo droplet
 - **CDN** — Cloudflare (free tier)
@@ -67,8 +66,6 @@ python -m unittest discover -s . -p "test_*.py"  # offline tests
 # Import into Django (preview first, then for real); reads scraper/dubai_listings.json
 python manage.py import_listings --city Dubai --dry-run
 python manage.py import_listings --city Dubai
-# The parked Islamabad scrape kept its old file name:
-python manage.py import_listings --city Islamabad --file scraper/daycare_listings.json
 
 # Merge listings that point at the same Google place (adds 301s for removed URLs)
 python manage.py dedupe_listings            # preview
@@ -79,8 +76,6 @@ Areas come only from the city's queries file: the importer places each
 listing by an area name or spelling from `[aliases]` in its address, then its
 listing name, then the nearest area position within `[area_match] max_km`
 (`<city>_area_centres.csv`, generate with `python scraper/area_centres.py queries/<city>.txt`).
-Islamabad's file also sets `sectors = cda`, which reads CDA sectors first
-(F-7/4 → F-7, sub-sector kept for the listing page).
 Listings that can't be placed show on the city page only; the import report
 lists them so you can add a spelling or an area.
 

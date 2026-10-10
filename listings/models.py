@@ -246,7 +246,7 @@ class DaycareListing(models.Model):
     )
     sub_area = models.CharField(
         max_length=50, blank=True,
-        help_text='Sub-sector within the area, e.g. "F-7/4". Shown on the listing only.',
+        help_text='Part of the area, e.g. "Al Barsha 1". Shown on the listing only.',
     )
     address = models.TextField(blank=True)
     phone = models.CharField(max_length=50, blank=True)
@@ -472,8 +472,8 @@ class DaycareListing(models.Model):
 
     @property
     def short_address(self):
-        """First part of the address. Google separates parts with commas in
-        Pakistan and with " - " in the UAE ("Al Wasl Rd - Umm Suqeim 2 - Dubai")."""
+        """First part of the address. Google separates parts with " - " in the
+        UAE ("Al Wasl Rd - Umm Suqeim 2 - Dubai"), sometimes with commas."""
         return re.split(r",| - ", self.address)[0].strip() if self.address else ""
 
     def __str__(self):

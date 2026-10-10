@@ -29,9 +29,6 @@ COUNTRY_DEFAULTS = {
            "slug": "bahrain", "currency": "BHD", "phone_code": "973", "time_zone": "Asia/Bahrain"},
     "OM": {"name": "Oman", "short_name": "Oman", "in_name": "Oman",
            "slug": "oman", "currency": "OMR", "phone_code": "968", "time_zone": "Asia/Muscat"},
-    # Parked 2026-10-05 (git tag pakistan-parked); runs as its own site (SITE=pk)
-    "PK": {"name": "Pakistan", "short_name": "Pakistan", "in_name": "Pakistan",
-           "slug": "pakistan", "currency": "PKR", "phone_code": "92", "time_zone": "Asia/Karachi"},
 }
 
 # First digits of a mobile number after the country code (or the leading 0):
@@ -43,5 +40,4 @@ MOBILE_PREFIXES = {
     "KW": ("5", "6", "9"),
     "BH": ("3", "66"),
     "OM": ("7", "9"),
-    "PK": ("3",),
 }

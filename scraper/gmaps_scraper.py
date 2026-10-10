@@ -152,8 +152,8 @@ def default_output(queries_file: Path) -> Path:
 
 
 def find_phone(text: str, phone_code: str = "") -> str:
-    """A phone number in page text: international (+971 4 123 4567, +92 300 ...)
-    or local (04 123 4567, 050 123 4567, 051 2345678)."""
+    """A phone number in page text: international (+971 4 123 4567, +966 5 ...)
+    or local (04 123 4567, 050 123 4567)."""
     intl = rf"\+{phone_code}" if phone_code else r"\+\d{1,3}"
     m = re.search(rf"({intl}[\s\-]?\d[\d\s\-]{{7,}}\d|\b0\d{{1,3}}[\s\-]?\d{{3}}[\s\-]?\d{{3,5}}\b)", text)
     return m.group(1).strip() if m else ""
@@ -971,83 +971,6 @@ def save_results(results: list[DaycareCenter], output: Path):
             writer.writeheader()
             writer.writerows(flat)
         os.replace(tmp, csv_file)
-
-
-# ─── Django Import Utility ────────────────────────────────────────────────────
-
-def import_to_django(json_path: str = "daycare_listings.json"):
-    """
-    Run this AFTER setting up Django models.
-    Call from: python manage.py shell < import_daycares.py
-    Or import this function in a management command.
-
-    Example Django model (models.py):
-    ─────────────────────────────────
-    from django.db import models
-    from django.contrib.gis.db import models as gis_models  # if using GeoDjango
-
-    class DaycareListing(models.Model):
-        name         = models.CharField(max_length=255)
-        address      = models.TextField(blank=True)
-        city         = models.CharField(max_length=100, default="Islamabad")
-        area         = models.CharField(max_length=100, blank=True)
-        phone        = models.CharField(max_length=50, blank=True)
-        website      = models.URLField(blank=True)
-        rating       = models.FloatField(default=0)
-        review_count = models.IntegerField(default=0)
-        latitude     = models.FloatField(default=0)
-        longitude    = models.FloatField(default=0)
-        place_id     = models.CharField(max_length=200, unique=True, blank=True)
-        categories   = models.JSONField(default=list)
-        hours        = models.JSONField(default=dict)
-        description  = models.TextField(blank=True)
-        maps_url     = models.URLField(blank=True)
-        is_verified  = models.BooleanField(default=False)
-        is_featured  = models.BooleanField(default=False)
-        created_at   = models.DateTimeField(auto_now_add=True)
-
-        class Meta:
-            ordering = ["-rating", "-review_count"]
-
-        def __str__(self):
-            return f"{self.name} ({self.area or self.city})"
-    """
-    import django, os, json
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-    django.setup()
-
-    from listings.models import DaycareListing  # adjust to your app name
-
-    data = json.loads(Path(json_path).read_text(encoding="utf-8"))
-    created = 0
-    updated = 0
-
-    for item in data:
-        obj, is_new = DaycareListing.objects.update_or_create(
-            place_id=item.get("place_id") or item["name"],
-            defaults={
-                "name":         item.get("name", ""),
-                "address":      item.get("address", ""),
-                "city":         item.get("city", "Islamabad"),
-                "area":         item.get("area", ""),
-                "phone":        item.get("phone", ""),
-                "website":      item.get("website", ""),
-                "rating":       item.get("rating", 0),
-                "review_count": item.get("review_count", 0),
-                "latitude":     item.get("latitude", 0),
-                "longitude":    item.get("longitude", 0),
-                "categories":   item.get("categories", []),
-                "hours":        item.get("hours", {}),
-                "description":  item.get("description", ""),
-                "maps_url":     item.get("google_maps_url", ""),
-            }
-        )
-        if is_new:
-            created += 1
-        else:
-            updated += 1
-
-    print(f"Import complete: {created} created, {updated} updated.")
 
 
 # ─── Fill-Missing Mode ───────────────────────────────────────────────────────

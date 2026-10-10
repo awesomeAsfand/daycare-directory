@@ -26,7 +26,7 @@ from django.db import transaction
 
 from listings.models import ACTIVITIES, FACILITIES, DaycareListing
 
-from .apply_details import parse_curriculum
+from listings.details import parse_curriculum
 
 FEES_NOTE = "approximate"
 

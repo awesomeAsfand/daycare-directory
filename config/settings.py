@@ -5,7 +5,7 @@ from config.sites import SITE_ALIASES, SITES
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Which directory this deployment runs: "gcc" or "pk" (see config/sites.py)
+# Which directory this deployment runs (see config/sites.py)
 SITE = config("SITE", default="gcc")
 SITE = SITE_ALIASES.get(SITE, SITE)
 if SITE not in SITES:
@@ -123,10 +123,8 @@ CSRF_TRUSTED_ORIGINS = config(
     default="http://localhost:8000,http://127.0.0.1:8000",
 ).split(",")
 
-# Redis / Celery
+# Redis: the page cache in production
 REDIS_URL = config("REDIS_URL", default="redis://localhost:6379/0")
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = REDIS_URL
 
 # In development nothing is cached, so pages show imports and template
 # changes straight away (the home page is otherwise cached for 30 minutes)

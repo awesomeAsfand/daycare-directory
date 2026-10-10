@@ -3,7 +3,7 @@ Look up a map position for every area in a queries file, using OpenStreetMap's
 Nominatim, and write them to <queries>_area_centres.csv for review.
 
     python scraper/area_centres.py queries/dubai.txt
-    python scraper/area_centres.py queries/islamabad.txt
+    python scraper/area_centres.py queries/sharjah.txt
 
 import_listings uses the positions to place a listing whose address names no
 area: it goes to the nearest area within [area_match] max_km. Results outside

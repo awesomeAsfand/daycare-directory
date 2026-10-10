@@ -1,7 +1,7 @@
 """
 python manage.py import_listings --city Dubai              # scraper/dubai_listings.json
 python manage.py import_listings --city Dubai --dry-run    # report what would change, write nothing
-python manage.py import_listings --city Islamabad --file scraper/daycare_listings.json
+python manage.py import_listings --city Dubai --file scraper/la_marelle_listings.json   # one place
 
 Each scraped place is matched to an existing listing by, in order:
   1. Google place ID (0x...:0x...), also found inside older rows' maps_url
@@ -100,7 +100,6 @@ class Command(BaseCommand):
         self.rule_skips = []
         self.area_counts = Counter()
         self.no_area = []
-        self.unlisted_sectors = Counter()
 
         raw = json.loads(path.read_text(encoding="utf-8"))
         self.stdout.write(f"Loaded {len(raw)} records from {path}")
@@ -225,9 +224,7 @@ class Command(BaseCommand):
             self.stats[f"area from {place.method}"] += 1
         else:
             self.stats["no area"] += 1
-            self.no_area.append((name, item.get("address", ""), place.unlisted_sector))
-            if place.unlisted_sector:
-                self.unlisted_sectors[place.unlisted_sector] += 1
+            self.no_area.append((name, item.get("address", "")))
 
     def area_report(self):
         out = self.stdout.write
@@ -237,14 +234,10 @@ class Command(BaseCommand):
         empty = [a for a, n in listed if not n]
         if empty:
             out(f"  Areas with no listings ({len(empty)}): " + ", ".join(empty))
-        if self.unlisted_sectors:
-            out("  Sectors in addresses that aren't in the areas file (add them to place these): "
-                + ", ".join(f"{s} {n}" for s, n in self.unlisted_sectors.most_common()))
         if self.no_area:
             out(f"\nNo area ({len(self.no_area)}) — shown on the city page only:")
-            for name, address, sector in self.no_area:
-                note = f"  [{sector} not in areas file]" if sector else ""
-                out(f"  - {name[:45]:45} | {address[:70]}{note}")
+            for name, address in self.no_area:
+                out(f"  - {name[:45]:45} | {address[:70]}")
 
     def resolve_area(self, city, area_name):
         if not area_name:

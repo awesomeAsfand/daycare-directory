@@ -27,7 +27,7 @@ from django.utils.text import slugify
 
 from listings.models import REGULATOR_CHOICES, DaycareListing
 
-from .apply_details import parse_age, parse_curriculum
+from listings.details import parse_age, parse_curriculum
 
 
 def read_rows(path):

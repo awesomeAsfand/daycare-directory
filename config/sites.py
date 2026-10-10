@@ -36,17 +36,6 @@ SITES = {
         "type_labels": {"preschool": "Nursery", "daycare": "Daycare"},
         "time_zone": "Asia/Dubai",
     },
-    # Parked 2026-10-05 (git tag pakistan-parked)
-    "pk": {
-        "name": "DaycaresPK",
-        "in_region": "Pakistan",
-        "noun": "daycare",
-        "nouns": "daycares",
-        "title_nouns": "Daycare Centers",
-        "area_kinds": "sector, DHA phase or town",
-        "type_labels": {"preschool": "Preschool / Montessori", "daycare": "Daycare"},
-        "time_zone": "Asia/Karachi",
-    },
 }
 
 # Earlier names still accepted in .env

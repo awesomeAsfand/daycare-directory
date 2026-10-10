@@ -5,7 +5,7 @@ python manage.py collect_details --city Dubai --limit 10    # try a few sites fi
 
 Visit each active listing's website (once per website: chains share one)
 and save the passages about ages, curriculum, licensing and fees, for review
-before anything goes into the database (see apply_details).
+before anything goes into the database (the city review CSV, see apply_review).
 
 For each website the home page is read, then up to MAX_EXTRA_PAGES pages on
 the same site whose link looks like fees, admissions, curriculum or about.
