@@ -1,10 +1,14 @@
 import re
 
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.urls import reverse
+
+from . import hours as opening_hours, phones
 
 # Fields that import_listings fills from scraped data. Any of these listed in
 # DaycareListing.locked_fields are left alone by the importer.
@@ -29,6 +33,55 @@ CURRICULA = {
     "waldorf": "Waldorf / Steiner",
     "forest": "Forest school",
     "arabic": "Arabic / English bilingual",
+    "scandinavian": "Scandinavian / Nordic",
+    "australian": "Australian (EYLF)",
+}
+
+# What a nursery has (DaycareListing.facilities); the facility filter uses the keys
+FACILITIES = {
+    "outdoor_play": "Outdoor play area",
+    "shaded_outdoor": "Shaded outdoor area",
+    "indoor_play": "Indoor play area",
+    "indoor_gym": "Indoor gym / soft play",
+    "sand_water": "Sand & water play",
+    "swimming_pool": "Swimming pool",
+    "garden": "Garden & nature area",
+    "bike_track": "Bike track",
+    "library": "Library / reading corner",
+    "art_room": "Art room",
+    "music_room": "Music & dance room",
+    "sensory_room": "Sensory room",
+    "stem_room": "STEM / ICT room",
+    "role_play": "Role-play area",
+    "cooking": "Children's kitchen",
+    "hall": "Hall / theatre",
+    "sleep_room": "Baby sleep room",
+    "clinic": "Nurse / clinic",
+    "cctv": "CCTV",
+}
+
+# Extra-curricular activities (DaycareListing.activities)
+ACTIVITIES = {
+    "ballet_dance": "Ballet & dance",
+    "gymnastics": "Gymnastics",
+    "football": "Football",
+    "martial_arts": "Martial arts",
+    "sports": "Sports & tennis",
+    "yoga": "Yoga",
+    "swimming": "Swimming lessons",
+    "music": "Music lessons",
+    "arabic": "Arabic classes",
+    "french": "French classes",
+    "other_languages": "Other languages",
+    "islamic": "Islamic studies & Quran",
+    "art": "Art & craft",
+    "drama": "Drama",
+    "cooking": "Cooking",
+    "stem": "STEM & robotics",
+    "horse_riding": "Horse riding",
+    "nature": "Nature & gardening",
+    "holiday_camps": "Holiday camps",
+    "after_school": "After-school club",
 }
 
 REGULATOR_CHOICES = [
@@ -51,7 +104,60 @@ def months_label(months) -> str:
     return f"{years:g} year{'' if years == 1 else 's'}"
 
 
+class CountryQuerySet(models.QuerySet):
+    def live(self):
+        """Countries with at least one active listing: the only ones shown on
+        the site, so there are no empty country pages."""
+        return self.filter(cities__listings__is_active=True).distinct()
+
+
+class Country(models.Model):
+    name = models.CharField(max_length=100, help_text="Full name, e.g. United Arab Emirates")
+    short_name = models.CharField(max_length=50, help_text='In headings and menus, e.g. "UAE"')
+    in_name = models.CharField(max_length=60, help_text='As written after "in", e.g. "the UAE"')
+    slug = models.SlugField(unique=True, help_text="First part of the URL: /uae/dubai/")
+    code = models.CharField(max_length=2, unique=True, help_text="ISO 3166 code, e.g. AE")
+    currency = models.CharField(max_length=3, blank=True, help_text="ISO 4217 code, e.g. AED")
+    phone_code = models.CharField(max_length=4, blank=True, help_text="Without +, e.g. 971")
+    time_zone = models.CharField(max_length=50, blank=True, help_text="e.g. Asia/Dubai")
+    city_label = models.CharField(
+        max_length=30, default="city", help_text='What its cities are called: "emirate or city" in the UAE',
+    )
+    meta_description = models.TextField(blank=True)
+
+    objects = CountryQuerySet.as_manager()
+
+    class Meta:
+        verbose_name_plural = "countries"
+        ordering = ["name"]
+
+    @classmethod
+    def for_code(cls, code, name=""):
+        """The country with this ISO code, created from COUNTRY_DEFAULTS
+        (listings/countries.py) the first time it is needed."""
+        from .countries import COUNTRY_DEFAULTS
+        code = code.upper()
+        defaults = COUNTRY_DEFAULTS.get(code) or {
+            "name": name, "short_name": name, "in_name": name, "slug": slugify(name),
+        }
+        return cls.objects.get_or_create(code=code, defaults=defaults)[0]
+
+    def get_absolute_url(self):
+        return reverse("listings:country", kwargs={"country_slug": self.slug})
+
+    def __str__(self):
+        return self.name
+
+
+def coverage(site):
+    """What the site covers, as written after "in": the country while only
+    one has listings ("the UAE"), then the site's region ("the Gulf")."""
+    countries = list(Country.objects.live()[:2])
+    return countries[0].in_name if len(countries) == 1 else site["in_region"]
+
+
 class City(models.Model):
+    country =models.ForeignKey(Country, on_delete=models.PROTECT, related_name="cities")
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
     meta_description = models.TextField(blank=True)
@@ -66,7 +172,10 @@ class City(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("listings:city", kwargs={"city_slug": self.slug})
+        return reverse(
+            "listings:city",
+            kwargs={"country_slug": self.country.slug, "city_slug": self.slug},
+        )
 
     def __str__(self):
         return self.name
@@ -76,21 +185,39 @@ class Area(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE, related_name="areas")
     name = models.CharField(max_length=100)
     slug = models.SlugField()
+    region = models.CharField(
+        max_length=60, blank=True,
+        help_text='Group on the city page, e.g. "Jumeirah & Al Barsha". Leave all of a '
+                  "city's areas blank for a plain A–Z list (load with apply_regions).",
+    )
     meta_description = models.TextField(blank=True)
 
     class Meta:
         unique_together = [("city", "slug")]
         ordering = ["name"]
 
+    def clean(self):
+        if self.city_id and DaycareListing.objects.filter(city_id=self.city_id, slug=self.slug).exists():
+            raise ValidationError({"slug": "A listing in this city already uses this slug, "
+                                           "and areas and listings share one URL pattern."})
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        # Areas and listings share /<country>/<city>/<slug>/ and the area wins,
+        # so a listing with this slug would become unreachable: move it.
+        # (The importer creates areas, so this can't stop with an error.)
+        for listing in DaycareListing.objects.filter(city_id=self.city_id, slug=self.slug):
+            listing.slug = DaycareListing.unique_slug(self.city, self.slug, exclude=listing.pk,
+                                                      area_slugs={self.slug})
+            listing.save(update_fields=["slug"])
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse(
             "listings:area",
-            kwargs={"city_slug": self.city.slug, "area_slug": self.slug},
+            kwargs={"country_slug": self.city.country.slug, "city_slug": self.city.slug,
+                    "slug": self.slug},
         )
 
     def __str__(self):
@@ -175,6 +302,16 @@ class DaycareListing(models.Model):
     details_confirmed = models.BooleanField(
         default=False, help_text="Show the details on the site. Leave unticked until checked.",
     )
+    # Services and facilities, shown whenever set. Empty = unknown, so a
+    # nursery is never shown as "no transport" by mistake.
+    transport = models.BooleanField(null=True, blank=True, help_text="Offers transport (school bus)")
+    meals = models.BooleanField("meals included", null=True, blank=True)
+    facilities = models.JSONField(
+        default=list, blank=True, help_text="Keys from FACILITIES, e.g. [\"outdoor_play\", \"library\"]",
+    )
+    activities = models.JSONField(
+        default=list, blank=True, help_text="Keys from ACTIVITIES, e.g. [\"ballet_dance\", \"football\"]",
+    )
 
     # Import protection
     locked_fields = models.JSONField(
@@ -195,16 +332,86 @@ class DaycareListing(models.Model):
         ordering = ["-is_featured", "-rating", "-review_count"]
         unique_together = [("slug", "city")]
 
+    @classmethod
+    def unique_slug(cls, city, base, exclude=None, area_slugs=None):
+        """base, or base-1, base-2 ... : not used by another listing in the city
+        or by one of its areas (both live at /<country>/<city>/<slug>/)."""
+        if city is None or city.pk is None:
+            return base
+        taken = set(cls.objects.filter(city=city, slug__startswith=base)
+                    .exclude(pk=exclude).values_list("slug", flat=True))
+        taken |= set(Area.objects.filter(city=city, slug__startswith=base).values_list("slug", flat=True))
+        taken |= area_slugs or set()
+        slug, n = base, 1
+        while slug in taken:
+            slug = f"{base}-{n}"
+            n += 1
+        return slug
+
+    def clean(self):
+        if self.city_id and Area.objects.filter(city_id=self.city_id, slug=self.slug).exists():
+            raise ValidationError({"slug": "An area in this city already uses this slug, "
+                                           "and areas and listings share one URL pattern."})
+
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = self.unique_slug(self.city, slugify(self.name), exclude=self.pk)
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse(
             "listings:detail",
-            kwargs={"city_slug": self.city.slug, "slug": self.slug},
+            kwargs={"country_slug": self.city.country.slug, "city_slug": self.city.slug,
+                    "slug": self.slug},
         )
+
+    @property
+    def type_label(self):
+        """"Nursery" / "Daycare" on the GulfNurseries site (config/sites.py type_labels)."""
+        from django.conf import settings
+        return settings.SITE_CONFIG.get("type_labels", {}).get(self.listing_type) \
+            or self.get_listing_type_display()
+
+    @property
+    def country(self):
+        return self.city.country if self.city else None
+
+    @cached_property
+    def local_now(self):
+        return opening_hours.now_in(self.country.time_zone if self.country else "")
+
+    @property
+    def hours_week(self):
+        return opening_hours.week(self.hours, self.local_now)
+
+    @property
+    def hours_summary(self):
+        return opening_hours.summary(self.hours)
+
+    @cached_property
+    def open_status(self):
+        return opening_hours.status(self.hours, self.local_now)
+
+    @property
+    def phone_local(self):
+        return phones.local(self.phone, self.country) if self.country else self.phone
+
+    @property
+    def tel_url(self):
+        return phones.tel_url(self.phone, self.country) if self.phone and self.country else ""
+
+    @property
+    def whatsapp_url(self):
+        return phones.whatsapp_url(self.phone, self.country) if self.phone and self.country else ""
+
+    @cached_property
+    def photos(self):
+        """Images with a file, in order (uses prefetch_related("images"))."""
+        return [img for img in self.images.all() if img.image]
+
+    @property
+    def cover(self):
+        return self.photos[0] if self.photos else None
 
     @property
     def rating_stars(self):
@@ -233,6 +440,19 @@ class DaycareListing(models.Model):
     @property
     def curriculum_labels(self):
         return [CURRICULA[key] for key in self.curriculum or [] if key in CURRICULA]
+
+    @property
+    def facility_labels(self):
+        return [FACILITIES[key] for key in self.facilities or [] if key in FACILITIES]
+
+    @property
+    def activity_labels(self):
+        return [ACTIVITIES[key] for key in self.activities or [] if key in ACTIVITIES]
+
+    @property
+    def fees_approximate(self):
+        """Fee ranges from a directory, not the nursery's own fee list."""
+        return self.fees_note.lower().startswith("approximate")
 
     @property
     def fees_label(self):

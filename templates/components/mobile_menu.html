@@ -1,0 +1,7 @@
+<nav id="mobile-menu" class="mobile-menu hide-desktop" hidden>
+  <a href="{% url 'listings:index' %}">Home</a>
+  <a href="{% url 'about' %}">About</a>
+  <a href="{% url 'contact' %}">Contact</a>
+  <span class="mobile-menu__label">Countries</span>
+  {% for country in countries %}<a href="{{ country.get_absolute_url }}">{{ country.short_name }}</a>{% endfor %}
+</nav>

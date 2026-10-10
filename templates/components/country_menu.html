@@ -1,0 +1,9 @@
+{# "UAE ▾" in the header: the countries with listings #}
+<details class="chip-select">
+  <summary>{% if nav_country %}{{ nav_country.short_name }}{% else %}Countries{% endif %} ▾</summary>
+  <nav class="menu">
+    {% for country in countries %}
+    <a href="{{ country.get_absolute_url }}"{% if country.pk == nav_country.pk %} aria-current="true"{% endif %}>{{ country.short_name }}</a>
+    {% endfor %}
+  </nav>
+</details>

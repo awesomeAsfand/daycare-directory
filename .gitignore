@@ -70,3 +70,7 @@ scraper/*.csv
 # Nursery website passages collected by collect_details (reviewed values are kept)
 scraper/details/*_raw.json
 scraper/details/*.log
+
+# Competitor's spreadsheet and the review sheet built from it (their IDs and wording): local only
+competitor data/
+scraper/details/competitor_review.csv

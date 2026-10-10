@@ -1,12 +1,15 @@
+{% comment %}
+An ad: kind = "banner" (728×90 desktop), "box" (300×250) or "infeed". Grey
+placeholders in development (SHOW_AD_PLACEHOLDERS) until AdSense is set up.
+{% endcomment %}
 {% if ADSENSE_PUBLISHER_ID %}
-<div class="my-6 text-center">
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="{{ ADSENSE_PUBLISHER_ID }}"
-       data-ad-slot="{{ slot_id|default:'0000000000' }}"
-       data-ad-format="auto"
-       data-full-width-responsive="true">
-  </ins>
+<div class="ad ad--{{ kind|default:'banner' }}">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="{{ ADSENSE_PUBLISHER_ID }}"
+       data-ad-slot="{{ slot_id|default:'0000000000' }}" data-ad-format="auto" data-full-width-responsive="true"></ins>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+{% elif SHOW_AD_PLACEHOLDERS %}
+<div class="ad ad--{{ kind|default:'banner' }} ad--placeholder" aria-hidden="true">
+  {% if kind == "box" %}Ad · 300 × 250{% elif kind == "infeed" %}In-feed ad{% else %}Advertisement · 728 × 90{% endif %}
 </div>
 {% endif %}

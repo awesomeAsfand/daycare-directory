@@ -34,7 +34,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.text import slugify
 
-from listings.models import Area, City, DaycareListing, ListingImage, Review
+from listings.models import Area, City, Country, DaycareListing, ListingImage, Review
 
 # The area rules live with the scraper's queries files
 sys.path.insert(0, str(Path(settings.BASE_DIR) / "scraper"))
@@ -107,13 +107,20 @@ class Command(BaseCommand):
         if self.dry_run:
             self.stdout.write(self.style.WARNING("DRY RUN — no DB writes."))
 
-        city = City.objects.filter(slug=slugify(options["city"])).first()
+        # The country comes from the queries file's [country] section (code = ae)
+        code = plan.country.get("code", "").upper()
+        if not code:
+            raise CommandError(f"{areas_file} has no [country] code (e.g. code = ae)")
+        city = City.objects.filter(slug=slugify(options["city"])).select_related("country").first()
+        if city and city.country.code != code:
+            raise CommandError(f"{city.name} is in {city.country.name}, but {areas_file.name} says country {code}")
         if not city:
             if self.dry_run:
                 self.stdout.write(f"City {options['city']!r} would be created.")
                 city = City(name=options["city"], slug=slugify(options["city"]))
             else:
-                city = City.objects.create(name=options["city"], slug=slugify(options["city"]))
+                country = Country.for_code(code, plan.country.get("name", ""))
+                city = City.objects.create(name=options["city"], slug=slugify(options["city"]), country=country)
 
         self.stats = Counter()
         self.now = timezone.now()
@@ -310,11 +317,7 @@ class Command(BaseCommand):
         # A name in Arabic script slugifies to nothing: fall back to
         # "nursery-al-barsha" (the site's noun and the area or city)
         base = slugify(name)[:290] or slugify(f"{settings.SITE_CONFIG['noun']} {area or city.name}")
-        slug, n = base, 1
-        while DaycareListing.objects.filter(city=city, slug=slug).exists():
-            slug = f"{base}-{n}"
-            n += 1
-        return slug
+        return DaycareListing.unique_slug(city, base)
 
     def import_reviews(self, obj, item):
         reviews = [r for r in item.get("reviews") or [] if r.get("author") or r.get("text")]

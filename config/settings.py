@@ -1,12 +1,13 @@
 from pathlib import Path
 from decouple import config
 
-from config.sites import SITES
+from config.sites import SITE_ALIASES, SITES
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Which directory this deployment runs: "uae" or "pk" (see config/sites.py)
-SITE = config("SITE", default="uae")
+# Which directory this deployment runs: "gcc" or "pk" (see config/sites.py)
+SITE = config("SITE", default="gcc")
+SITE = SITE_ALIASES.get(SITE, SITE)
 if SITE not in SITES:
     from django.core.exceptions import ImproperlyConfigured
     raise ImproperlyConfigured(f"SITE must be one of {', '.join(SITES)}, not {SITE!r}")
@@ -143,6 +144,13 @@ ADSENSE_PUBLISHER_ID = config("ADSENSE_PUBLISHER_ID", default="")
 
 # Shown on the Contact and Privacy pages
 CONTACT_EMAIL = config("CONTACT_EMAIL", default="")
+
+# Google Maps Embed API key for the map on nursery pages (free; restrict it to
+# the site's domain). Without one, a keyless embed of the position is used.
+GOOGLE_MAPS_EMBED_KEY = config("GOOGLE_MAPS_EMBED_KEY", default="")
+
+# Grey boxes where ads will go, while AdSense isn't set up (on by default in development)
+SHOW_AD_PLACEHOLDERS = config("SHOW_AD_PLACEHOLDERS", default=DEBUG, cast=bool)
 
 # ── Production hardening (DEBUG=False) ───────────────────────────────────────
 if not DEBUG:

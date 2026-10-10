@@ -1,0 +1,53 @@
+{# The list and map shared by area and search pages #}
+<div class="area-layout">
+  <div class="area-layout__list">
+    <div class="area-head">
+      {% if breadcrumbs %}{% include "components/breadcrumbs.html" %}{% endif %}
+      <h1>{{ heading }}</h1>
+      {% if facility_note %}<p class="address">Only {{ site.nouns }} whose facilities we've listed are shown.</p>{% endif %}
+      <div class="filters hide-mobile">
+        {% for f in filters %}<a href="{{ f.url }}" class="chip{% if f.on %} chip--on{% endif %}" rel="nofollow">{{ f.label }}</a>{% endfor %}
+      </div>
+      <div class="sorts hide-mobile">
+        {% for s in sorts %}<a href="{{ s.url }}" rel="nofollow"{% if s.on %} aria-current="true"{% endif %}>{{ s.label }}</a>{% endfor %}
+      </div>
+    </div>
+    <div class="filters hide-desktop">
+      {% for f in filters %}<a href="{{ f.url }}" class="chip{% if f.on %} chip--on{% endif %}" rel="nofollow">{{ f.label }}</a>{% endfor %}
+    </div>
+    <div class="sorts hide-desktop">
+      {% for s in sorts %}<a href="{{ s.url }}" rel="nofollow"{% if s.on %} aria-current="true"{% endif %}>{{ s.label }}</a>{% endfor %}
+    </div>
+    <div class="results">
+      {% for listing in results %}
+        {% include "components/listing_card.html" %}
+        {% if forloop.counter == 3 %}{% include "components/adsense_slot.html" with kind="infeed" slot_id="3333333333" %}{% endif %}
+      {% empty %}
+        <div class="empty">
+          <p>No {{ site.nouns }} match{% if filtered %} these filters{% endif %}.</p>
+          {% if filtered %}<a href="{{ request.path }}{% if q or where %}?{% if q %}q={{ q|urlencode }}{% endif %}{% if q and where %}&amp;{% endif %}{% if where %}where={{ where|urlencode }}{% endif %}{% endif %}" class="btn">Clear filters</a>{% endif %}
+        </div>
+      {% endfor %}
+      {% if nearby %}
+      <div class="nearby">
+        <span class="eyebrow">Nearby neighbourhoods</span>
+        <div class="chips-wrap">
+          {% for a in nearby %}<a href="{{ a.get_absolute_url }}">{{ a.name }} <span>{{ a.n }}</span></a>{% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% if pins %}
+  <div class="area-layout__map"><div id="map" class="map" role="region" aria-label="Map"></div></div>
+  {% endif %}
+</div>
+
+{% if pins %}
+<button type="button" class="map-toggle hide-desktop" data-map-open><span>◎</span>Show map</button>
+<div id="map-sheet" class="map-sheet" hidden>
+  <div class="map-sheet__bar">{{ heading }}<button type="button" class="icon-btn" data-map-close aria-label="Close map">✕</button></div>
+  <div id="map-mobile" class="map"></div>
+</div>
+{{ pins|json_script:"map-data" }}
+{% endif %}

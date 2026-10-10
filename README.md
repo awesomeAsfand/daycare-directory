@@ -1,21 +1,24 @@
-# Childcare Directory (UAE / Pakistan)
+# GulfNurseries (gulfnurseries.com)
 
 A Django-powered directory of nurseries and daycare centres, monetised with Google AdSense.
-One codebase runs a separate site per country, each with its own database, domain and `.env`:
+One site covers every GCC country that has listings, at `/<country>/<city>/`; the UAE
+(all seven emirates) comes first. Countries are data (`listings.Country`, created by the
+importer from each queries file's `[country]` section with the defaults in
+`listings/countries.py`), and a country only appears on the site once it has listings.
 
 | `SITE` | Site | Status |
 |--------|------|--------|
-| `uae`  | Nurseries in the UAE, starting with Dubai (brand name is a placeholder) | In progress |
-| `pk`   | DaycaresPK: daycares and preschools in Islamabad | Parked 2026-10-05 (git tag `pakistan-parked`) |
+| `gcc`  | GulfNurseries: nurseries in the GCC, starting with the UAE (`uae` still accepted) | In progress |
+| `pk`   | DaycaresPK: daycares and preschools in Islamabad, its own database and domain | Parked 2026-10-05 (git tag `pakistan-parked`) |
 
-`SITE` in `.env` picks the site's name, wording, time zone and country
+`SITE` in `.env` picks the site's name, wording and time zone
 (`config/sites.py`; `SITE_NAME` overrides the brand name). Templates in
 `templates/sites/<site>/` replace the shared ones for that site (e.g. the About page).
 
 ## Tech stack
 
 - **Backend** — Django 5, PostgreSQL
-- **Frontend** — Django templates, Tailwind CSS (CDN), HTMX (live search)
+- **Frontend** — Django templates, one hand-written stylesheet (`static/css/site.css`, from the Claude Design mockup in `design/`) and a small `static/js/site.js`; no build step. Maps: Leaflet + OpenStreetMap on neighbourhood pages, Google Maps embed on nursery pages
 - **Scraper** — Playwright + BeautifulSoup4
 - **Server** — Gunicorn + Nginx, DigitalOcean $6/mo droplet
 - **CDN** — Cloudflare (free tier)
@@ -91,11 +94,27 @@ hotlinked.
 
 | URL | Target keyword |
 |-----|---------------|
-| `/` | Nurseries in the UAE |
-| `/dubai/` | Nurseries in Dubai |
-| `/dubai/al-barsha/` | Nursery in Al Barsha, Dubai |
-| `/dubai/tiny-tots-nursery/detail/` | Individual listing |
+| `/` | Nurseries in the UAE (in the Gulf once a second country has listings) |
+| `/uae/` | Nurseries in the UAE |
+| `/uae/dubai/` | Nurseries in Dubai |
+| `/uae/dubai/al-barsha/` | Nursery in Al Barsha, Dubai |
+| `/uae/dubai/tiny-tots-nursery/` | Individual listing |
 | `/sitemap.xml` | Auto-generated sitemap |
+
+Areas and listings share `/<country>/<city>/<slug>/`; the area wins, so their slugs
+must differ within a city. New listing slugs skip area slugs, and creating an area
+whose slug a listing already uses moves that listing to `<slug>-1`.
+
+## Neighbourhood groups
+
+City pages group neighbourhoods into regions ("Jumeirah & Al Barsha"). The groups
+live in a CSV you can edit in Excel (`city, area, listings, region`); a city whose
+areas all have a blank region shows a plain A–Z list instead.
+
+```bash
+python manage.py apply_regions --file scraper/regions/uae_area_regions.csv --dry-run
+python manage.py apply_regions --file scraper/regions/uae_area_regions.csv
+```
 
 ## Monetisation
 
@@ -118,7 +137,7 @@ P="docker compose -f docker-compose.prod.yml --env-file .env.prod"
 
 ```bash
 # Ubuntu droplet with Docker installed; point the domain's A records
-# (example.ae and www.example.ae) at the droplet's IP first
+# (gulfnurseries.com and www.gulfnurseries.com) at the droplet's IP first
 git clone <repo> daycare-directory && cd daycare-directory
 cp .env.prod.example .env.prod
 nano .env.prod      # SECRET_KEY, DB_PASSWORD, DOMAIN, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, CONTACT_EMAIL

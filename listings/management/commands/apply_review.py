@@ -130,8 +130,4 @@ class Command(BaseCommand):
     @staticmethod
     def unique_slug(listing, name):
         base = slugify(name)[:290] or listing.slug
-        slug, n = base, 1
-        while DaycareListing.objects.filter(city=listing.city, slug=slug).exclude(pk=listing.pk).exists():
-            slug = f"{base}-{n}"
-            n += 1
-        return slug
+        return DaycareListing.unique_slug(listing.city, base, exclude=listing.pk)

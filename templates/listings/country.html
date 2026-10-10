@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block canonical %}<link rel="canonical" href="{{ request.build_absolute_uri }}" />{% endblock %}
+
+{% block content %}
+<div class="wrap pad page-head">
+  {% include "components/breadcrumbs.html" %}
+  <div class="page-head__row">
+    <h1 class="page-title">{{ site.title_nouns }} in {{ heading_lead }}<mark>{{ heading_mark }}</mark></h1>
+    <p>{{ intro }}</p>
+  </div>
+</div>
+
+<section class="wrap pad section section--tight">
+  <h2 class="h-mid">{{ choose }}</h2>
+  <div class="tiles tiles--emirates">
+    {% for city in country_cities %}
+    <a href="{{ city.get_absolute_url }}" class="tile tile--{{ city.tile }}">
+      <span class="tile__label"><span class="hide-mobile">{{ city.areas_n }} neighbourhood{{ city.areas_n|pluralize }}</span><span class="hide-desktop">{{ city.n }} {{ site.nouns }}</span></span>
+      <span class="tile__bottom"><span class="tile__name">{{ city.name }}</span><span class="tile__count hide-mobile">{{ city.n }}</span></span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<div class="wrap pad">{% include "components/adsense_slot.html" with slot_id="1111111111" %}</div>
+
+{% if top_rated %}
+<section class="wrap pad section section--last">
+  <div class="split">
+    <div class="split__intro">
+      <h2 class="h-big">Top rated in {{ country.in_name }}</h2>
+      <p class="hide-mobile">Ranked by Google rating. Only {{ site.nouns }} with at least {{ top_rated_min_reviews }} reviews are included.</p>
+    </div>
+    {% include "components/ranked_list.html" with show_city=True %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

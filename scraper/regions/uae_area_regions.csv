@@ -1,0 +1,239 @@
+﻿city,area,listings,region
+Abu Dhabi,Al Danah,31,Downtown Abu Dhabi
+Abu Dhabi,Al Manhal,13,Downtown Abu Dhabi
+Abu Dhabi,Al Bateen,11,Downtown Abu Dhabi
+Abu Dhabi,Al Khalidiyah,10,Downtown Abu Dhabi
+Abu Dhabi,Al Zahiyah,5,Downtown Abu Dhabi
+Abu Dhabi,Madinat Zayed,4,Downtown Abu Dhabi
+Abu Dhabi,Al Hosn,2,Downtown Abu Dhabi
+Abu Dhabi,Al Marina,2,Downtown Abu Dhabi
+Abu Dhabi,Al Markaziyah,2,Downtown Abu Dhabi
+Abu Dhabi,Al Mina,2,Downtown Abu Dhabi
+Abu Dhabi,Al Nahyan,12,Al Mushrif & Al Nahyan
+Abu Dhabi,Al Mushrif,11,Al Mushrif & Al Nahyan
+Abu Dhabi,Al Muroor,8,Al Mushrif & Al Nahyan
+Abu Dhabi,Al Muntazah,4,Al Mushrif & Al Nahyan
+Abu Dhabi,Al Rawdah,2,Al Mushrif & Al Nahyan
+Abu Dhabi,Al Reem Island,10,"Reem, Saadiyat & Yas"
+Abu Dhabi,Yas Island,6,"Reem, Saadiyat & Yas"
+Abu Dhabi,Saadiyat Island,3,"Reem, Saadiyat & Yas"
+Abu Dhabi,Khalifa City,27,Khalifa City & Al Raha
+Abu Dhabi,Al Falah,8,Khalifa City & Al Raha
+Abu Dhabi,Al Raha Beach,4,Khalifa City & Al Raha
+Abu Dhabi,Rabdan,4,Khalifa City & Al Raha
+Abu Dhabi,Al Maqta,2,Khalifa City & Al Raha
+Abu Dhabi,Masdar City,2,Khalifa City & Al Raha
+Abu Dhabi,Al Reef,1,Khalifa City & Al Raha
+Abu Dhabi,Bain Al Jessrain,1,Khalifa City & Al Raha
+Abu Dhabi,Mohammed Bin Zayed City,29,"MBZ, Musaffah & Al Shamkha"
+Abu Dhabi,Al Shamkha,16,"MBZ, Musaffah & Al Shamkha"
+Abu Dhabi,Musaffah,14,"MBZ, Musaffah & Al Shamkha"
+Abu Dhabi,Baniyas,12,"MBZ, Musaffah & Al Shamkha"
+Abu Dhabi,Shakhbout City,7,"MBZ, Musaffah & Al Shamkha"
+Abu Dhabi,Madinat Al Riyadh,6,"MBZ, Musaffah & Al Shamkha"
+Abu Dhabi,Al Shawamekh,4,"MBZ, Musaffah & Al Shamkha"
+Abu Dhabi,Al Wathba,1,"MBZ, Musaffah & Al Shamkha"
+Abu Dhabi,Al Bahia,4,Al Shahama & the north
+Abu Dhabi,Al Shahama,4,Al Shahama & the north
+Abu Dhabi,Al Ghadeer,2,Al Shahama & the north
+Abu Dhabi,Al Samha,2,Al Shahama & the north
+Abu Dhabi,Al Rahba,1,Al Shahama & the north
+Ajman,Al Hamidiya,12,
+Ajman,Al Rawda,11,
+Ajman,Al Jurf,10,
+Ajman,Al Nuaimiya,10,
+Ajman,Al Mowaihat,8,
+Ajman,Al Rashidiya,8,
+Ajman,Al Safia,6,
+Ajman,Emirates City,3,
+Ajman,Al Rumailah,2,
+Ajman,Al Yasmeen,2,
+Ajman,Mushairef,2,
+Ajman,Al Amerah,1,
+Ajman,Al Bahia,1,
+Ajman,Al Raqaib,1,
+Ajman,Al Tallah,1,
+Ajman,Al Alia,0,
+Al Ain,Al Towayya,5,Central Al Ain
+Al Ain,Al Jimi,4,Central Al Ain
+Al Ain,Al Muwaiji,2,Central Al Ain
+Al Ain,Central District,2,Central Al Ain
+Al Ain,Al Jahili,1,Central Al Ain
+Al Ain,Al Khabisi,1,Central Al Ain
+Al Ain,Al Mutarad,1,Central Al Ain
+Al Ain,Al Qattara,1,Central Al Ain
+Al Ain,Hili,2,Hili & the north
+Al Ain,Al Foah,1,Hili & the north
+Al Ain,Falaj Hazza,7,Zakher & the south
+Al Ain,Zakher,6,Zakher & the south
+Al Ain,Al Sarooj,4,Zakher & the south
+Al Ain,Al Dhahir,3,Zakher & the south
+Al Ain,Al Yahar,6,Al Markhaniya & the west
+Al Ain,Al Markhaniya,3,Al Markhaniya & the west
+Al Ain,Al Maqam,2,Al Markhaniya & the west
+Al Ain,Al Salamat,2,Al Markhaniya & the west
+Al Ain,Asharej,2,Al Markhaniya & the west
+Al Ain,Al Bateen,1,Al Markhaniya & the west
+Dubai,Al Nahda,14,Deira & Al Qusais
+Dubai,Al Twar,8,Deira & Al Qusais
+Dubai,Al Mamzar,7,Deira & Al Qusais
+Dubai,Al Qusais,7,Deira & Al Qusais
+Dubai,Abu Hail,6,Deira & Al Qusais
+Dubai,Al Garhoud,4,Deira & Al Qusais
+Dubai,Al Rashidiya,4,Deira & Al Qusais
+Dubai,Hor Al Anz,4,Deira & Al Qusais
+Dubai,Muhaisnah,4,Deira & Al Qusais
+Dubai,Al Muteena,2,Deira & Al Qusais
+Dubai,Port Saeed,2,Deira & Al Qusais
+Dubai,Al Muraqqabat,1,Deira & Al Qusais
+Dubai,Umm Ramool,1,Deira & Al Qusais
+Dubai,International City,15,Mirdif & Silicon Oasis
+Dubai,Mirdif,11,Mirdif & Silicon Oasis
+Dubai,Dubai Silicon Oasis,9,Mirdif & Silicon Oasis
+Dubai,Al Warqa,6,Mirdif & Silicon Oasis
+Dubai,Al Khawaneej,5,Mirdif & Silicon Oasis
+Dubai,Nad Al Hamar,5,Mirdif & Silicon Oasis
+Dubai,Al Mizhar,4,Mirdif & Silicon Oasis
+Dubai,Ras Al Khor,3,Mirdif & Silicon Oasis
+Dubai,Liwan,2,Mirdif & Silicon Oasis
+Dubai,Academic City,1,Mirdif & Silicon Oasis
+Dubai,Oud Al Muteena,1,Mirdif & Silicon Oasis
+Dubai,Al Mankhool,17,Bur Dubai & Karama
+Dubai,Al Karama,10,Bur Dubai & Karama
+Dubai,Al Satwa,10,Bur Dubai & Karama
+Dubai,Al Jafiliya,5,Bur Dubai & Karama
+Dubai,Oud Metha,5,Bur Dubai & Karama
+Dubai,Al Jaddaf,4,Bur Dubai & Karama
+Dubai,Dubai Healthcare City,1,Bur Dubai & Karama
+Dubai,Umm Hurair,0,Bur Dubai & Karama
+Dubai,Business Bay,12,Downtown & Business Bay
+Dubai,DIFC,6,Downtown & Business Bay
+Dubai,Downtown Dubai,3,Downtown & Business Bay
+Dubai,Dubai Creek Harbour,3,Downtown & Business Bay
+Dubai,Dubai Design District,1,Downtown & Business Bay
+Dubai,Umm Suqeim,18,Jumeirah & Al Barsha
+Dubai,Al Safa,15,Jumeirah & Al Barsha
+Dubai,Al Manara,14,Jumeirah & Al Barsha
+Dubai,Jumeirah,13,Jumeirah & Al Barsha
+Dubai,Al Barsha,11,Jumeirah & Al Barsha
+Dubai,Al Wasl,9,Jumeirah & Al Barsha
+Dubai,Al Quoz,5,Jumeirah & Al Barsha
+Dubai,Al Sufouh,3,Jumeirah & Al Barsha
+Dubai,Umm Al Sheif,3,Jumeirah & Al Barsha
+Dubai,Barsha Heights,2,Jumeirah & Al Barsha
+Dubai,Jumeirah Lake Towers,16,"Marina, JLT & Palm"
+Dubai,Dubai Marina,10,"Marina, JLT & Palm"
+Dubai,Jumeirah Beach Residence,8,"Marina, JLT & Palm"
+Dubai,Palm Jumeirah,4,"Marina, JLT & Palm"
+Dubai,The Lakes,3,"Marina, JLT & Palm"
+Dubai,The Greens,2,"Marina, JLT & Palm"
+Dubai,The Springs,2,"Marina, JLT & Palm"
+Dubai,Jumeirah Park,1,"Marina, JLT & Palm"
+Dubai,The Meadows,1,"Marina, JLT & Palm"
+Dubai,Nad Al Sheba,8,Meydan & Dubai Hills
+Dubai,Dubai Hills Estate,3,Meydan & Dubai Hills
+Dubai,Meydan,2,Meydan & Dubai Hills
+Dubai,Al Barari,1,Meydan & Dubai Hills
+Dubai,Arjan,8,JVC & Sports City
+Dubai,Dubai Production City,8,JVC & Sports City
+Dubai,Jumeirah Village Circle,7,JVC & Sports City
+Dubai,Al Barsha South,6,JVC & Sports City
+Dubai,Dubai Sports City,5,JVC & Sports City
+Dubai,Jumeirah Golf Estates,4,JVC & Sports City
+Dubai,Motor City,4,JVC & Sports City
+Dubai,Jumeirah Village Triangle,3,JVC & Sports City
+Dubai,Dubai Studio City,1,JVC & Sports City
+Dubai,Remraam,1,JVC & Sports City
+Dubai,Dubailand,11,Dubailand & Arabian Ranches
+Dubai,Arabian Ranches,4,Dubailand & Arabian Ranches
+Dubai,Damac Hills,4,Dubailand & Arabian Ranches
+Dubai,Town Square,4,Dubailand & Arabian Ranches
+Dubai,The Sustainable City,3,Dubailand & Arabian Ranches
+Dubai,Mudon,2,Dubailand & Arabian Ranches
+Dubai,Dubai Investment Park,6,Jebel Ali & Dubai South
+Dubai,Discovery Gardens,5,Jebel Ali & Dubai South
+Dubai,Dubai South,5,Jebel Ali & Dubai South
+Dubai,Al Furjan,3,Jebel Ali & Dubai South
+Dubai,Jebel Ali,3,Jebel Ali & Dubai South
+Dubai,Hatta,1,Hatta
+Fujairah,Merashid,5,
+Fujairah,Al Faseel,4,
+Fujairah,Al Mahatta,1,
+Fujairah,Al Owaid,1,
+Fujairah,Al Rughaylat,1,
+Fujairah,Mohamed Bin Zayed City,1,
+Ras Al Khaimah,Al Dhait,10,
+Ras Al Khaimah,Julphar,5,
+Ras Al Khaimah,Khuzam,5,
+Ras Al Khaimah,Sheikh Saqr City,5,
+Ras Al Khaimah,Seih Al Uraibi,4,
+Ras Al Khaimah,Al Rams,3,
+Ras Al Khaimah,Al Jazirah Al Hamra,2,
+Ras Al Khaimah,Al Mamourah,2,
+Ras Al Khaimah,Shaam,2,
+Ras Al Khaimah,Al Hamra Village,1,
+Ras Al Khaimah,Al Kharran,1,
+Ras Al Khaimah,Al Mairid,1,
+Ras Al Khaimah,Al Marjan Island,1,
+Ras Al Khaimah,Al Nakheel,1,
+Ras Al Khaimah,Al Riffa,1,
+Ras Al Khaimah,Dafan Al Nakheel,1,
+Ras Al Khaimah,Dahan,1,
+Ras Al Khaimah,Mina Al Arab,1,
+Ras Al Khaimah,Sheikh Khalifa City,1,
+Ras Al Khaimah,Al Hudaibah,0,
+Ras Al Khaimah,Al Qusaidat,0,
+Sharjah,Al Nahda,13,"Al Majaz, Al Khan & Al Nahda"
+Sharjah,Al Khan,12,"Al Majaz, Al Khan & Al Nahda"
+Sharjah,Al Majaz,8,"Al Majaz, Al Khan & Al Nahda"
+Sharjah,Al Khalidiya,6,"Al Majaz, Al Khan & Al Nahda"
+Sharjah,Al Taawun,5,"Al Majaz, Al Khan & Al Nahda"
+Sharjah,Abu Shagara,4,"Al Majaz, Al Khan & Al Nahda"
+Sharjah,Al Mamzar,3,"Al Majaz, Al Khan & Al Nahda"
+Sharjah,Al Mahatta,3,Rolla & Al Qasimia
+Sharjah,Rolla,3,Rolla & Al Qasimia
+Sharjah,Al Nabba,2,Rolla & Al Qasimia
+Sharjah,Al Nad,2,Rolla & Al Qasimia
+Sharjah,Al Qasimia,2,Rolla & Al Qasimia
+Sharjah,Maysaloon,2,Rolla & Al Qasimia
+Sharjah,Al Manakh,1,Rolla & Al Qasimia
+Sharjah,Al Mansoura,1,Rolla & Al Qasimia
+Sharjah,Al Shuwaihean,1,Rolla & Al Qasimia
+Sharjah,Al Sharq,8,Al Sharq & Al Heerah
+Sharjah,Sharqan,4,Al Sharq & Al Heerah
+Sharjah,Al Mirgab,3,Al Sharq & Al Heerah
+Sharjah,Al Heerah,1,Al Sharq & Al Heerah
+Sharjah,Al Qadisiya,1,Al Sharq & Al Heerah
+Sharjah,Buteena,1,Al Sharq & Al Heerah
+Sharjah,Al Fisht,0,Al Sharq & Al Heerah
+Sharjah,Al Fayha,7,Al Ghubaiba & Halwan
+Sharjah,Al Ghubaiba,6,Al Ghubaiba & Halwan
+Sharjah,Al Jazzat,6,Al Ghubaiba & Halwan
+Sharjah,Al Ramla,4,Al Ghubaiba & Halwan
+Sharjah,Al Rifaah,4,Al Ghubaiba & Halwan
+Sharjah,Halwan,3,Al Ghubaiba & Halwan
+Sharjah,Al Hazana,2,Al Ghubaiba & Halwan
+Sharjah,Al Sabkha,2,Al Ghubaiba & Halwan
+Sharjah,Samnan,2,Al Ghubaiba & Halwan
+Sharjah,Al Riqa,0,Al Ghubaiba & Halwan
+Sharjah,Al Azra,8,Wasit & Al Azra
+Sharjah,Wasit,8,Wasit & Al Azra
+Sharjah,Al Ghafia,5,Wasit & Al Azra
+Sharjah,Al Shahba,3,Wasit & Al Azra
+Sharjah,Al Ramtha,2,Wasit & Al Azra
+Sharjah,Al Falaj,1,Wasit & Al Azra
+Sharjah,Al Talae,1,Wasit & Al Azra
+Sharjah,Muwaileh,16,Muwaileh & University City
+Sharjah,Al Darari,3,Muwaileh & University City
+Sharjah,Aljada,2,Muwaileh & University City
+Sharjah,University City,2,Muwaileh & University City
+Sharjah,Al Zahia,1,Muwaileh & University City
+Sharjah,Al Suyoh,3,Al Rahmaniya & Al Suyoh
+Sharjah,Al Badie,2,Al Rahmaniya & Al Suyoh
+Sharjah,Al Rahmaniya,2,Al Rahmaniya & Al Suyoh
+Sharjah,Al Nouf,1,Al Rahmaniya & Al Suyoh
+Umm Al Quwain,Al Salamah,2,
+Umm Al Quwain,Al Haditha,1,
+Umm Al Quwain,Al Maidan,1,
+Umm Al Quwain,Al Ramlah,1,
+Umm Al Quwain,Oud Al Tayer,1,

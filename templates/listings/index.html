@@ -1,114 +1,83 @@
 {% extends "base.html" %}
 
-{% block canonical %}<link rel="canonical" href="/" />{% endblock %}
+{% block canonical %}<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/" />{% endblock %}
+
+{% block header %}
+<header class="site-header site-header--home">
+  <div class="site-header__bar">
+    <a href="{% url 'listings:index' %}" class="logo"><span class="logo__mark">n</span>{{ site.name }}</a>
+    <nav class="site-nav hide-mobile">
+      <details class="chip-select">
+        <summary>Countries ▾</summary>
+        <div class="menu">{% for country in countries %}<a href="{{ country.get_absolute_url }}">{{ country.short_name }}</a>{% endfor %}</div>
+      </details>
+      <a href="{% url 'about' %}">About</a>
+      <a href="{% url 'contact' %}">Contact</a>
+    </nav>
+    <button type="button" class="icon-btn hide-desktop" data-toggle="mobile-menu" aria-expanded="false" aria-label="Menu">≡</button>
+  </div>
+  {% include "components/mobile_menu.html" %}
+</header>
+{% endblock %}
 
 {% block content %}
-
-<!-- ── Hero ──────────────────────────────────────────────────── -->
-<section class="bg-white border-b border-gray-200">
-  <div class="max-w-6xl mx-auto px-4 py-14 text-center">
-    <h1 class="text-4xl font-bold text-gray-900 mb-3">
-      Find {{ site.title_nouns }} in {{ site.in_country }}
-    </h1>
-    <p class="text-gray-500 text-lg mb-8 max-w-xl mx-auto">
-      Compare ratings, opening hours and contact details for {{ site.nouns }} across {{ site.in_country }}.
-    </p>
-
-    <!-- Hero search -->
-    <div class="max-w-lg mx-auto relative">
-      <input
-        type="search"
-        name="q"
-        placeholder="Search by name or area..."
-        autocomplete="off"
-        class="w-full border-2 border-brand-500 rounded-xl px-5 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-brand-300 shadow-sm"
-        hx-get="{% url 'listings:search' %}"
-        hx-trigger="keyup changed delay:300ms"
-        hx-target="#hero-search-results"
-        hx-swap="innerHTML"
-      />
-      <div id="hero-search-results"
-           class="absolute top-full mt-1 left-0 w-full bg-white border border-gray-200 rounded-xl shadow-lg z-50 empty:hidden text-left">
-      </div>
+<section class="hero">
+  <span class="pill-count">{{ total_label }}</span>
+  <h1>Find a {{ site.noun }} anywhere <span>in {{ coverage }}.</span></h1>
+  <p>Ratings, hours and phone numbers from Google Maps for {{ site.nouns }} in {{ coverage }}.</p>
+  <form action="{% url 'listings:search' %}" method="get" class="hero-search" role="search">
+    <div class="hero-search__field">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <label class="sr-only" for="hero-q">{{ site.noun|capfirst }} name</label>
+      <input id="hero-q" type="search" name="q" placeholder="{{ site.noun|capfirst }} name or keyword" autocomplete="off">
     </div>
-  </div>
+    <div class="hero-search__field">
+      <label class="sr-only" for="hero-where">City or neighbourhood</label>
+      <select id="hero-where" name="where">
+        <option value="">City or neighbourhood</option>
+        {% for city in search_cities %}
+        <optgroup label="{{ city.name }}">
+          <option value="{{ city.slug }}">All of {{ city.name }}</option>
+          {% for area in city.areas_with_listings %}<option value="{{ city.slug }}/{{ area.slug }}">{{ area.name }}</option>{% endfor %}
+        </optgroup>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn-yellow">Find {{ site.nouns }}</button>
+  </form>
 </section>
 
-<!-- ── AdSense: top banner ─────────────────────────────────── -->
-<div class="max-w-6xl mx-auto px-4">
-  {% include "components/adsense_slot.html" with slot_id="1111111111" %}
-</div>
-
-<!-- ── City grid ──────────────────────────────────────────── -->
-<section class="max-w-6xl mx-auto px-4 py-10">
-  <h2 class="text-xl font-semibold text-gray-800 mb-5">Browse by city</h2>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-    {% for city in cities %}
-    <a href="{{ city.get_absolute_url }}"
-       class="bg-white border border-gray-200 hover:border-brand-400 hover:shadow-md rounded-xl p-5 transition-all group">
-      <div class="flex items-center justify-between mb-3">
-        <span class="text-2xl">🏙️</span>
-        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-        </svg>
-      </div>
-      <h3 class="font-semibold text-gray-900 text-lg mb-1">{{ city.name }}</h3>
-      <p class="text-sm text-gray-500">{{ city.listings.count }} listing{{ city.listings.count|pluralize }}</p>
-
-      {% if city.areas.all %}
-      <div class="mt-3 flex flex-wrap gap-1.5">
-        {% for area in city.areas.all|slice:":5" %}
-        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{{ area.name }}</span>
-        {% endfor %}
-      </div>
-      {% endif %}
+<section class="wrap pad section">
+  <h2 class="h-big">Choose a country</h2>
+  <div class="tiles tiles--3">
+    {% for country in countries %}
+    <a href="{{ country.get_absolute_url }}" class="tile tile--country tile--{{ country.tile }}">
+      <span class="tile__top">
+        <span class="tile__name">{{ country.short_name }}</span>
+        <span class="tile__count">{{ country.n }}<span class="hide-desktop"> {{ site.nouns }}</span></span>
+      </span>
+      <span class="tile__chips hide-mobile">{% for city in country.top_cities %}<span>{{ city.name }}</span>{% endfor %}</span>
     </a>
     {% endfor %}
   </div>
 </section>
 
-<!-- ── Featured listings ───────────────────────────────────── -->
-{% if featured %}
-<section class="bg-white border-t border-gray-200 py-10">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="flex items-center justify-between mb-5">
-      <h2 class="text-xl font-semibold text-gray-800">Featured {{ site.nouns }}</h2>
-      <span class="text-xs text-gray-400">Sponsored</span>
+<div class="wrap pad">{% include "components/adsense_slot.html" with slot_id="1111111111" %}</div>
+
+<section class="wrap pad section section--last">
+  <div class="split">
+    <div class="split__intro">
+      <h2 class="h-big">Most searched cities</h2>
+      <p class="hide-mobile">Go straight to a city to see its neighbourhoods and top-rated {{ site.nouns }}.</p>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {% for listing in featured %}
-        {% include "components/listing_card.html" %}
+    <div class="citylist">
+      {% for city in top_cities %}
+      <a href="{{ city.get_absolute_url }}">
+        <span class="citylist__name"><b>{{ city.name }}</b><small>{{ city.country.short_name }}</small></span>
+        <span class="citylist__n">{{ city.n }} →</span>
+      </a>
       {% endfor %}
     </div>
   </div>
 </section>
-{% endif %}
-
-<!-- ── AdSense: mid-page ───────────────────────────────────── -->
-<div class="max-w-6xl mx-auto px-4">
-  {% include "components/adsense_slot.html" with slot_id="2222222222" %}
-</div>
-
-<!-- ── Why use us ─────────────────────────────────────────── -->
-<section class="max-w-6xl mx-auto px-4 py-10">
-  <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">Why {{ site.name }}?</h2>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-    <div class="p-5">
-      <div class="text-3xl mb-3">⭐</div>
-      <h3 class="font-semibold text-gray-800 mb-1">Verified ratings</h3>
-      <p class="text-sm text-gray-500">Ratings and reviews pulled from Google Maps so you can trust them.</p>
-    </div>
-    <div class="p-5">
-      <div class="text-3xl mb-3">📍</div>
-      <h3 class="font-semibold text-gray-800 mb-1">Area-level search</h3>
-      <p class="text-sm text-gray-500">Browse by {{ site.area_kinds }} — find what's actually near you.</p>
-    </div>
-    <div class="p-5">
-      <div class="text-3xl mb-3">📞</div>
-      <h3 class="font-semibold text-gray-800 mb-1">Direct contact</h3>
-      <p class="text-sm text-gray-500">Phone numbers and websites listed — call or visit without going through us.</p>
-    </div>
-  </div>
-</section>
-
 {% endblock %}

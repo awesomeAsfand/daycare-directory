@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block robots %}<meta name="robots" content="noindex, follow" />{% endblock %}
+{% block extra_head %}{% if pins %}{% include "components/leaflet.html" %}{% endif %}{% endblock %}
+
+{% block content %}
+{% include "listings/_results.html" %}
+{% endblock %}
+

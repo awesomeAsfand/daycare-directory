@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.db.models import Q
 from django.utils.html import format_html
-from .models import CURRICULA, SCRAPED_FIELDS, DaycareListing, City, Area, Review, ListingImage
+from .models import ACTIVITIES, CURRICULA, FACILITIES, SCRAPED_FIELDS, DaycareListing, City, Country, Area, Review, ListingImage
 
 
 class DetailsFilter(admin.SimpleListFilter):
@@ -29,9 +29,16 @@ def image_preview(obj, height):
     return format_html('<img src="{}" style="height:{}px;border-radius:4px" />', obj.image.url, height)
 
 
+@admin.register(Country)
+class CountryAdmin(admin.ModelAdmin):
+    list_display = ["name", "short_name", "slug", "code", "currency"]
+    prepopulated_fields = {"slug": ["short_name"]}
+
+
 @admin.register(City)
 class CityAdmin(admin.ModelAdmin):
-    list_display = ["name", "slug"]
+    list_display = ["name", "country", "slug"]
+    list_filter = ["country"]
     prepopulated_fields = {"slug": ["name"]}
 
 
@@ -62,6 +69,12 @@ class ReviewInline(admin.TabularInline):
 class DaycareListingForm(forms.ModelForm):
     curriculum = forms.MultipleChoiceField(
         choices=list(CURRICULA.items()), required=False, widget=forms.CheckboxSelectMultiple,
+    )
+    facilities = forms.MultipleChoiceField(
+        choices=list(FACILITIES.items()), required=False, widget=forms.CheckboxSelectMultiple,
+    )
+    activities = forms.MultipleChoiceField(
+        choices=list(ACTIVITIES.items()), required=False, widget=forms.CheckboxSelectMultiple,
     )
 
     class Meta:
@@ -103,6 +116,9 @@ class DaycareAdmin(admin.ModelAdmin):
             "fields": ("age_from_months", "age_to_months", "curriculum", "licensed_by",
                        ("fees_from_aed", "fees_to_aed"), "fees_note",
                        "details_source", "details_checked", "details_confirmed"),
+        }),
+        ("Services and facilities (shown whenever set)", {
+            "fields": ("transport", "meals", "facilities", "activities"),
         }),
         ("Import protection", {
             "fields": ("locked_fields", "last_seen_at"),

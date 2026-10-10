@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-<article class="max-w-3xl mx-auto px-4 py-10 space-y-6 text-gray-700 leading-relaxed">
-  <h1 class="text-3xl font-bold text-gray-900">About {{ site.name }}</h1>
+<article class="wrap pad prose">
+  <h1>About {{ site.name }}</h1>
 
   <p>
     {{ site.name }} is a free directory that helps parents find and compare nurseries
-    and early learning centres in the UAE. Listings are organised by emirate and
-    community, so you can see what is close to home or work, compare ratings and
+    and early learning centres in the Gulf. Listings are organised by country, city and
+    neighbourhood, so you can see what is close to home or work, compare ratings and
     opening hours, and contact nurseries directly.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">What we list</h2>
+  <h2>What we list</h2>
   <p>
     We list nurseries and early learning centres for babies and young children. We
     don't list schools, including schools that run their own FS1, FS2 or KG classes,
-    or tuition centres and other businesses. We are starting with Dubai; the other
-    emirates will follow.
+    or tuition centres and other businesses. We are starting with all seven emirates
+    of the UAE; the other GCC countries will follow.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Where the information comes from</h2>
+  <h2>Where the information comes from</h2>
   <p>
     Listings are compiled from publicly available business information, mainly each
     nursery's public Google Maps listing: name, address, phone number, website, opening
-    hours, photos, rating and public reviews. We check each place's category and
+    hours, photos, rating and number of reviews. We check each place's category and
     location and leave out places that aren't nurseries or early learning centres.
   </p>
   <p>
@@ -31,7 +31,7 @@
     else that matters to you with the nursery before visiting or enrolling.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Independence</h2>
+  <h2>Independence</h2>
   <p>
     {{ site.name }} is independent and is not affiliated with any of the nurseries
     listed, or with Google. A listing is not an endorsement. Listings marked
@@ -40,10 +40,10 @@
     advertising.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">For nursery owners</h2>
+  <h2>For nursery owners</h2>
   <p>
     If you run a nursery and want to correct your details, add photos, claim your listing
-    or have it removed, please <a href="{% url 'contact' %}" class="text-brand-600 hover:underline">contact us</a>.
+    or have it removed, please <a href="{% url 'contact' %}">contact us</a>.
   </p>
 </article>
 {% endblock %}

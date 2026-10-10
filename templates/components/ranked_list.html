@@ -1,0 +1,15 @@
+{# Top rated: rank, photo, name, place, rating, phone #}
+<div class="ranked ranked--rule">
+  {% for listing in top_rated %}
+  <a href="{{ listing.get_absolute_url }}">
+    <span class="ranked__rank">{{ forloop.counter }}</span>
+    <span class="thumb">{% if listing.cover %}<img src="{{ listing.cover.image.url }}" alt="" loading="lazy">{% endif %}</span>
+    <span class="ranked__main">
+      <b>{{ listing.name }}</b>
+      <small><strong class="star">★ {{ listing.rating|floatformat:1 }}</strong><span class="star-sep"> · </span>{% if show_type %}{{ listing.type_label }} · {% endif %}{{ listing.location_label }}{% if show_city and listing.area %}, {{ listing.city.name }}{% endif %}</small>
+    </span>
+    <span class="ranked__rating"><span class="star star--lg">★ {{ listing.rating|floatformat:1 }}</span><small>{{ listing.review_count }}</small></span>
+    <span class="ranked__phone">{{ listing.phone_local }}</span>
+  </a>
+  {% endfor %}
+</div>

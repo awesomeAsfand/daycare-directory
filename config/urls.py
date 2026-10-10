@@ -4,11 +4,13 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from listings.sitemaps import CitySitemap, AreaSitemap, ListingSitemap, PageSitemap
+from listings.models import coverage
+from listings.sitemaps import CountrySitemap, CitySitemap, AreaSitemap, ListingSitemap, PageSitemap
 from listings.views import robots_txt
 
 sitemaps = {
     "pages": PageSitemap,
+    "countries": CountrySitemap,
     "cities": CitySitemap,
     "areas": AreaSitemap,
     "listings": ListingSitemap,
@@ -17,11 +19,11 @@ sitemaps = {
 
 class SitePage(TemplateView):
     """A static page; title and meta_desc are filled from settings.SITE_CONFIG
-    on each request, e.g. "About {name}"."""
+    on each request, e.g. "About {name}", plus {coverage} ("the UAE")."""
     title = meta_desc = ""
 
     def get_context_data(self, **kwargs):
-        site = settings.SITE_CONFIG
+        site = {**settings.SITE_CONFIG, "coverage": coverage(settings.SITE_CONFIG)}
         return super().get_context_data(
             title=self.title.format(**site), meta_desc=self.meta_desc.format(**site), **kwargs,
         )
@@ -44,7 +46,7 @@ urlpatterns = [
     # would otherwise catch them
     path("about/", page(
         "pages/about.html", "About {name}",
-        "{name} is a free directory of {nouns} in {in_country}.",
+        "{name} is a free directory of {nouns} in {coverage}.",
     ), name="about"),
     path("privacy-policy/", page(
         "pages/privacy.html", "Privacy Policy — {name}",

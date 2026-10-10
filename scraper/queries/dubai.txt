@@ -227,6 +227,7 @@ Jebel Ali Village
 # Places the category or name rules reject, kept by decision:
 # <Google place ID> = <name, as a note>
 0x3e5f5d326152a035:0x2dd3b34f1d7319f1 = Dubai Infants School (2026-10-06)
+0x3e5f694b76738a87:0xe46d842c4600f344 = La Marelle (2026-10-10, Google category Head start center; user: add)
 
 [boundary]
 # Dubai emirate, from OpenStreetMap (includes Hatta, and the sea, which

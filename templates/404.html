@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Page not found | {{ site.name }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex" />{% endblock %}
+
+{% block content %}
+<article class="wrap pad prose">
+  <h1>Page not found</h1>
+  <p>This page doesn't exist or has moved. Try searching for a {{ site.noun }}, or start from a country:</p>
+  <form action="{% url 'listings:search' %}" method="get" class="searchbox" role="search" style="max-width:none">
+    {% include "components/search_field.html" with id="notfound" %}
+  </form>
+  <div class="chips-wrap">{% for country in countries %}<a href="{{ country.get_absolute_url }}">{{ country.short_name }}</a>{% endfor %}</div>
+</article>
+{% endblock %}

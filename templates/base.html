@@ -1,138 +1,92 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}{{ title|default:default_title }}{% endblock %}</title>
   <meta name="description" content="{{ meta_desc|default:default_meta_desc }}" />
-
+  {% block robots %}{% endblock %}
   {% block canonical %}{% endblock %}
 
   <!-- Open Graph -->
   <meta property="og:title" content="{{ title|default:default_title }}" />
   <meta property="og:description" content="{{ meta_desc|default:default_meta_desc }}" />
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="{{ site.name }}" />
   <meta property="og:url" content="{{ request.build_absolute_uri }}" />
   {% if og_image %}<meta property="og:image" content="{{ og_image }}" />{% endif %}
-  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:card" content="{% if og_image %}summary_large_image{% else %}summary{% endif %}" />
   <meta name="twitter:title" content="{{ title|default:default_title }}" />
   <meta name="twitter:description" content="{{ meta_desc|default:default_meta_desc }}" />
+  <meta name="theme-color" content="#12233D" />
 
-  <!-- Tailwind CSS (CDN — swap for CLI build in production) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { 50:'#f0fdf4', 100:'#dcfce7', 500:'#22c55e', 600:'#16a34a', 700:'#15803d' }
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- HTMX -->
-  <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23FFC83D'/%3E%3Ctext x='16' y='23' font-family='Arial' font-weight='800' font-size='20' text-anchor='middle' fill='%2312233D'%3En%3C/text%3E%3C/svg%3E">
+  {% block extra_head %}{% endblock %}
 
   {% if ADSENSE_PUBLISHER_ID %}
-  <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ ADSENSE_PUBLISHER_ID }}" crossorigin="anonymous"></script>
   {% endif %}
-
-  <style>
-    [x-cloak] { display: none; }
-    .star-filled { color: #facc15; }
-    .star-empty  { color: #d1d5db; }
-  </style>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+<body>
 
-  <!-- ── Navbar ─────────────────────────────────────────────── -->
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-
-      <a href="{% url 'listings:index' %}" class="flex items-center gap-2 font-semibold text-brand-600 text-lg shrink-0">
-        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-        {{ site.name }}
+  {% block header %}
+  <header class="site-header">
+    <div class="site-header__bar">
+      <a href="{% url 'listings:index' %}" class="logo" aria-label="{{ site.name }} home">
+        <span class="logo__mark">n</span><span class="hide-mobile">{{ site.name }}</span>
       </a>
-
-      <!-- Live search -->
-      <div class="flex-1 max-w-md relative">
-        <input
-          type="search"
-          name="q"
-          placeholder="Search {{ site.nouns }}..."
-          autocomplete="off"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-          hx-get="{% url 'listings:search' %}"
-          hx-trigger="keyup changed delay:300ms"
-          hx-target="#search-dropdown"
-          hx-swap="innerHTML"
-        />
-        <div id="search-dropdown"
-             class="absolute top-full mt-1 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 empty:hidden">
-        </div>
-      </div>
-
-      <!-- City nav -->
-      <nav class="hidden md:flex items-center gap-4 text-sm">
-        {% for city in cities %}
-        <a href="{{ city.get_absolute_url }}"
-           class="text-gray-600 hover:text-brand-600 transition-colors">
-          {{ city.name }}
-        </a>
-        {% endfor %}
+      {% include "components/country_menu.html" %}
+      <form action="{% url 'listings:search' %}" method="get" class="searchbox hide-mobile" role="search">
+        {% include "components/search_field.html" with id="header" %}
+      </form>
+      <nav class="site-nav hide-mobile">
+        <a href="{% url 'about' %}">About</a>
+        <a href="{% url 'contact' %}">Contact</a>
       </nav>
+      <button type="button" class="icon-btn hide-desktop" data-toggle="mobile-search" aria-expanded="false" aria-label="Search">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      </button>
+      <button type="button" class="icon-btn hide-desktop" data-toggle="mobile-menu" aria-expanded="false" aria-label="Menu">≡</button>
     </div>
+    <div id="mobile-search" class="mobile-search hide-desktop" hidden>
+      <form action="{% url 'listings:search' %}" method="get" class="searchbox" role="search">
+        {% include "components/search_field.html" with id="mobile" %}
+      </form>
+    </div>
+    {% include "components/mobile_menu.html" %}
   </header>
+  {% endblock %}
 
-  <!-- ── Main ───────────────────────────────────────────────── -->
-  <main class="flex-1">
+  <main>
     {% block content %}{% endblock %}
   </main>
 
-  <!-- ── Footer ─────────────────────────────────────────────── -->
-  <footer class="bg-white border-t border-gray-200 mt-12">
-    <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-sm text-gray-500">
-
-      <div>
-        <p class="font-semibold text-gray-700 mb-2">{{ site.name }}</p>
-        <p class="leading-relaxed">A free directory of {{ site.nouns }} in {{ site.in_country }}. Find, compare and contact the best childcare centres near you.</p>
-      </div>
-
-      {% for city in cities %}
-      <div>
-        <p class="font-semibold text-gray-700 mb-2">{{ city.name }}</p>
-        <ul class="space-y-1">
-          {% for area in city.areas.all %}
-          <li><a href="{{ area.get_absolute_url }}" class="hover:text-brand-600">{{ area.name }}</a></li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endfor %}
-
+  {% block footer %}
+  <footer class="site-footer">
+    <div class="site-footer__brand">
+      <b>{{ site.name }}</b>
+      <span>Listings data from Google Maps · © {% now "Y" %}</span>
     </div>
-    <div class="border-t border-gray-100 text-center text-xs text-gray-400 py-4 space-y-2">
-      <nav class="flex justify-center gap-4 text-gray-500">
-        <a href="{% url 'about' %}" class="hover:text-brand-600">About</a>
-        <a href="{% url 'privacy' %}" class="hover:text-brand-600">Privacy Policy</a>
-        <a href="{% url 'contact' %}" class="hover:text-brand-600">Contact</a>
-      </nav>
-      <p>© {% now "Y" %} {{ site.name }}. All rights reserved.</p>
+    <div class="site-footer__cols">
+      <div class="site-footer__col">
+        <b>Countries</b>
+        {% for country in countries %}<a href="{{ country.get_absolute_url }}">{{ country.short_name }}</a>{% endfor %}
+      </div>
+      <div class="site-footer__col">
+        <b>Site</b>
+        <a href="{% url 'about' %}">About</a>
+        <a href="{% url 'privacy' %}">Privacy Policy</a>
+        <a href="{% url 'contact' %}">Contact</a>
+      </div>
     </div>
   </footer>
+  {% endblock %}
 
-  <!-- Close search dropdown on outside click -->
-  <script>
-    document.addEventListener('click', function(e) {
-      const dd = document.getElementById('search-dropdown');
-      if (!dd.contains(e.target)) dd.innerHTML = '';
-    });
-  </script>
-
+  {% block scripts %}{% endblock %}
+  <script src="{% static 'js/site.js' %}" defer></script>
 </body>
 </html>

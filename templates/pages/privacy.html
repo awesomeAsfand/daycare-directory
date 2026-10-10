@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<article class="max-w-3xl mx-auto px-4 py-10 space-y-6 text-gray-700 leading-relaxed">
-  <h1 class="text-3xl font-bold text-gray-900">Privacy Policy</h1>
-  <p class="text-sm text-gray-500">Last updated: 4 October 2026</p>
+<article class="wrap pad prose">
+  <h1>Privacy Policy</h1>
+  <p class="muted">Last updated: 9 October 2026</p>
 
   <p>
     This policy explains what information {{ site.name }} ("we", "us") collects when you use
     this website, how it is used, and the choices you have.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Information we collect</h2>
+  <h2>Information we collect</h2>
   <p>
     You can use {{ site.name }} without creating an account, and the site has no forms that
     ask for your personal details. Like most websites, our servers automatically record
@@ -20,7 +20,7 @@
     useful. If you email us, we use your email only to reply to you.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Cookies and advertising</h2>
+  <h2>Cookies and advertising</h2>
   <p>
     {{ site.name }} is funded by advertising served by Google AdSense. Third-party vendors,
     including Google, use cookies to serve ads based on your prior visits to this website
@@ -30,54 +30,54 @@
   </p>
   <p>
     You can opt out of personalised advertising by visiting
-    <a href="https://adssettings.google.com" class="text-brand-600 hover:underline" rel="noopener" target="_blank">Google Ads Settings</a>,
+    <a href="https://adssettings.google.com" rel="noopener" target="_blank">Google Ads Settings</a>,
     or opt out of some third-party vendors' use of cookies for personalised advertising at
-    <a href="https://www.aboutads.info/choices/" class="text-brand-600 hover:underline" rel="noopener" target="_blank">www.aboutads.info</a>.
+    <a href="https://www.aboutads.info/choices/" rel="noopener" target="_blank">www.aboutads.info</a>.
     You can learn more about
-    <a href="https://policies.google.com/technologies/partner-sites" class="text-brand-600 hover:underline" rel="noopener" target="_blank">how Google uses information from sites that use its services</a>.
+    <a href="https://policies.google.com/technologies/partner-sites" rel="noopener" target="_blank">how Google uses information from sites that use its services</a>.
     You can also block or delete cookies in your browser settings; the site works
     without them.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Embedded maps</h2>
+  <h2>Embedded maps</h2>
   <p>
     Listing pages include an embedded Google Map. When it loads, Google may collect
     information under the
-    <a href="https://policies.google.com/privacy" class="text-brand-600 hover:underline" rel="noopener" target="_blank">Google Privacy Policy</a>.
+    <a href="https://policies.google.com/privacy" rel="noopener" target="_blank">Google Privacy Policy</a>.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Information about listed centres</h2>
+  <h2>Information about listed centres</h2>
   <p>
     Listings contain business information about childcare centres that is publicly
-    available, such as their Google Maps listings. Reviews shown on listings are public
-    Google reviews and appear with the reviewer's public display name. Centre owners and
-    reviewers can ask us to correct or remove information through our
-    <a href="{% url 'contact' %}" class="text-brand-600 hover:underline">contact page</a>.
+    available, such as their Google Maps listings, including their overall Google rating
+    and number of reviews. We don't show the text of individual reviews. Centre owners
+    can ask us to correct or remove information through our
+    <a href="{% url 'contact' %}">contact page</a>.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Sharing</h2>
+  <h2>Sharing</h2>
   <p>
     We do not sell your personal information. We share information only with the
     services that run the site (our hosting provider, and Google for advertising and
     maps as described above), or where the law requires it.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Children</h2>
+  <h2>Children</h2>
   <p>
     {{ site.name }} is meant for parents and carers. It is not directed at children, and we
     do not knowingly collect information from children.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Changes to this policy</h2>
+  <h2>Changes to this policy</h2>
   <p>
     We may update this policy from time to time. The date at the top shows when it was
     last changed.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Contact</h2>
+  <h2>Contact</h2>
   <p>
     Questions about this policy:
-    {% if CONTACT_EMAIL %}<a href="mailto:{{ CONTACT_EMAIL }}" class="text-brand-600 hover:underline">{{ CONTACT_EMAIL }}</a>{% else %}see our <a href="{% url 'contact' %}" class="text-brand-600 hover:underline">contact page</a>{% endif %}.
+    {% if CONTACT_EMAIL %}<a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a>{% else %}see our <a href="{% url 'contact' %}">contact page</a>{% endif %}.
   </p>
 </article>
 {% endblock %}

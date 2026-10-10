@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<article class="max-w-3xl mx-auto px-4 py-10 space-y-6 text-gray-700 leading-relaxed">
-  <h1 class="text-3xl font-bold text-gray-900">About {{ site.name }}</h1>
+<article class="wrap pad prose">
+  <h1>About {{ site.name }}</h1>
 
   <p>
     {{ site.name }} is a free directory that helps parents find and compare daycares,
@@ -11,7 +11,7 @@
     opening hours, and contact centres directly.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">What we list</h2>
+  <h2>What we list</h2>
   <p>
     We list daycare centres and standalone preschools and Montessori centres for young
     children. We don't list schools, including schools that run their own Montessori or
@@ -19,11 +19,11 @@
     Islamabad; other cities may follow.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Where the information comes from</h2>
+  <h2>Where the information comes from</h2>
   <p>
     Listings are compiled from publicly available business information, mainly each
     centre's public Google Maps listing: name, address, phone number, website, opening
-    hours, photos, rating and public reviews. We check each place's category and
+    hours, photos, rating and number of reviews. We check each place's category and
     location and leave out places that aren't childcare centres or are outside Islamabad.
   </p>
   <p>
@@ -31,7 +31,7 @@
     matters to you with the centre before visiting or enrolling.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Independence</h2>
+  <h2>Independence</h2>
   <p>
     {{ site.name }} is independent and is not affiliated with any of the centres listed, or
     with Google. A listing is not an endorsement. Listings marked <strong>Featured</strong>
@@ -39,10 +39,10 @@
     confirmed their details with us. The site is funded by advertising.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">For centre owners</h2>
+  <h2>For centre owners</h2>
   <p>
     If you run a centre and want to correct your details, add photos, claim your listing
-    or have it removed, please <a href="{% url 'contact' %}" class="text-brand-600 hover:underline">contact us</a>.
+    or have it removed, please <a href="{% url 'contact' %}">contact us</a>.
   </p>
 </article>
 {% endblock %}

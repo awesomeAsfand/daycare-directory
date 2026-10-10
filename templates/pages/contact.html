@@ -1,40 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-<article class="max-w-3xl mx-auto px-4 py-10 space-y-6 text-gray-700 leading-relaxed">
-  <h1 class="text-3xl font-bold text-gray-900">Contact us</h1>
+<article class="wrap pad prose">
+  <h1>Contact us</h1>
 
   {% if CONTACT_EMAIL %}
-  <p class="text-lg">
+  <p>
     Email us at
-    <a href="mailto:{{ CONTACT_EMAIL }}" class="text-brand-600 font-medium hover:underline">{{ CONTACT_EMAIL }}</a>.
+    <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a>.
     We usually reply within a few working days.
   </p>
   {% else %}
-  <p class="text-lg">Our contact email address will be published here shortly.</p>
+  <p>Our contact email address will be published here shortly.</p>
   {% endif %}
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Correcting a listing</h2>
+  <h2>Correcting a listing</h2>
   <p>
     Please include the link to the listing and what should change, for example a new
     phone number, address or opening hours.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Claiming or removing your centre</h2>
+  <h2>Claiming or removing your centre</h2>
   <p>
     If you run a centre listed here, you can ask us to verify your listing, update its
     details and photos, or remove it. Please write from an email address or phone number
     connected to the centre so we can confirm it's yours.
   </p>
 
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Reviews</h2>
-  <p>
-    Reviews shown on listings are public Google reviews. If a review shown here is about
-    you and you want it removed from this site, send us the listing link and the
-    reviewer's name.
-  </p>
-
-  <h2 class="text-xl font-semibold text-gray-900 pt-2">Missing a {{ site.noun }}?</h2>
+  <h2>Missing a {{ site.noun }}?</h2>
   <p>Tell us its name and area and we'll look into adding it.</p>
 </article>
 {% endblock %}

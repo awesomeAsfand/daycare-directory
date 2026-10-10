@@ -1,0 +1,11 @@
+{# breadcrumbs: [(label, url)], the last one is the current page #}
+<nav class="crumbs" aria-label="Breadcrumb">
+  {% for label, url in breadcrumbs %}
+  {% if not forloop.last %}<a href="{{ url }}">{{ label }}</a><span aria-hidden="true">›</span>{% else %}<span aria-current="page">{{ label }}</span>{% endif %}
+  {% endfor %}
+</nav>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{% for label, url in breadcrumbs %}
+  {"@type": "ListItem", "position": {{ forloop.counter }}, "name": "{{ label|escapejs }}", "item": "{{ request.scheme }}://{{ request.get_host }}{{ url }}"}{% if not forloop.last %},{% endif %}{% endfor %}
+]}
+</script>

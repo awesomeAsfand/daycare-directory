@@ -1,0 +1,10 @@
+{# Search input with live suggestions; scoped to the page's place when there is one #}
+<label class="sr-only" for="q-{{ id }}">Search {{ site.nouns }}</label>
+<div class="searchbox__field">
+  <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+  <input id="q-{{ id }}" type="search" name="q" value="{{ q|default:'' }}" autocomplete="off"
+         placeholder="Search {{ site.nouns }} in {{ search_label|default:coverage }}"
+         data-suggest="{% url 'listings:suggest' %}" aria-controls="suggest-{{ id }}">
+  {% if search_where %}<input type="hidden" name="where" value="{{ search_where }}">{% endif %}
+</div>
+<div id="suggest-{{ id }}" class="suggest" role="listbox"></div>
