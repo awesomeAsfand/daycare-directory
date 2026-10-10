@@ -290,7 +290,9 @@ class SitePagesTests(TestCase):
     def test_sitemap_uses_site_domain(self):
         call_command("sync_site", stdout=StringIO())
         city = City.objects.create(name="Dubai", slug="dubai", country=Country.for_code("AE"))
-        DaycareListing.objects.create(name="Little Kingdom", city=city)
+        listing = DaycareListing.objects.create(name="Little Kingdom", city=city, review_count=3,
+                                                website="https://littlekingdom.example/", phone="04 123 4567")
+        ListingImage.objects.create(listing=listing, image="listings/1/1.jpg")
         resp = self.client.get("/sitemap.xml")
         self.assertContains(resp, "<loc>http://daycares.example/uae/</loc>")
         self.assertContains(resp, "<loc>http://daycares.example/uae/dubai/</loc>")
@@ -551,9 +553,11 @@ class CountryUrlTests(TestCase):
     def test_new_area_moves_clashing_listing(self):
         listing = DaycareListing.objects.create(name="Jumeirah", city=self.dubai)
         self.assertEqual(listing.slug, "jumeirah")
-        Area.objects.create(city=self.dubai, name="Jumeirah")
+        area = Area.objects.create(city=self.dubai, name="Jumeirah")
         listing.refresh_from_db()
         self.assertEqual(listing.slug, "jumeirah-1")
+        listing.area = area   # an area page needs an active nursery to show
+        listing.save()
         self.assertContains(self.client.get("/uae/dubai/jumeirah/"), "Nurseries in Jumeirah, Dubai")
         self.assertEqual(self.client.get("/uae/dubai/jumeirah-1/").status_code, 200)
 
@@ -815,3 +819,89 @@ class FacilityFilterTests(TestCase):
     def test_no_chips_without_data(self):
         DaycareListing.objects.update(facilities=[])
         self.assertNotContains(self.client.get(self.dubai.get_absolute_url()), "Find by facility")
+
+
+class EmptyAreaTests(TestCase):
+    def setUp(self):
+        self.dubai = City.objects.create(name="Dubai", slug="dubai", country=Country.for_code("AE"))
+        self.barsha = Area.objects.create(city=self.dubai, name="Al Barsha", slug="al-barsha")
+        self.hatta = Area.objects.create(city=self.dubai, name="Hatta", slug="hatta")
+        DaycareListing.objects.create(name="Acorns", city=self.dubai, area=self.barsha)
+        self.closed = DaycareListing.objects.create(name="Mountain Kids", city=self.dubai, area=self.hatta,
+                                                    is_active=False)
+
+    def test_area_with_no_active_nursery_is_not_found(self):
+        self.assertEqual(self.client.get("/uae/dubai/al-barsha/").status_code, 200)
+        self.assertEqual(self.client.get("/uae/dubai/hatta/").status_code, 404)
+        self.closed.is_active = True
+        self.closed.save()
+        self.assertEqual(self.client.get("/uae/dubai/hatta/").status_code, 200)
+
+    def test_sitemap_leaves_out_empty_areas(self):
+        resp = self.client.get("/sitemap.xml")
+        self.assertContains(resp, "/uae/dubai/al-barsha/</loc>")
+        self.assertNotContains(resp, "/uae/dubai/hatta/</loc>")
+        self.assertContains(resp, "/uae/dubai/</loc>", count=1)   # once, not once per listing
+
+
+class GoogleIndexTests(ImportTestBase):
+    """Only nurseries with a review, a photo, their own website and a phone are offered to Google."""
+
+    def make(self, **kw):
+        fields = dict(name="Little Acorns", city=self.city, review_count=12, rating=4.8,
+                      website="https://acorns.example/", phone="04 123 4567")
+        fields.update(kw)
+        listing = DaycareListing.objects.create(**fields)
+        ListingImage.objects.create(listing=listing, image="listings/x/1.jpg")
+        return listing
+
+    def indexable_ids(self):
+        return set(DaycareListing.objects.indexable().values_list("pk", flat=True))
+
+    def test_rule(self):
+        full = self.make()
+        no_site = self.make(name="No Site", website="")
+        social = self.make(name="Only Facebook", website="https://www.facebook.com/onlyfb")
+        no_phone = self.make(name="No Phone", phone=" ")
+        no_reviews = self.make(name="No Reviews", review_count=0)
+        no_photo = DaycareListing.objects.create(name="No Photo", city=self.city, review_count=5,
+                                                 website="https://np.example/", phone="04 1")
+        off = self.make(name="Switched Off", is_active=False)
+        self.assertEqual(self.indexable_ids(), {full.pk})
+        # the one-listing check and the database query agree
+        for listing in DaycareListing.objects.all():
+            with self.subTest(listing=listing.name):
+                self.assertEqual(listing.is_indexable, listing.pk in self.indexable_ids())
+        self.assertEqual(social.index_gaps, ["website"])
+        self.assertEqual(no_photo.index_gaps, ["photos"])
+        self.assertEqual(no_reviews.index_gaps, ["reviews"])
+        self.assertEqual(no_phone.index_gaps, ["phone"])
+        self.assertEqual(no_site.index_gaps, ["website"])
+        self.assertFalse(off.is_indexable)
+
+    def test_page_tag_and_sitemap_follow_the_rule(self):
+        full = self.make()
+        thin = self.make(name="Thin Nursery", website="")
+        self.assertNotContains(self.client.get(full.get_absolute_url()), 'name="robots"')
+        resp = self.client.get(thin.get_absolute_url())
+        self.assertEqual(resp.status_code, 200)                      # still there for parents
+        self.assertContains(resp, '<meta name="robots" content="noindex, follow" />')
+        sitemap = self.client.get("/sitemap.xml")
+        self.assertContains(sitemap, full.get_absolute_url())
+        self.assertNotContains(sitemap, thin.get_absolute_url())
+        # Adding the missing website flips it
+        thin.website = "https://thin.example/"
+        thin.save()
+        self.assertNotContains(self.client.get(thin.get_absolute_url()), 'name="robots"')
+        self.assertContains(self.client.get("/sitemap.xml"), thin.get_absolute_url())
+
+    def test_admin_filter_and_column(self):
+        User.objects.create_superuser("admin", "a@example.com", "pw")
+        self.client.login(username="admin", password="pw")
+        self.make()
+        self.make(name="Thin Nursery", website="", phone="")
+        url = "/admin/listings/daycarelisting/"
+        self.assertContains(self.client.get(url), "no: website, phone")
+        names = lambda q: [l.name for l in self.client.get(url + q).context["cl"].result_list]
+        self.assertEqual(names("?google=yes"), ["Little Acorns"])
+        self.assertEqual(names("?google=no"), ["Thin Nursery"])

@@ -84,6 +84,12 @@ ACTIVITIES = {
     "after_school": "After-school club",
 }
 
+# A social media page in the website field: not the nursery's own website.
+# Works in Python's re and in PostgreSQL (website__iregex).
+SOCIAL_SITE_RE = (r"(facebook\.com|fb\.com|fb\.me|instagram\.com|tiktok\.com|linktr\.ee|wa\.me|whatsapp|"
+                  r"twitter\.com|x\.com|linkedin\.com|youtube\.com|business\.site|sites\.google|"
+                  r"google\.com/maps|google\.com/site)")
+
 REGULATOR_CHOICES = [
     ("KHDA", "KHDA (Dubai)"),
     ("ADEK", "ADEK (Abu Dhabi)"),
@@ -224,6 +230,17 @@ class Area(models.Model):
         return f"{self.name}, {self.city.name}"
 
 
+class ListingQuerySet(models.QuerySet):
+    def indexable(self):
+        """Nurseries Google is asked to index (sitemap, no noindex tag): active,
+        with a Google review, a photo, their own website and a phone number.
+        The same rule as DaycareListing.index_gaps, for one listing."""
+        photo = ListingImage.objects.filter(listing=models.OuterRef("pk")).exclude(image="")
+        return (self.filter(models.Exists(photo), is_active=True, review_count__gt=0)
+                .exclude(website="").exclude(website__iregex=SOCIAL_SITE_RE)
+                .exclude(phone__regex=r"^\s*$"))
+
+
 class DaycareListing(models.Model):
     DAYCARE = "daycare"
     PRESCHOOL = "preschool"
@@ -328,6 +345,8 @@ class DaycareListing(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    objects = ListingQuerySet.as_manager()
+
     class Meta:
         ordering = ["-is_featured", "-rating", "-review_count"]
         unique_together = [("slug", "city")]
@@ -412,6 +431,26 @@ class DaycareListing(models.Model):
     @property
     def cover(self):
         return self.photos[0] if self.photos else None
+
+    @property
+    def index_gaps(self):
+        """What keeps this page out of Google: [] when the nursery has a Google
+        review, a photo, its own website and a phone number. The same rule as
+        DaycareListing.objects.indexable()."""
+        gaps = []
+        if not self.review_count:
+            gaps.append("reviews")
+        if not self.photos:
+            gaps.append("photos")
+        if not self.website or re.search(SOCIAL_SITE_RE, self.website, re.I):
+            gaps.append("website")
+        if not self.phone.strip():
+            gaps.append("phone")
+        return gaps
+
+    @property
+    def is_indexable(self):
+        return self.is_active and not self.index_gaps
 
     @property
     def rating_stars(self):

@@ -27,7 +27,7 @@ class CitySitemap(Sitemap):
     priority = 0.9
 
     def items(self):
-        return City.objects.select_related("country").all()
+        return City.objects.filter(listings__is_active=True).distinct().select_related("country")
 
 
 class AreaSitemap(Sitemap):
@@ -35,7 +35,8 @@ class AreaSitemap(Sitemap):
     priority = 0.8
 
     def items(self):
-        return Area.objects.select_related("city__country").all()
+        # Only neighbourhoods with an active nursery (empty ones are 404s)
+        return Area.objects.filter(listings__is_active=True).distinct().select_related("city__country")
 
 
 class ListingSitemap(Sitemap):
@@ -43,7 +44,8 @@ class ListingSitemap(Sitemap):
     priority = 0.7
 
     def items(self):
-        return DaycareListing.objects.filter(is_active=True).select_related("city__country")
+        # Only nurseries Google is asked to index (DaycareListing.objects.indexable)
+        return DaycareListing.objects.indexable().select_related("city__country")
 
     def lastmod(self, obj):
         return obj.updated_at

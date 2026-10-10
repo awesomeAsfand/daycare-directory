@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{# Nurseries without the four basics stay out of Google until they have them (DaycareListing.index_gaps) #}
+{% block robots %}{% if not listing.is_indexable %}<meta name="robots" content="noindex, follow" />{% endif %}{% endblock %}
 {% block canonical %}<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ listing.get_absolute_url }}" />{% endblock %}
 
 {% block header %}<div class="hide-mobile">{{ block.super }}</div>{% endblock %}

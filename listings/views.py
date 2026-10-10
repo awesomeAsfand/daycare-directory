@@ -204,6 +204,10 @@ def area_or_listing(request, country_slug, city_slug, slug):
     city = get_city(country_slug, city_slug)
     area = Area.objects.filter(city=city, slug=slug).first()
     if area:
+        # A neighbourhood whose nurseries are all switched off has nothing to
+        # show; it comes back once one is active again
+        if not area.listings.filter(is_active=True).exists():
+            raise Http404("No nurseries in this area")
         return area_listings(request, city, area)
     return listing_detail(request, city, slug)
 

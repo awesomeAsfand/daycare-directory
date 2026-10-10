@@ -23,6 +23,23 @@ class DetailsFilter(admin.SimpleListFilter):
         return queryset
 
 
+class GoogleIndexFilter(admin.SimpleListFilter):
+    """Whether the nursery's page is offered to Google (DaycareListing.index_gaps)."""
+    title = "indexed by Google"
+    parameter_name = "google"
+
+    def lookups(self, request, model_admin):
+        return [("yes", "Yes"), ("no", "No: something missing")]
+
+    def queryset(self, request, queryset):
+        indexable = DaycareListing.objects.indexable().values("pk")
+        if self.value() == "yes":
+            return queryset.filter(pk__in=indexable)
+        if self.value() == "no":
+            return queryset.exclude(pk__in=indexable)
+        return queryset
+
+
 def image_preview(obj, height):
     if not obj.image:
         return "-"
@@ -88,10 +105,10 @@ class DaycareAdmin(admin.ModelAdmin):
     inlines = [ListingImageInline, ReviewInline]
     list_display = [
         "name", "listing_type", "city", "area", "rating", "review_count",
-        "is_featured", "is_verified", "is_active", "details_confirmed", "last_seen_at",
+        "is_featured", "is_verified", "is_active", "details_confirmed", "google_index", "last_seen_at",
     ]
     list_filter = ["listing_type", "city", "area", "is_featured", "is_verified", "is_active",
-                   "details_confirmed", DetailsFilter]
+                   "details_confirmed", DetailsFilter, GoogleIndexFilter]
     actions = ["confirm_details"]
     search_fields = ["name", "address", "phone", "email"]
     list_editable = ["is_featured", "is_verified", "is_active"]
@@ -128,6 +145,15 @@ class DaycareAdmin(admin.ModelAdmin):
             "classes": ("collapse",),
         }),
     )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("images")
+
+    @admin.display(description="Google")
+    def google_index(self, obj):
+        """"yes", or what is missing ("no: website, phone")."""
+        gaps = obj.index_gaps
+        return "yes" if not gaps else "no: " + ", ".join(gaps)
 
     @admin.action(description="Confirm details (show them on the site)")
     def confirm_details(self, request, queryset):
